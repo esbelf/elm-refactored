@@ -1,9 +1,9 @@
 module Main exposing(main)
 
-import Models.Model as Model exposing (..)
-import Updates.Update as Update
-import Views.View as View
-
+import Model exposing (..)
+import Update
+import View
+import Msg exposing (Msg)
 import Html
 
 main : Program Never Model Msg
