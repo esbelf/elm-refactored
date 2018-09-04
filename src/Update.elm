@@ -2,18 +2,39 @@ module Update exposing (update)
 
 import Model exposing (Model)
 import Msg exposing (..)
+import Route exposing (routeToPage, updateRoute, parseLocation)
 
 import Page exposing (..)
 import Pages.Posts
---import Pages.Login
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  let
-    page = model.currentPage
-    session = model.session
-  in
-  case ( msg, page ) of
+  case msg of
+    -- Page is reloaded
+    NewLocation location ->
+      let
+        newPage =
+          routeToPage (parseLocation location)
+      in
+        { model | currentPage = newPage } ! []
+
+    -- When page is not reloaded
+    NewRoute route ->
+      let
+        newPage = routeToPage route
+      in
+        if model.currentPage == newPage then
+          (model, Cmd.none)
+        else
+          ({ model | currentPage = newPage }
+          , Cmd.none)
+    _ ->
+      updatePage msg model
+
+updatePage : Msg -> Model -> (Model, Cmd Msg)
+updatePage msg model =
+  case ( msg, model.currentPage ) of
     (PostsMsg pageMsg, Posts pageModel) ->
       ({ model | currentPage = Posts (Pages.Posts.update pageMsg pageModel)
       }, Cmd.none)
@@ -23,3 +44,5 @@ update msg model =
 
     (_, _) ->
       (model, Cmd.none)
+
+

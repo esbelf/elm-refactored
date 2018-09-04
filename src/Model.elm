@@ -1,6 +1,6 @@
 module Model exposing (Model, init)
 
-import Page exposing (Page, initialPage)
+import Page exposing (Page)
 import Msg exposing (Msg)
 
 type alias Model =
@@ -8,9 +8,9 @@ type alias Model =
   , session : String
   }
 
-init : ( Model, Cmd Msg )
-init =
-  ({ currentPage = initialPage
-  , session = ""
+init : Page -> String -> ( Model, Cmd Msg )
+init page session =
+  ({ currentPage = page
+  , session = session
   }, Cmd.none)
 

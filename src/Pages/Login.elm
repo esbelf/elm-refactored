@@ -9,6 +9,12 @@ type alias Model =
   , password : String
   }
 
+init : Model
+init =
+  { username = ""
+  , password = ""
+  }
+
 update : Msg -> Model -> Model
 update msg model =
   case msg of
