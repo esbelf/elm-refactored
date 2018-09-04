@@ -9,6 +9,8 @@ import Routes exposing (Route)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, href)
 
+import Views.Posts
+
 view : Model -> Html Msg
 view model =
   div [ ]
@@ -29,7 +31,7 @@ mainContent model =
       text "Blank Page"
 
     Posts pageModel ->
-      text "Posts Page"
+      Views.Posts.view pageModel
 
     Login pageModel ->
       text "Login Page"
