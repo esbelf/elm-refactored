@@ -3,14 +3,18 @@ module Model exposing (Model, init)
 import Page exposing (Page)
 import Msg exposing (Msg)
 
+type PageState
+    = Loaded Page
+    | TransitioningFrom Page
+
 type alias Model =
-  { currentPage : Page
-  , session : String
+  { session : String
+  , pageState : PageState
   }
 
 init : Page -> String -> ( Model, Cmd Msg )
 init page session =
-  ({ currentPage = page
+  ({ pageState = Loaded page
   , session = session
   }, Cmd.none)
 

@@ -47,7 +47,7 @@ updateRoute : Routes.Route -> Cmd Msg
 updateRoute route =
   Navigation.newUrl (routeToUrl route)
 
-routeToPage : Routes.Route -> Page.Page
+routeToPage : Routes.Route -> Model -> ( Model, Cmd Msg )
 routeToPage route =
   case route of
     Routes.Home ->
