@@ -6,14 +6,37 @@ import Pages.Posts exposing (Model, Post)
 import Html exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
+import RemoteData exposing (WebData)
 
 view : Model -> Html Msg
 view model =
   div [] [ h1 [] [ text "Posts Page" ]
     , div []
-      (List.map viewPost model.posts)
+      [ viewPostList model.posts ]
     , viewAddPost model
   ]
+
+viewPostList : WebData (List Post) -> Html Msg
+viewPostList response =
+  case response of
+    RemoteData.NotAsked ->
+      text ""
+    RemoteData.Loading ->
+      text "Loading ..."
+    RemoteData.Success posts ->
+      text "Loaded"
+      -- List.map viewPost posts
+    RemoteData.Failure error ->
+      text (toString error)
+
+viewPost : Post -> Html Msg
+viewPost post =
+  div [ class "uk-card uk-card-default uk-card-body uk-margin-small" ]
+    [ h3 [ class "uk-card-title" ]
+      [ text post.title ]
+    , p []
+      [ text post.description ]
+    ]
 
 viewAddPost : Model -> Html Msg
 viewAddPost model =
@@ -37,13 +60,3 @@ viewAddPost model =
       , onClick (PostsMsg Pages.Posts.AddPost)
       ] [ text "Add New Post" ]
     ]
-
-viewPost : Post -> Html Msg
-viewPost post =
-  div [ class "uk-card uk-card-default uk-card-body uk-margin-small" ]
-    [ h3 [ class "uk-card-title" ]
-      [ text post.title ]
-    , p []
-      [ text post.description ]
-    ]
-

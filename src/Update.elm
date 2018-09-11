@@ -1,12 +1,13 @@
 module Update exposing (update)
 
+import Debug
+
 import Model exposing (Model)
 import Msg exposing (..)
 import Route exposing (routeToPage, updateRoute, parseLocation)
 
 import Page exposing (..)
 import Pages.Posts
-
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -23,6 +24,8 @@ update msg model =
     NewRoute route ->
       let
         newPage = routeToPage route
+        _ = Debug.log "newPage" newPage
+        _ = Debug.log "currentPage" model.currentPage
       in
         if model.currentPage == newPage then
           (model, Cmd.none)
@@ -32,12 +35,20 @@ update msg model =
     _ ->
       updatePage msg model
 
-updatePage : Msg -> Model -> (Model, Cmd Msg)
+updatePage : Msg -> Model -> Model
 updatePage msg model =
   case ( msg, model.currentPage ) of
     (PostsMsg pageMsg, Posts pageModel) ->
-      ({ model | currentPage = Posts (Pages.Posts.update pageMsg pageModel)
-      }, Cmd.none)
+      let
+        newPageModel, nextPageMsg = Pages.Posts.update pageMsg pageModel
+        case nextPageMsg of
+          Nothing ->
+            pageMsg = Nothing
+          Just nextPageMsg ->
+            pageMsg = PostsMsg nextPageMsg
+      in
+        ({ model | currentPage = Posts newPageModel
+        }, pageMsg)
 
     (LoginMsg pageMsg, Login pageModel) ->
       (model, Cmd.none)
