@@ -1,33 +1,34 @@
 module Views.Posts exposing (view)
 
 import Msg exposing (..)
-import Pages.Posts exposing (Model, Post)
+import Pages.Posts exposing (Model)
+import Models.Post exposing (Post)
 
 import Html exposing (..)
-import Html.Events exposing (onClick, onInput)
+-- import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
-import RemoteData exposing (WebData)
+-- import RemoteData exposing (WebData)
 
 view : Model -> Html Msg
 view model =
   div [] [ h1 [] [ text "Posts Page" ]
     , div []
-      [ viewPostList model.posts ]
+      [ text "okay" ]
     , viewAddPost model
   ]
 
-viewPostList : WebData (List Post) -> Html Msg
-viewPostList response =
-  case response of
-    RemoteData.NotAsked ->
-      text ""
-    RemoteData.Loading ->
-      text "Loading ..."
-    RemoteData.Success posts ->
-      text "Loaded"
-      -- List.map viewPost posts
-    RemoteData.Failure error ->
-      text (toString error)
+--viewPostList : WebData (List Post) -> Html Msg
+--viewPostList response =
+--  case response of
+--    RemoteData.NotAsked ->
+--      text ""
+--    RemoteData.Loading ->
+--      text "Loading ..."
+--    RemoteData.Success posts ->
+--      text "Loaded"
+--      -- List.map viewPost posts
+--    RemoteData.Failure error ->
+--      text (toString error)
 
 viewPost : Post -> Html Msg
 viewPost post =
@@ -46,17 +47,14 @@ viewAddPost model =
       , type_ "input"
       , value model.newPostTitle
       , placeholder "Title"
-      , onInput (PostsMsg << Pages.Posts.SetPostTitle)
       ] []
     , input [ class "uk-input uk-margin-small"
       , name "description"
       , type_ "input"
       , value model.newPostDescription
       , placeholder "Description"
-      , onInput (PostsMsg << Pages.Posts.SetPostDescription)
       ] []
     , button [ class "uk-button uk-button-primary uk-margin-small"
       , type_ "button"
-      , onClick (PostsMsg Pages.Posts.AddPost)
       ] [ text "Add New Post" ]
     ]

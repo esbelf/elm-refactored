@@ -2,7 +2,7 @@ module View exposing(view)
 
 import Page exposing (..)
 import Msg exposing (..)
-import Model exposing (Model)
+import Model exposing (Model, getPage)
 import Route exposing (onClickRoute)
 import Routes exposing (Route)
 
@@ -23,12 +23,15 @@ view model =
 mainContent : Model -> Html Msg
 mainContent model =
   let
-    page = model.currentPage
+    page = getPage model.pageState
     session = model.session
   in
   case page of
     Blank ->
       text "Blank Page"
+
+    Home ->
+      text "Home Page"
 
     Posts pageModel ->
       Views.Posts.view pageModel

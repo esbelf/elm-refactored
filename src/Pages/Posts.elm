@@ -2,52 +2,52 @@ module Pages.Posts exposing (..)
 
 import Http
 import Task exposing (Task)
-import RemoteData exposing (WebData)
 
 import Models.Post exposing (Post)
 import Request
 
 type Msg
-  = Init
-  | FetchPosts (Result Http.Error (List Post))
-  | SetPostTitle String
+  = SetPostTitle String
   | SetPostDescription String
   | AddPost
 
-
 type alias Model =
-  { posts : WebData (List Post)
+  { posts : List Post
   , newPostTitle : String
   , newPostDescription : String
   , errorMsg : String
   }
 
-init : Model
-init =
+initialModel : Model
+initialModel =
     { posts = []
     , newPostTitle = ""
     , newPostDescription = ""
     , errorMsg = ""
     }
 
-httpCommand : Msg
-httpCommand =
-  Request.getPosts
-    |> Task.attempt FetchPosts
+init : Task Http.Error (List Post)
+init =
+  Request.fetchPosts
 
-update : Msg -> Model -> ( Model, Msg )
+--init : Cmd Msg
+--init =
+--  Request.fetchPosts
+--    |> Task.attempt FetchPostsLoaded
+
+
+    --FetchPostsLoaded (Err msg) ->
+    --  ({ model | errorMsg = Just "Failed to fetch posts" }, Cmd.none)
+    --FetchPostsLoaded (Ok posts) ->
+    --  ({ model | posts = posts }, Cmd.none)
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    SendHttpRequest ->
-      (model, httpCommand)
-    FetchPosts (Err msg) ->
-      ({ model | errorMsg = Just "Failed to fetch posts" }, Nothing)
-    FetchPosts (Oky posts) ->
-      ({ model | posts = posts }, Nothing)
     SetPostTitle title ->
-      ({ model | newPostTitle = title }, Nothing)
+      ({ model | newPostTitle = title }, Cmd.none)
     SetPostDescription description ->
-      ({ model | newPostDescription = description }, Nothing)
+      ({ model | newPostDescription = description }, Cmd.none)
     AddPost ->
       let
         newPost =
@@ -56,4 +56,4 @@ update msg model =
           , description = model.newPostDescription
           }
       in
-        ({ model | posts = model.posts }, Nothing)
+        ({ model | posts = model.posts }, Cmd.none)

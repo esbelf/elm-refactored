@@ -1,14 +1,15 @@
 module Msg exposing (..)
 
-import Navigation exposing(Location)
 import Routes exposing (Route)
+import Http
 
 import Pages.Posts
 import Pages.Login
 
 type Msg
-  = NewRoute Route
-  | NewLocation Location
+  = HomeMsg
+  | PostsLoaded (Result Http.Error (Pages.Posts.Model))
   | PostsMsg Pages.Posts.Msg
-  | LoginMsg Pages.Login.Msg
+  | LoginLoaded (Result Http.Error (Pages.Login.Model))
+  | SetRoute Route
 

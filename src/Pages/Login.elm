@@ -9,8 +9,8 @@ type alias Model =
   , password : String
   }
 
-init : Model
-init =
+initialModel : Model
+initialModel =
   { username = ""
   , password = ""
   }

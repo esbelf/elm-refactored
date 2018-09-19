@@ -1,4 +1,4 @@
-module Route exposing (parseLocation, routeToUrl, onClickRoute, updateRoute, routeToPage)
+module Route exposing (urlChange, setRoute, parseLocation, routeToUrl, onClickRoute, updateRoute)
 
 import Navigation exposing(Location)
 import UrlParser exposing (..)
@@ -7,13 +7,39 @@ import Html exposing (Html)
 import Html.Events exposing (onWithOptions, defaultOptions)
 import Html.Attributes exposing (style, href, attribute)
 import Json.Decode exposing (Decoder)
+import Task exposing (Task)
 
 import Msg exposing (..)
+import Model exposing (PageState(..), Model)
 import Routes exposing (Route)
-import Page exposing (Page)
+import Page
 
 import Pages.Posts
 import Pages.Login
+
+setRoute : Routes.Route -> Model -> ( Model, Cmd Msg )
+setRoute route model =
+  case route of
+    Routes.NotFound ->
+      (model, Cmd.none)
+    Routes.Home ->
+      ({ model | pageState = Loaded Page.Home }, Cmd.none)
+    Routes.Posts ->
+      --let
+      --  msg = Pages.Posts.init
+      --    |> Task.attempt PostsLoaded
+      --in
+      ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, Cmd.none)
+    Routes.Login ->
+      ({ model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none)
+
+
+urlChange : Location -> Msg
+urlChange location =
+  let
+    route = parseLocation location
+  in
+    SetRoute route
 
 routeParser : Parser ( Route -> a ) a
 routeParser =
@@ -23,7 +49,7 @@ routeParser =
     , map Routes.Login (s ( routeToUrl Routes.Login ))
     ]
 
-parseLocation : Location -> Route
+parseLocation : Location -> Routes.Route
 parseLocation location =
   case (parsePath routeParser location) of
     Just route ->
@@ -47,21 +73,6 @@ updateRoute : Routes.Route -> Cmd Msg
 updateRoute route =
   Navigation.newUrl (routeToUrl route)
 
-routeToPage : Routes.Route -> Model -> ( Model, Cmd Msg )
-routeToPage route =
-  case route of
-    Routes.Home ->
-      Page.Blank
-
-    Routes.Posts ->
-      Page.Posts Pages.Posts.init
-
-    Routes.Login ->
-      Page.Login Pages.Login.init
-
-    Routes.NotFound ->
-      Page.Blank
-
 -- VIEW HELPERS ---
 
 
@@ -69,7 +80,7 @@ onClickRoute : Routes.Route -> List (Html.Attribute Msg)
 onClickRoute route =
     [ style [ ( "pointer", "cursor" ) ]
     , href (routeToUrl route)
-    , onPreventDefaultClick (NewRoute route)
+    -- , onPreventDefaultClick (SetRoute route)
     ]
 
 

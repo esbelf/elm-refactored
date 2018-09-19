@@ -1,7 +1,6 @@
-module Model exposing (Model, init)
+module Model exposing (Model, init, PageState(..), getPage)
 
 import Page exposing (Page)
-import Msg exposing (Msg)
 
 type PageState
     = Loaded Page
@@ -12,9 +11,21 @@ type alias Model =
   , pageState : PageState
   }
 
-init : Page -> String -> ( Model, Cmd Msg )
-init page session =
-  ({ pageState = Loaded page
-  , session = session
-  }, Cmd.none)
+initialPage : Page
+initialPage =
+    Page.Blank
 
+init : String -> Model
+init session =
+  { pageState = Loaded initialPage
+  , session = session
+  }
+
+getPage : PageState -> Page
+getPage pageState =
+  case pageState of
+    Loaded page ->
+        page
+
+    TransitioningFrom page ->
+        page

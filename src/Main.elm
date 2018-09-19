@@ -3,26 +3,25 @@ module Main exposing(main)
 import Model exposing (..)
 import Update
 import View
-import Msg exposing (Msg)
+import Msg exposing (..)
 import Navigation
-import Route exposing (routeToPage, parseLocation)
+import Route exposing (setRoute, parseLocation, urlChange)
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
   let
-    currentPage =
-      Route.routeToPage <| Route.parseLocation location
+    currentRoute = Route.parseLocation location
     -- get session from local storage and then pass here
     blankSession = ""
   in
-    Model.init currentPage blankSession
+    Route.setRoute currentRoute (Model.init blankSession)
 
 main : Program Never Model Msg
 main =
-    Navigation.program Msg.NewLocation
-        { init = init
-        , view = View.view
-        , update = Update.update
-        , subscriptions = \_ -> Sub.none
-        }
+  Navigation.program Route.urlChange
+    { init = init
+    , view = View.view
+    , update = Update.update
+    , subscriptions = \_ -> Sub.none
+    }

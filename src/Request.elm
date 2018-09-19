@@ -3,26 +3,14 @@ module Request exposing (..)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (decode, required)
--- import RemoteData exposing (WebData)
-import HttpBuilder exposing (RequestBuilder, withBody, withExpect, withQueryParams)
 import Task exposing (Task)
 
 import Models.Post exposing (Post)
--- import Pages.Posts
 
-
-getPosts : Task
-getPosts =
-  postsDecoder
-    |> Http.get postsUrl
+fetchPosts : Task Http.Error (List Post)
+fetchPosts =
+  Http.get postsUrl postsDecoder
     |> Http.toTask
-
-  -- Http.Request (List Post)
-  --let
-  --  request =
-  --    Http.get postsUrl postsDecoder
-  --in
-  --  Http.send FetchPosts request
 
 url : String
 url =

@@ -1,59 +1,73 @@
 module Update exposing (update)
 
-import Debug
-
-import Model exposing (Model)
+import Model exposing (Model, getPage, PageState(..))
 import Msg exposing (..)
-import Route exposing (routeToPage, updateRoute, parseLocation)
+import Route exposing (updateRoute, parseLocation, setRoute)
 
 import Page exposing (..)
 import Pages.Posts
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    -- Page is reloaded
-    NewLocation location ->
-      let
-        newPage =
-          routeToPage (parseLocation location)
-      in
-        { model | currentPage = newPage } ! []
+  let
+    page = (getPage model.pageState)
+    session = model.session
+  in
+    case (msg, page) of
+      ( SetRoute route, _ ) ->
+        setRoute route model
+      ( HomeMsg, _ ) ->
+        (model, Cmd.none)
+      --( HomeLoaded (Ok subModel), _ ) ->
+      --  (model, Cmd.none)
+      --( HomeLoaded (Err error), _ ) ->
+      --  (model, Cmd.none)
+      ( PostsMsg subMsg, Posts subModel) ->
+        let
+          (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel
+        in
+          ({ model | pageState = Loaded (Posts newSubModel) }, Cmd.none)
+        -- ( { model | pageState = Loaded (toModel newModel) }, Cmd.map toMsg newCmd )
+      ( PostsLoaded (Ok subModel), _ ) ->
+        ({ model | pageState = Loaded (Posts subModel) },  Cmd.none)
+      ( PostsLoaded (Err error), _ ) ->
+        ({ model | pageState = Loaded Blank }, Cmd.none)
+        -- ({ model | pageState = Loaded (Errored error) }, Cmd.none)
+      (_, _) ->
+        (model, Cmd.none)
 
-    -- When page is not reloaded
-    NewRoute route ->
-      let
-        newPage = routeToPage route
-        _ = Debug.log "newPage" newPage
-        _ = Debug.log "currentPage" model.currentPage
-      in
-        if model.currentPage == newPage then
-          (model, Cmd.none)
-        else
-          ({ model | currentPage = newPage }
-          , Cmd.none)
-    _ ->
-      updatePage msg model
 
-updatePage : Msg -> Model -> Model
-updatePage msg model =
-  case ( msg, model.currentPage ) of
-    (PostsMsg pageMsg, Posts pageModel) ->
-      let
-        newPageModel, nextPageMsg = Pages.Posts.update pageMsg pageModel
-        case nextPageMsg of
-          Nothing ->
-            pageMsg = Nothing
-          Just nextPageMsg ->
-            pageMsg = PostsMsg nextPageMsg
-      in
-        ({ model | currentPage = Posts newPageModel
-        }, pageMsg)
+  --case msg of
+  --  -- Page is reloaded
+  --  NewLocation location ->
+  --    routeToPage (parseLocation location) model
 
-    (LoginMsg pageMsg, Login pageModel) ->
-      (model, Cmd.none)
+  --  -- When page is not reloaded
+  --  NewRoute route ->
+  --    newPage = routeToPage route model
+  --  -- _ = Debug.log "newPage" newPage
+  --  _ ->
+  --    updatePage msg model
 
-    (_, _) ->
-      (model, Cmd.none)
+--updatePage : Msg -> Model -> Model
+--updatePage msg model =
+--  case ( msg, model.currentPage ) of
+--    (PostsMsg pageMsg, Posts pageModel) ->
+--      let
+--        newPageModel, nextPageMsg = Pages.Posts.update pageMsg pageModel
+--        case nextPageMsg of
+--          Nothing ->
+--            pageMsg = Nothing
+--          Just nextPageMsg ->
+--            pageMsg = PostsMsg nextPageMsg
+--      in
+--        ({ model | currentPage = Posts newPageModel
+--        }, pageMsg)
+
+--    (LoginMsg pageMsg, Login pageModel) ->
+--      (model, Cmd.none)
+
+--    (_, _) ->
+--      (model, Cmd.none)
 
 
