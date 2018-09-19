@@ -26,9 +26,6 @@ setRoute route model =
       ({ model | pageState = Loaded Page.Home }, Cmd.none)
     Routes.Posts ->
       let
-        --msg = Pages.Posts.init
-        --  |> Task.attempt PostsLoaded
-
         msg = Pages.Posts.init
           |> Task.attempt PostsLoaded
       in
@@ -83,7 +80,7 @@ onClickRoute : Routes.Route -> List (Html.Attribute Msg)
 onClickRoute route =
     [ style [ ( "pointer", "cursor" ) ]
     , href (routeToUrl route)
-    -- , onPreventDefaultClick (SetRoute route)
+    --, onPreventDefaultClick (SetRoute route)
     ]
 
 

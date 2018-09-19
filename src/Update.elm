@@ -17,11 +17,7 @@ update msg model =
       ( SetRoute route, _ ) ->
         setRoute route model
       ( HomeMsg, _ ) ->
-        (model, Cmd.none)
-      --( HomeLoaded (Ok subModel), _ ) ->
-      --  (model, Cmd.none)
-      --( HomeLoaded (Err error), _ ) ->
-      --  (model, Cmd.none)
+        ({ model | pageState = Loaded Home }, Cmd.none)
       ( PostsMsg subMsg, Posts subModel) ->
         let
           (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel

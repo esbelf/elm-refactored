@@ -26,9 +26,7 @@ initialModel =
     , errorMsg = ""
     }
 
--- Task PageLoadError Model
--- Task Http.Error Model
--- Request.fetchPosts
+
 init : Task Http.Error Model
 init =
   Task.map addPostsToModel Request.fetchPosts
