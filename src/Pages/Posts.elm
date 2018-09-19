@@ -56,4 +56,4 @@ update msg model =
           , description = model.newPostDescription
           }
       in
-        ({ model | posts = model.posts }, Cmd.none)
+        ({ model | posts = model.posts ++ [newPost] }, Cmd.none)
