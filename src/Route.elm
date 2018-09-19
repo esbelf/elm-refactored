@@ -25,11 +25,14 @@ setRoute route model =
     Routes.Home ->
       ({ model | pageState = Loaded Page.Home }, Cmd.none)
     Routes.Posts ->
-      --let
-      --  msg = Pages.Posts.init
-      --    |> Task.attempt PostsLoaded
-      --in
-      ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, Cmd.none)
+      let
+        --msg = Pages.Posts.init
+        --  |> Task.attempt PostsLoaded
+
+        msg = Pages.Posts.init
+          |> Task.attempt PostsLoaded
+      in
+        ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, msg)
     Routes.Login ->
       ({ model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none)
 

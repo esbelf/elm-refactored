@@ -27,7 +27,6 @@ update msg model =
           (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel
         in
           ({ model | pageState = Loaded (Posts newSubModel) }, Cmd.none)
-        -- ( { model | pageState = Loaded (toModel newModel) }, Cmd.map toMsg newCmd )
       ( PostsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Posts subModel) },  Cmd.none)
       ( PostsLoaded (Err error), _ ) ->

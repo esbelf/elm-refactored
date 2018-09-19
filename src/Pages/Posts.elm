@@ -26,15 +26,16 @@ initialModel =
     , errorMsg = ""
     }
 
-init : Task Http.Error (List Post)
+-- Task PageLoadError Model
+-- Task Http.Error Model
+-- Request.fetchPosts
+init : Task Http.Error Model
 init =
-  Request.fetchPosts
+  Task.map addPostsToModel Request.fetchPosts
 
---init : Cmd Msg
---init =
---  Request.fetchPosts
---    |> Task.attempt FetchPostsLoaded
-
+addPostsToModel : (List Post) -> Model
+addPostsToModel posts =
+  { initialModel | posts = posts }
 
     --FetchPostsLoaded (Err msg) ->
     --  ({ model | errorMsg = Just "Failed to fetch posts" }, Cmd.none)
