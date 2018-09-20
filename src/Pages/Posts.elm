@@ -10,6 +10,7 @@ type Msg
   = SetPostTitle String
   | SetPostDescription String
   | AddPost
+  | PostCreate (Result Http.Error Post)
 
 type alias Model =
   { posts : List Post
@@ -35,11 +36,6 @@ addPostsToModel : (List Post) -> Model
 addPostsToModel posts =
   { initialModel | posts = posts }
 
-    --FetchPostsLoaded (Err msg) ->
-    --  ({ model | errorMsg = Just "Failed to fetch posts" }, Cmd.none)
-    --FetchPostsLoaded (Ok posts) ->
-    --  ({ model | posts = posts }, Cmd.none)
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
@@ -50,9 +46,16 @@ update msg model =
     AddPost ->
       let
         newPost =
-          { id = 1
-          , title = model.newPostTitle
+          { title = model.newPostTitle
           , description = model.newPostDescription
           }
+        newMsg = Request.createPost newPost
+          |> Task.attempt PostCreate
       in
-        ({ model | posts = model.posts ++ [newPost] }, Cmd.none)
+        (model, newMsg)
+    PostCreate (Ok newPost) ->
+      ({ model | posts = model.posts ++ [newPost] }, Cmd.none)
+    PostCreate (Err error) ->
+      (model, Cmd.none)
+
+

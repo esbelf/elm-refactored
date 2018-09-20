@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "fake-api": "node api.js",
+    "other-fake-api": "json-server --watch db.json --port 4000",
     "build": "webpack",
     "client": "webpack-dev-server --port 8080",
     "other-client": "elm-live src/Main.elm --pushstate"

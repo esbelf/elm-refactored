@@ -21,8 +21,9 @@ update msg model =
       ( PostsMsg subMsg, Posts subModel) ->
         let
           (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel
+          msg = Cmd.map transformPostMsg newSubMsg
         in
-          ({ model | pageState = Loaded (Posts newSubModel) }, Cmd.none)
+          ({ model | pageState = Loaded (Posts newSubModel) }, msg)
       ( PostsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Posts subModel) },  Cmd.none)
       ( PostsLoaded (Err error), _ ) ->
@@ -32,37 +33,14 @@ update msg model =
         (model, Cmd.none)
 
 
-  --case msg of
-  --  -- Page is reloaded
-  --  NewLocation location ->
-  --    routeToPage (parseLocation location) model
-
-  --  -- When page is not reloaded
-  --  NewRoute route ->
-  --    newPage = routeToPage route model
-  --  -- _ = Debug.log "newPage" newPage
-  --  _ ->
-  --    updatePage msg model
-
---updatePage : Msg -> Model -> Model
---updatePage msg model =
---  case ( msg, model.currentPage ) of
---    (PostsMsg pageMsg, Posts pageModel) ->
---      let
---        newPageModel, nextPageMsg = Pages.Posts.update pageMsg pageModel
---        case nextPageMsg of
---          Nothing ->
---            pageMsg = Nothing
---          Just nextPageMsg ->
---            pageMsg = PostsMsg nextPageMsg
---      in
---        ({ model | currentPage = Posts newPageModel
---        }, pageMsg)
-
---    (LoginMsg pageMsg, Login pageModel) ->
---      (model, Cmd.none)
-
---    (_, _) ->
---      (model, Cmd.none)
+transformPostMsg : Pages.Posts.Msg -> Msg
+transformPostMsg subMsg =
+  PostsMsg subMsg
 
 
+--transformMsg : Msg -> a -> Cmd Msg
+--transformMsg mainMsg subMsg =
+--  Cmd.map transformMsgHelper subMsg
+
+--transformMsgHelper : a -> b
+--transformMsgHelper a

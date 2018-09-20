@@ -80,7 +80,7 @@ onClickRoute : Routes.Route -> List (Html.Attribute Msg)
 onClickRoute route =
     [ style [ ( "pointer", "cursor" ) ]
     , href (routeToUrl route)
-    --, onPreventDefaultClick (SetRoute route)
+    , onPreventDefaultClick (SetRoute route)
     ]
 
 
