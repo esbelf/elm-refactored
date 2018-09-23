@@ -17,11 +17,11 @@ view model =
       [ div [ class "uk-margin" ]
         [ input
           [ class "uk-input"
-          , name "username"
+          , name "email"
           , type_ "input"
-          , value model.username
-          , placeholder "Username"
-          , onInput (LoginMsg << Pages.Login.SetUsername)
+          , value model.email
+          , placeholder "Email"
+          , onInput (LoginMsg << Pages.Login.SetEmail)
           ] []
         ]
       , div [ class "uk-margin" ]

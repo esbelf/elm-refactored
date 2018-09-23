@@ -2,17 +2,18 @@ module Pages.Login exposing (..)
 
 import Http
 import Task exposing (Task)
+import Json.Decode as Decode
 
 import Requests.Auth as Request
 
 type Msg
-  = SetUsername String
+  = SetEmail String
   | SetPassword String
   | Submit
   | Authenticated (Result Http.Error String)
 
 type alias Model =
-  { username : String
+  { email : String
   , password : String
   , errorMsg : String
   , token : String
@@ -20,7 +21,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  { username = ""
+  { email = ""
   , password = ""
   , errorMsg = ""
   , token = ""
@@ -29,14 +30,14 @@ initialModel =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    SetUsername username ->
-      ({ model | username = username }, Cmd.none)
+    SetEmail email ->
+      ({ model | email = email }, Cmd.none)
     SetPassword password ->
       ({ model | password = password }, Cmd.none)
     Submit ->
       let
         authObj =
-          { username = model.username
+          { email = model.email
           , password = model.password
           }
         newMsg = Request.authenticate authObj

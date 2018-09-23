@@ -9,7 +9,7 @@ import Task exposing (Task)
 import Requests.Base exposing (..)
 
 type alias AuthObj =
-  { username : String
+  { email : String
   , password : String
   }
 
@@ -23,12 +23,12 @@ authenticate authObj =
 
 tokenDecoder : Decode.Decoder String
 tokenDecoder =
-  Decode.field "access_token" Decode.string
+  Decode.field "token" Decode.string
 
 encode : AuthObj -> Encode.Value
 encode model =
   Encode.object
-    [ ("username", Encode.string model.username)
+    [ ("email", Encode.string model.email)
     , ("password", Encode.string model.password)
     ]
 
