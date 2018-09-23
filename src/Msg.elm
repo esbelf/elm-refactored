@@ -11,5 +11,6 @@ type Msg
   | PostsLoaded (Result Http.Error (Pages.Posts.Model))
   | PostsMsg Pages.Posts.Msg
   | LoginLoaded (Result Http.Error (Pages.Login.Model))
+  | LoginMsg Pages.Login.Msg
   | SetRoute Route
 

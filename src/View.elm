@@ -10,6 +10,7 @@ import Html exposing (..)
 import Html.Attributes exposing (attribute, class, href)
 
 import Views.Posts
+import Views.Login
 
 view : Model -> Html Msg
 view model =
@@ -37,7 +38,7 @@ mainContent model =
       Views.Posts.view pageModel
 
     Login pageModel ->
-      text "Login Page"
+      Views.Login.view pageModel
 
 
 header : Model -> Html Msg

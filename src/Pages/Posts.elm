@@ -4,7 +4,7 @@ import Http
 import Task exposing (Task)
 
 import Models.Post exposing (Post)
-import Request
+import Requests.Post as Request
 
 type Msg
   = SetPostTitle String
