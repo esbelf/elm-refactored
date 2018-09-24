@@ -14,6 +14,7 @@ import Model exposing (PageState(..), Model)
 import Routes exposing (Route)
 import Page
 
+import Pages.Groups
 import Pages.Posts
 import Pages.Login
 import Pages.Users
@@ -23,16 +24,27 @@ setRoute route model =
   case route of
     Routes.NotFound ->
       (model, Cmd.none)
+
     Routes.Home ->
       ({ model | pageState = Loaded Page.Home }, Cmd.none)
+
+    Routes.Groups ->
+      let
+        msg = Pages.Groups.init
+          |> Task.attempt GroupsLoaded
+      in
+        ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
+
     Routes.Posts ->
       let
         msg = Pages.Posts.init
           |> Task.attempt PostsLoaded
       in
         ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, msg)
+
     Routes.Login ->
       ({ model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none)
+
     Routes.Users ->
       let
         msg = Pages.Users.init
@@ -51,6 +63,7 @@ routeParser : Parser ( Route -> a ) a
 routeParser =
   oneOf
     [ map Routes.Home top
+    , map Routes.Groups (s ( routeToUrl Routes.Groups ))
     , map Routes.Posts (s ( routeToUrl Routes.Posts ))
     , map Routes.Users (s ( routeToUrl Routes.Users ))
     , map Routes.Login (s ( routeToUrl Routes.Login ))
@@ -69,6 +82,8 @@ routeToUrl route =
   case route of
     Routes.Home ->
       ""
+    Routes.Groups ->
+      "groups"
     Routes.Posts ->
       "posts"
     Routes.Users ->

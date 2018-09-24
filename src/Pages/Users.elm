@@ -3,6 +3,7 @@ module Pages.Users exposing (..)
 import Http
 import Task exposing (Task)
 
+import Pages.Helper exposing (..)
 import Models.User exposing (User)
 import Requests.User
 
@@ -33,7 +34,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     DeleteUser id (Ok message) ->
-      ({ model | users = removeUser id model.users }, Cmd.none)
+      ({ model | users = removeModelFromList id model.users }, Cmd.none)
 
     DeleteUser id (Err error) ->
       ({ model | errorMsg = (toString error) }, Cmd.none)
@@ -45,7 +46,4 @@ update msg model =
       in
         (model, newMsg)
 
-removeUser : Int -> List User -> List User
-removeUser id =
-   List.filter (\user -> user.id /= id)
 

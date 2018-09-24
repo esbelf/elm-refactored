@@ -12,6 +12,7 @@ import Html.Attributes exposing (attribute, class, href)
 import Views.Posts
 import Views.Login
 import Views.Users
+import Views.Groups
 
 view : Model -> Html Msg
 view model =
@@ -33,7 +34,10 @@ mainContent model =
       text "Blank Page"
 
     Home ->
-      text "Home Page"
+      text "Home Page, I would like this page to be visible to non users with some propaganda."
+
+    Groups pageModel ->
+      Views.Groups.view pageModel
 
     Posts pageModel ->
       Views.Posts.view pageModel
@@ -70,7 +74,9 @@ header model =
 viewLinks : Html Msg
 viewLinks =
   ul [ class "uk-navbar-nav"]
-    [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Posts)
+    [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
+      [ text "Groups" ]
+    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Posts)
       [ text "Posts" ]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
       [ text "Users" ]

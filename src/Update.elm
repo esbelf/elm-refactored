@@ -8,6 +8,7 @@ import Page exposing (..)
 import Pages.Posts
 import Pages.Users
 import Pages.Login
+import Pages.Groups
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -22,6 +23,19 @@ update msg model =
       -- Route.Home
       ( HomeMsg, _ ) ->
         ({ model | pageState = Loaded Home }, Cmd.none)
+
+      -- Route.Groups
+      ( GroupsMsg subMsg, Groups subModel ) ->
+        let
+          (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel
+          msg = Cmd.map transformGroupMsg newSubMsg
+        in
+          ({ model | pageState = Loaded (Groups newSubModel) }, Cmd.none)
+
+      ( GroupsLoaded (Ok subModel), _ ) ->
+        ({ model | pageState = Loaded (Groups subModel) }, Cmd.none)
+      ( GroupsLoaded (Err error), _ ) ->
+        ({ model | pageState = Loaded Blank }, Cmd.none)
 
       -- Route.Login
       ( LoginMsg subMsg, Login subModel ) ->
@@ -76,6 +90,10 @@ transformLoginMsg subMsg =
 transformUserMsg : Pages.Users.Msg -> Msg
 transformUserMsg subMsg =
   UsersMsg subMsg
+
+transformGroupMsg : Pages.Groups.Msg -> Msg
+transformGroupMsg subMsg =
+  GroupsMsg subMsg
 
 --transformMsg : Msg -> a -> Cmd Msg
 --transformMsg mainMsg subMsg =
