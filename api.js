@@ -9,7 +9,7 @@ server.use(jsonServer.defaults())
 var router = jsonServer.router('db.json')
 server.use(router)
 
-console.log('Listening at 4000')
-server.listen(4000)
+console.log('Listening at 3000')
+server.listen(3000)
 
 

@@ -16,6 +16,7 @@ import Page
 
 import Pages.Posts
 import Pages.Login
+import Pages.Users
 
 setRoute : Routes.Route -> Model -> ( Model, Cmd Msg )
 setRoute route model =
@@ -32,7 +33,12 @@ setRoute route model =
         ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, msg)
     Routes.Login ->
       ({ model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none)
-
+    Routes.Users ->
+      let
+        msg = Pages.Users.init
+          |> Task.attempt UsersLoaded
+      in
+        ({ model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg)
 
 urlChange : Location -> Msg
 urlChange location =
@@ -46,6 +52,7 @@ routeParser =
   oneOf
     [ map Routes.Home top
     , map Routes.Posts (s ( routeToUrl Routes.Posts ))
+    , map Routes.Users (s ( routeToUrl Routes.Users ))
     , map Routes.Login (s ( routeToUrl Routes.Login ))
     ]
 
@@ -64,6 +71,8 @@ routeToUrl route =
       ""
     Routes.Posts ->
       "posts"
+    Routes.Users ->
+      "users"
     Routes.Login ->
       "login"
     Routes.NotFound ->

@@ -11,6 +11,7 @@ import Html.Attributes exposing (attribute, class, href)
 
 import Views.Posts
 import Views.Login
+import Views.Users
 
 view : Model -> Html Msg
 view model =
@@ -40,13 +41,16 @@ mainContent model =
     Login pageModel ->
       Views.Login.view pageModel
 
+    Users pageModel ->
+      Views.Users.view pageModel
+
 
 header : Model -> Html Msg
 header model =
     nav [ class "uk-navbar-container tm-navbar-container uk-container", attribute "uk-navbar" ""]
       [ div [ class "uk-navbar-left"]
         [ a ([ class "uk-logo uk-navbar-item" ] ++ onClickRoute Routes.Home)
-          [ text "IMS.app" ]
+          [ text "EasyINS" ]
         , viewLinks
         ]
       , div [ class "uk-navbar-right" ]
@@ -68,6 +72,8 @@ viewLinks =
   ul [ class "uk-navbar-nav"]
     [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Posts)
       [ text "Posts" ]
+    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
+      [ text "Users" ]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)
       [ text "Login" ]
     ]

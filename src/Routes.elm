@@ -5,3 +5,4 @@ type Route
   | Home
   | Posts
   | Login
+  | Users

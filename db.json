@@ -40,5 +40,15 @@
       "description": "erioc",
       "id": 8
     }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@gmail.com"
+    },
+    {
+      "id": 2,
+      "email": "test@gmail.com"
+    }
   ]
 }

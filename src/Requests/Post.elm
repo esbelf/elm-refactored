@@ -7,6 +7,8 @@ import Json.Encode as Encode
 import Task exposing (Task)
 
 import Models.Post exposing (Post)
+import Requests.Base exposing (..)
+
 
 fetchPosts : Task Http.Error (List Post)
 fetchPosts =
@@ -87,7 +89,3 @@ urlSlug postId =
 urlPosts : String
 urlPosts =
   baseUrl ++ "/posts"
-
-baseUrl : String
-baseUrl =
-  "http://localhost:4000"
