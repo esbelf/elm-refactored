@@ -9,6 +9,7 @@ import Pages.Posts
 import Pages.Users
 import Pages.Login
 import Pages.Groups
+import Pages.Group
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -28,13 +29,27 @@ update msg model =
       ( GroupsMsg subMsg, Groups subModel ) ->
         let
           (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel
-          msg = Cmd.map transformGroupMsg newSubMsg
+          msg = Cmd.map transformGroupsMsg newSubMsg
         in
           ({ model | pageState = Loaded (Groups newSubModel) }, Cmd.none)
 
       ( GroupsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Groups subModel) }, Cmd.none)
       ( GroupsLoaded (Err error), _ ) ->
+        ({ model | pageState = Loaded Blank }, Cmd.none)
+
+      -- Route.Group
+      ( GroupMsg subMsg, Group subModel ) ->
+        let
+          (newSubModel, newSubMsg) = Pages.Group.update subMsg subModel
+          msg = Cmd.map transformGroupMsg newSubMsg
+        in
+          ({ model | pageState = Loaded (Group newSubModel) }, Cmd.none)
+
+      ( GroupLoaded (Ok subModel), _ ) ->
+        ({ model | pageState = Loaded (Group subModel) }, Cmd.none)
+
+      ( GroupLoaded (Err error), _ ) ->
         ({ model | pageState = Loaded Blank }, Cmd.none)
 
       -- Route.Login
@@ -91,13 +106,22 @@ transformUserMsg : Pages.Users.Msg -> Msg
 transformUserMsg subMsg =
   UsersMsg subMsg
 
-transformGroupMsg : Pages.Groups.Msg -> Msg
-transformGroupMsg subMsg =
+transformGroupsMsg : Pages.Groups.Msg -> Msg
+transformGroupsMsg subMsg =
   GroupsMsg subMsg
 
---transformMsg : Msg -> a -> Cmd Msg
---transformMsg mainMsg subMsg =
---  Cmd.map transformMsgHelper subMsg
+transformGroupMsg : Pages.Group.Msg -> Msg
+transformGroupMsg subMsg =
+  GroupMsg subMsg
 
---transformMsgHelper : a -> b
---transformMsgHelper a
+--transformMsg : a -> b -> Msg
+--transformMsg mainMsg subMsg =
+--  Cmd.map (transformMsgHelper mainMsg) subMsg
+
+--transformMsgHelper : String -> Msg
+--transformMsgHelper a =
+--  a b
+
+--type alias MsgType a =
+
+

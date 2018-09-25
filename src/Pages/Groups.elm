@@ -27,7 +27,7 @@ initialModel =
 
 init : Task Http.Error Model
 init =
-  Task.map addGroupsToModel Requests.Group.fetch
+  Task.map addGroupsToModel Requests.Group.getAll
 
 addGroupsToModel : (List Group) -> Model
 addGroupsToModel groups =

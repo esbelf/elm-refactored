@@ -5,7 +5,7 @@ import Pages.Groups exposing (Model)
 import Models.Group exposing (Group)
 
 import Html exposing (..)
-import Html.Events exposing (onClick)
+-- import Html.Events exposing (onClick)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
 
 view : Model -> Html Msg

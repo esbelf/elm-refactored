@@ -13,6 +13,7 @@ import Views.Posts
 import Views.Login
 import Views.Users
 import Views.Groups
+import Views.Group
 
 view : Model -> Html Msg
 view model =
@@ -38,6 +39,9 @@ mainContent model =
 
     Groups pageModel ->
       Views.Groups.view pageModel
+
+    Group pageModel ->
+      Views.Group.view pageModel
 
     Posts pageModel ->
       Views.Posts.view pageModel

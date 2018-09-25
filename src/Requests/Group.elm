@@ -8,9 +8,14 @@ import Task exposing (Task)
 import Models.Group exposing (Group)
 import Requests.Base exposing (..)
 
-fetch : Task Http.Error (List Group)
-fetch =
-  Http.get groupUrl groupsDecoder
+getAll : Task Http.Error (List Group)
+getAll =
+  Http.get groupsUrl groupsDecoder
+    |> Http.toTask
+
+get : Int -> Task Http.Error Group
+get groupId =
+  Http.get (groupUrl groupId) groupDecoder
     |> Http.toTask
 
 delete : Int -> Task Http.Error String
@@ -21,7 +26,7 @@ delete groupId =
     , body = Http.emptyBody
     , method = "DELETE"
     , timeout = Nothing
-    , url = urlSlug groupId
+    , url = groupUrl groupId
     , withCredentials = False
     } |> Http.toTask
 
@@ -39,10 +44,10 @@ groupDecoder =
     |> optional "form_type" Decode.string ""
     |> optional "payment_mode" Decode.int 12
 
-urlSlug : Int -> String
-urlSlug groupId =
-  groupUrl ++ "/" ++ (toString groupId)
+groupUrl : Int -> String
+groupUrl groupId =
+  groupsUrl ++ "/" ++ (toString groupId)
 
-groupUrl : String
-groupUrl =
+groupsUrl : String
+groupsUrl =
   baseUrl ++ "/groups"

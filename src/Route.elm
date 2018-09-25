@@ -15,6 +15,7 @@ import Routes exposing (Route)
 import Page
 
 import Pages.Groups
+import Pages.Group
 import Pages.Posts
 import Pages.Login
 import Pages.Users
@@ -34,6 +35,13 @@ setRoute route model =
           |> Task.attempt GroupsLoaded
       in
         ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
+
+    Routes.Group groupId ->
+      let
+        msg = Pages.Group.init groupId
+          |> Task.attempt GroupLoaded
+      in
+        ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
 
     Routes.Posts ->
       let
@@ -64,6 +72,7 @@ routeParser =
   oneOf
     [ map Routes.Home top
     , map Routes.Groups (s ( routeToUrl Routes.Groups ))
+    , map Routes.Group (s ( routeToUrl Routes.Groups ) </> int)
     , map Routes.Posts (s ( routeToUrl Routes.Posts ))
     , map Routes.Users (s ( routeToUrl Routes.Users ))
     , map Routes.Login (s ( routeToUrl Routes.Login ))
@@ -84,6 +93,8 @@ routeToUrl route =
       ""
     Routes.Groups ->
       "groups"
+    Routes.Group _ ->
+      "groups"
     Routes.Posts ->
       "posts"
     Routes.Users ->
@@ -92,6 +103,8 @@ routeToUrl route =
       "login"
     Routes.NotFound ->
       "not-found"
+
+
 
 updateRoute : Routes.Route -> Cmd Msg
 updateRoute route =
