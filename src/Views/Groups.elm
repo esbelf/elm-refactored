@@ -3,9 +3,11 @@ module Views.Groups exposing (view)
 import Msg exposing (..)
 import Pages.Groups exposing (Model)
 import Models.Group exposing (Group)
+import Route exposing (onClickRoute)
+import Routes exposing (Route)
 
 import Html exposing (..)
--- import Html.Events exposing (onClick)
+import Html.Events exposing (onClick)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
 
 view : Model -> Html Msg
@@ -36,7 +38,9 @@ viewGroupList groups =
 viewGroup : Group -> Html Msg
 viewGroup group =
   tr []
-    [ td [] [ text group.name ]
+    [ td [] [ a ([ class "uk-link-text" ] ++ onClickRoute (Routes.Group group.id))
+        [ text group.name ]
+      ]
     , td []
       [ button
         [ class "uk-button uk-button-default uk-button-small"
