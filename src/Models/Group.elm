@@ -1,4 +1,4 @@
-module Models.Group exposing (Group, init)
+module Models.Group exposing (Group, init, FormType)
 
 type alias Group =
   { id : Int
@@ -16,3 +16,8 @@ init =
   , form_type = ""
   , payment_mode = 0
   }
+
+type FormType
+  = Chubb
+  | Ibew
+  | HealthSuppOnlyProduct

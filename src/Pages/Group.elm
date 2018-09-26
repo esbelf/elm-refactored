@@ -9,6 +9,7 @@ import Requests.Group
 type Msg
   = SetName String
   | SetPaymentMode String
+  | SetFormType String
 
 type alias Model =
   { group : Group
@@ -16,6 +17,7 @@ type alias Model =
   , id : Int
   , inputName : String
   , inputPaymentMode : Int
+  , inputFormType : String
   }
 
 initialModel : Model
@@ -25,6 +27,7 @@ initialModel =
   , id = 0
   , inputName = ""
   , inputPaymentMode = 0
+  , inputFormType = ""
   }
 
 init : Int -> Task Http.Error Model
@@ -37,7 +40,8 @@ addGroupToModel group =
     id = group.id,
     group = group,
     inputName = group.name,
-    inputPaymentMode = group.payment_mode
+    inputPaymentMode = group.payment_mode,
+    inputFormType = group.form_type
   }
 
 
@@ -51,6 +55,7 @@ update msg model =
         newPaymentMode = String.toInt paymentMode |> Result.toMaybe |> Maybe.withDefault model.inputPaymentMode
       in
         ({ model | inputPaymentMode = newPaymentMode }, Cmd.none)
-
+    SetFormType formType ->
+      ({ model | inputFormType = formType }, Cmd.none)
 
 

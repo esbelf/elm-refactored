@@ -36,6 +36,17 @@ groupInputs model =
           ] []
         ]
       , div [ class "uk-margin" ]
+        [ select
+          [ class "uk-select"
+          , name "form_type"
+          , onInput (GroupMsg << Pages.Group.SetFormType)
+          ]
+          [ option [value "chubb"] [text "Chubb"]
+          , option [value "ibew"] [text "IBEW"]
+          , option [value "health_supp_only_product"] [text "Health Supply Only Product"]
+          ]
+        ]
+      , div [ class "uk-margin" ]
         [ span [ class "uk-label" ]
           [ text "Payment Modes" ]
         , input
