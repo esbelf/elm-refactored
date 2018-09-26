@@ -1,4 +1,4 @@
-module Models.Group exposing (Group)
+module Models.Group exposing (Group, init)
 
 type alias Group =
   { id : Int
@@ -8,3 +8,11 @@ type alias Group =
   , payment_mode : Int
   }
 
+init : Group
+init =
+  { id = 0
+  , name = ""
+  , disclosure = ""
+  , form_type = ""
+  , payment_mode = 0
+  }

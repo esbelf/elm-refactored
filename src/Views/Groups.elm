@@ -7,7 +7,7 @@ import Route exposing (onClickRoute)
 import Routes exposing (Route)
 
 import Html exposing (..)
-import Html.Events exposing (onClick)
+-- import Html.Events exposing (onClick)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
 
 view : Model -> Html Msg

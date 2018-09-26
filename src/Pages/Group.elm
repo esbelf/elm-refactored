@@ -7,19 +7,24 @@ import Models.Group exposing (Group)
 import Requests.Group
 
 type Msg
-  = UpdateGroupRequest
+  = SetName String
+  | SetPaymentMode String
 
 type alias Model =
-  { group : Maybe Group
+  { group : Group
   , errorMsg : String
   , id : Int
+  , inputName : String
+  , inputPaymentMode : Int
   }
 
 initialModel : Model
 initialModel =
-  { group = Nothing
+  { group = Models.Group.init
   , errorMsg = ""
   , id = 0
+  , inputName = ""
+  , inputPaymentMode = 0
   }
 
 init : Int -> Task Http.Error Model
@@ -29,12 +34,23 @@ init groupId =
 addGroupToModel : Group -> Model
 addGroupToModel group =
   { initialModel |
-    id = group.id
+    id = group.id,
+    group = group,
+    inputName = group.name,
+    inputPaymentMode = group.payment_mode
   }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    UpdateGroupRequest ->
-      (model, Cmd.none)
+    SetName name ->
+      ({ model | inputName = name }, Cmd.none)
+    SetPaymentMode paymentMode ->
+      let
+        newPaymentMode = String.toInt paymentMode |> Result.toMaybe |> Maybe.withDefault model.inputPaymentMode
+      in
+        ({ model | inputPaymentMode = newPaymentMode }, Cmd.none)
+
+
+
