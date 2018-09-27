@@ -28,7 +28,7 @@ update msg model =
       -- Route.Groups
       ( GroupsMsg subMsg, Groups subModel ) ->
         let
-          (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel
+          (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel session
           msg = Cmd.map transformGroupsMsg newSubMsg
         in
           ({ model | pageState = Loaded (Groups newSubModel) }, msg)
@@ -63,7 +63,7 @@ update msg model =
       -- Route.Posts
       ( PostsMsg subMsg, Posts subModel) ->
         let
-          (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel
+          (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel session
           msg = Cmd.map transformPostMsg newSubMsg
         in
           ({ model | pageState = Loaded (Posts newSubModel) }, msg)
@@ -76,7 +76,7 @@ update msg model =
       -- Route.Users
       ( UsersMsg subMsg, Users subModel) ->
         let
-          (newSubModel, newSubMsg) = Pages.Users.update subMsg subModel
+          (newSubModel, newSubMsg) = Pages.Users.update subMsg subModel session
           msg = Cmd.map transformUserMsg newSubMsg
         in
           ({ model | pageState = Loaded (Users newSubModel) }, msg)

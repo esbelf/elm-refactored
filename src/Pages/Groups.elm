@@ -25,20 +25,20 @@ initialModel =
   , errorMsg = ""
   }
 
-init : Task Http.Error Model
-init =
-  Task.map addGroupsToModel Requests.Group.getAll
+init : String -> Task Http.Error Model
+init token =
+  Task.map addGroupsToModel (Requests.Group.getAll token)
 
 addGroupsToModel : (List Group) -> Model
 addGroupsToModel groups =
   { initialModel | groups = groups }
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> String -> ( Model, Cmd Msg )
+update msg model token =
   case msg of
     DeleteGroupRequest groupId ->
       let
-        newMsg = Requests.Group.delete groupId
+        newMsg = (Requests.Group.delete groupId token)
           |> Task.attempt (DeleteGroup groupId)
       in
         (model, newMsg)

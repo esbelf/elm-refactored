@@ -22,16 +22,16 @@ initialModel =
   , errorMsg = ""
   }
 
-init : Task Http.Error Model
-init =
-    Task.map addUsersToModel Requests.User.fetch
+init : String -> Task Http.Error Model
+init token =
+    Task.map addUsersToModel (Requests.User.fetch token)
 
 addUsersToModel : List User -> Model
 addUsersToModel users =
   { initialModel | users = users }
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> String -> ( Model, Cmd Msg )
+update msg model token =
   case msg of
     DeleteUser id (Ok message) ->
       ({ model | users = removeModelFromList id model.users }, Cmd.none)
@@ -41,7 +41,7 @@ update msg model =
 
     DeleteUserRequest userId ->
       let
-        newMsg = Requests.User.delete userId
+        newMsg = Requests.User.delete userId token
           |> Task.attempt (DeleteUser userId)
       in
         (model, newMsg)

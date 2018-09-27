@@ -28,16 +28,16 @@ initialModel =
     }
 
 
-init : Task Http.Error Model
-init =
-  Task.map addPostsToModel Request.fetchPosts
+init : String -> Task Http.Error Model
+init token =
+  Task.map addPostsToModel (Request.fetchPosts token)
 
 addPostsToModel : (List Post) -> Model
 addPostsToModel posts =
   { initialModel | posts = posts }
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> String -> ( Model, Cmd Msg )
+update msg model session =
   case msg of
     SetPostTitle title ->
       ({ model | newPostTitle = title }, Cmd.none)
@@ -49,7 +49,7 @@ update msg model =
           { title = model.newPostTitle
           , description = model.newPostDescription
           }
-        newMsg = Request.createPost newPost
+        newMsg = Request.createPost newPost session
           |> Task.attempt PostCreate
       in
         (model, newMsg)

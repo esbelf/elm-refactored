@@ -10,10 +10,17 @@ import Models.Post exposing (Post)
 import Requests.Base exposing (..)
 
 
-fetchPosts : Task Http.Error (List Post)
-fetchPosts =
-  Http.get urlPosts postsDecoder
-    |> Http.toTask
+fetchPosts : String -> Task Http.Error (List Post)
+fetchPosts token =
+  Http.request
+    { body = Http.emptyBody
+    , headers = []
+    , expect = Http.expectJson postsDecoder
+    , method = "GET"
+    , timeout = Nothing
+    , url = urlPosts
+    , withCredentials = False
+    } |> Http.toTask
 
 postsDecoder : Decode.Decoder (List Post)
 postsDecoder =
@@ -33,13 +40,13 @@ type alias CreateConfig =
     , description : String
     }
 
-createPost : CreateConfig -> Task Http.Error Post
-createPost config =
-   createRequestPost config
+createPost : CreateConfig -> String -> Task Http.Error Post
+createPost config token =
+   createRequestPost config token
       |> Http.toTask
 
-createRequestPost : CreateConfig -> Http.Request Post
-createRequestPost config =
+createRequestPost : CreateConfig -> String -> Http.Request Post
+createRequestPost config token  =
   let
     attributes =
       [ ( "title", Encode.string config.title )
@@ -51,19 +58,19 @@ createRequestPost config =
     Http.request
       { body = body
       , expect = Http.expectJson postDecoder
-      , headers = []
+      , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
       , method = "POST"
       , timeout = Nothing
       , url = urlPosts
       , withCredentials = False
       }
 
-updateRequestPost : Post -> Http.Request Post
-updateRequestPost post =
+updateRequestPost : Post -> String -> Http.Request Post
+updateRequestPost post token =
   Http.request
     { body = encoderPost post |> Http.jsonBody
     , expect = Http.expectJson postDecoder
-    , headers = []
+    , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , method = "PUT"
     , timeout = Nothing
     , url = urlSlug post.id

@@ -31,21 +31,24 @@ setRoute route model =
 
     Routes.Groups ->
       let
-        msg = Pages.Groups.init
+        token = model.session
+        msg = Pages.Groups.init token
           |> Task.attempt GroupsLoaded
       in
         ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
 
     Routes.Group groupId ->
       let
-        msg = Pages.Group.init groupId
+        token = model.session
+        msg = Pages.Group.init groupId token
           |> Task.attempt GroupLoaded
       in
         ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
 
     Routes.Posts ->
       let
-        msg = Pages.Posts.init
+        token = model.session
+        msg = Pages.Posts.init token
           |> Task.attempt PostsLoaded
       in
         ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, msg)
@@ -55,7 +58,8 @@ setRoute route model =
 
     Routes.Users ->
       let
-        msg = Pages.Users.init
+        token = model.session
+        msg = Pages.Users.init token
           |> Task.attempt UsersLoaded
       in
         ({ model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg)

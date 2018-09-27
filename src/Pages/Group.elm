@@ -27,9 +27,9 @@ initialModel =
   , id = 0
   }
 
-init : Int -> Task Http.Error Model
-init groupId =
-  Task.map addGroupToModel (Requests.Group.get groupId)
+init : Int -> String -> Task Http.Error Model
+init groupId token =
+  Task.map addGroupToModel (Requests.Group.get groupId token)
 
 addGroupToModel : Group -> Model
 addGroupToModel group =
@@ -40,7 +40,7 @@ addGroupToModel group =
 
 
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
-update msg model session =
+update msg model token =
   case msg of
     SetName name ->
       let
@@ -69,7 +69,7 @@ update msg model session =
         ({ model | group = { oldGroup | disclosure = disclosure } }, Cmd.none)
     UpdateGroupRequest ->
       let
-        newMsg = Requests.Group.update model.group session
+        newMsg = Requests.Group.update model.group token
           |> Task.attempt UpdateGroup
       in
         (model, newMsg)

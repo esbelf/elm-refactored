@@ -9,15 +9,29 @@ import Task exposing (Task)
 import Models.Group exposing (Group)
 import Requests.Base exposing (..)
 
-getAll : Task Http.Error (List Group)
-getAll =
-  Http.get groupsUrl groupsDecoder
-    |> Http.toTask
+getAll : String -> Task Http.Error (List Group)
+getAll token =
+  Http.request
+    { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+    , body = Http.emptyBody
+    , expect = Http.expectJson groupsDecoder
+    , method = "GET"
+    , timeout = Nothing
+    , url = groupsUrl
+    , withCredentials = False
+    } |> Http.toTask
 
-get : Int -> Task Http.Error Group
-get groupId =
-  Http.get (groupUrl groupId) groupDecoder
-    |> Http.toTask
+get : Int -> String -> Task Http.Error Group
+get groupId token =
+  Http.request
+    { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+    , body = Http.emptyBody
+    , expect = Http.expectJson groupDecoder
+    , method = "GET"
+    , timeout = Nothing
+    , url = groupUrl groupId
+    , withCredentials = False
+    } |> Http.toTask
 
 update : Group -> String -> Task Http.Error Group
 update group token =
@@ -32,10 +46,10 @@ update group token =
     } |> Http.toTask
 
 
-delete : Int -> Task Http.Error String
-delete groupId =
+delete : Int -> String -> Task Http.Error String
+delete groupId token =
   Http.request
-    { headers = []
+    { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , expect = Http.expectString
     , body = Http.emptyBody
     , method = "DELETE"

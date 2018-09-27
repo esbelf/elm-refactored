@@ -9,15 +9,23 @@ import Task exposing (Task)
 import Models.User exposing (User)
 import Requests.Base exposing (..)
 
-fetch : Task Http.Error (List User)
-fetch =
-  Http.get userUrl usersDecoder
-    |> Http.toTask
-
-delete : Int -> Task Http.Error String
-delete userId =
+fetch : String -> Task Http.Error (List User)
+fetch token =
   Http.request
-    { headers = []
+    { body = Http.emptyBody
+    , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+    , expect = Http.expectJson usersDecoder
+    , method = "GET"
+    , timeout = Nothing
+    , url = userUrl
+    , withCredentials = False
+    } |> Http.toTask
+
+
+delete : Int -> String -> Task Http.Error String
+delete userId token =
+  Http.request
+    { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , expect = Http.expectString
     , body = Http.emptyBody
     , method = "DELETE"
