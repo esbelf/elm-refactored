@@ -39,8 +39,8 @@ addGroupToModel group =
   }
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Model -> String -> ( Model, Cmd Msg )
+update msg model session =
   case msg of
     SetName name ->
       let
@@ -69,7 +69,7 @@ update msg model =
         ({ model | group = { oldGroup | disclosure = disclosure } }, Cmd.none)
     UpdateGroupRequest ->
       let
-        newMsg = Requests.Group.update model.group
+        newMsg = Requests.Group.update model.group session
           |> Task.attempt UpdateGroup
       in
         (model, newMsg)

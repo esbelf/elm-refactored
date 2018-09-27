@@ -1,6 +1,5 @@
 module Update exposing (update)
 
-import Debug
 import Model exposing (Model, getPage, PageState(..))
 import Msg exposing (..)
 import Route exposing (updateRoute, parseLocation, setRoute)
@@ -42,7 +41,7 @@ update msg model =
       -- Route.Group
       ( GroupMsg subMsg, Group subModel ) ->
         let
-          (newSubModel, newSubMsg) = Pages.Group.update subMsg subModel
+          (newSubModel, newSubMsg) = Pages.Group.update subMsg subModel session
           msg = Cmd.map transformGroupMsg newSubMsg
         in
           ({ model | pageState = Loaded (Group newSubModel) }, msg)
@@ -60,10 +59,6 @@ update msg model =
           msg = Cmd.map transformLoginMsg newSubMsg
         in
           ({ model | pageState = Loaded (Login newSubModel) }, msg)
-      ( LoginLoaded (Ok subModel), _ ) ->
-        ({ model | pageState = Loaded (Login subModel) }, Cmd.none)
-      ( LoginLoaded (Err error), _ ) ->
-        ({ model | pageState = Loaded Blank }, Cmd.none)
 
       -- Route.Posts
       ( PostsMsg subMsg, Posts subModel) ->

@@ -6,20 +6,27 @@ import View
 import Msg exposing (..)
 import Navigation
 import Route exposing (setRoute, parseLocation, urlChange)
+import Port
+import Debug
 
-
-init : Navigation.Location -> ( Model, Cmd Msg )
-init location =
+init : Maybe Port.Model -> Navigation.Location -> ( Model, Cmd Msg )
+init flags location =
   let
-    currentRoute = Route.parseLocation location
-    -- get session from local storage and then pass here
-    blankSession = ""
+    currentRoute =
+      Route.parseLocation location
+    ports =
+      case flags of
+        Just portModel ->
+          portModel
+        Nothing ->
+          Port.init
+    log = Debug.log "session" ports.session
   in
-    Route.setRoute currentRoute (Model.init blankSession)
+    Route.setRoute currentRoute (Model.init ports.session)
 
-main : Program Never Model Msg
+main : Program (Maybe Port.Model) Model Msg
 main =
-  Navigation.program Route.urlChange
+  Navigation.programWithFlags Route.urlChange
     { init = init
     , view = View.view
     , update = Update.update

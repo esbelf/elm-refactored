@@ -19,10 +19,10 @@ get groupId =
   Http.get (groupUrl groupId) groupDecoder
     |> Http.toTask
 
-update : Group -> Task Http.Error Group
-update group =
+update : Group -> String -> Task Http.Error Group
+update group token =
   Http.request
-    { headers = []
+    { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = groupEncoder group
     , expect = Http.expectJson groupDecoder
     , method = "PATCH"

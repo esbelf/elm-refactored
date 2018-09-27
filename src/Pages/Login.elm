@@ -3,7 +3,7 @@ module Pages.Login exposing (..)
 import Http
 import Task exposing (Task)
 import Json.Decode as Decode
-
+import Port
 import Requests.Auth as Request
 
 type Msg
@@ -45,7 +45,17 @@ update msg model =
       in
         (model, newMsg)
     Authenticated (Ok token ) ->
-      ({ model | token = token }, Cmd.none)
+      setStorageHelper { model | token = token }
     Authenticated (Err error ) ->
       ({ model | errorMsg = (toString error) }, Cmd.none)
+
+
+setStorageHelper : Model -> ( Model, Cmd Msg )
+setStorageHelper model =
+  let
+    portModel = { session = model.token }
+  in
+    ( model, Port.setStorage portModel )
+
+
 
