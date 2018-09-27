@@ -54,9 +54,9 @@ update msg model =
         newPaymentMode = String.toInt paymentMode
           |> Result.toMaybe
           |> Maybe.withDefault oldGroup.payment_mode
-
       in
         ({ model | group = { oldGroup | payment_mode = newPaymentMode } }, Cmd.none)
+
     SetFormType formType ->
       let
         oldGroup = model.group
@@ -73,6 +73,7 @@ update msg model =
           |> Task.attempt UpdateGroup
       in
         (model, newMsg)
+
     UpdateGroup (Ok updatedGroup) ->
       ({ model | group = updatedGroup }, Cmd.none)
 

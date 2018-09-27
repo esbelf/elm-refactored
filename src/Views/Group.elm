@@ -2,7 +2,7 @@ module Views.Group exposing (view)
 
 import Msg exposing (..)
 import Pages.Group exposing (Model)
--- import Models.Group exposing (Group)
+import Models.Group exposing (Group)
 
 import Html exposing (..)
 import Html.Events exposing (onInput, onClick)
@@ -16,7 +16,8 @@ view model =
     , fieldset [ class "uk-fieldset" ]
       [ div [ class "uk-child-width-1-1@s uk-child-width-1-2@m" ]
         [ p [] [ text model.errorMsg ]
-        , (groupInputs model)
+        , (groupInputs model.group)
+        , (groupProducts model.group)
         , button
           [ class "uk-button uk-button-primary uk-margin-small"
           , type_ "button"
@@ -26,16 +27,25 @@ view model =
       ]
     ]
 
+groupProducts : Group -> Html Msg
+groupProducts group =
+  div []
+    [ h3 [] [ text "Products" ]
+    , div [ ]
+      [
+      ]
+    ]
 
-groupInputs : Model -> Html Msg
-groupInputs model =
+
+groupInputs : Group -> Html Msg
+groupInputs group =
     div []
       [ div [ class "uk-margin" ]
         [ input
           [ class "uk-input"
           , name "name"
           , type_ "input"
-          , value model.group.name
+          , value group.name
           , placeholder "Name"
           , onInput (GroupMsg << Pages.Group.SetName)
           ] []
@@ -44,7 +54,7 @@ groupInputs model =
         [ select
           [ class "uk-select"
           , name "form_type"
-          -- , onInput (GroupMsg << Pages.Group.SetFormType)
+          , onInput (GroupMsg << Pages.Group.SetFormType)
           ]
           [ option [value "chubb"] [text "Chubb"]
           , option [value "ibew"] [text "IBEW"]
@@ -59,8 +69,8 @@ groupInputs model =
           [ class "uk-select"
           , name "payment_mode"
           , type_ "number"
-          , value (toString model.group.payment_mode)
-          -- , onInput (GroupMsg << Pages.Group.SetPaymentMode)
+          , value (toString group.payment_mode)
+          , onInput (GroupMsg << Pages.Group.SetPaymentMode)
           ] []
         ]
       , div [ class "uk-margin" ]
@@ -68,8 +78,8 @@ groupInputs model =
         , textarea
           [ class "uk-textarea"
           , name "disclosure"
-          , value model.group.disclosure
-          -- , onInput (GroupMsg << Pages.Group.SetDisclosure)
+          , value group.disclosure
+          , onInput (GroupMsg << Pages.Group.SetDisclosure)
           ] []
         ]
       ]
