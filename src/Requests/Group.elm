@@ -1,8 +1,9 @@
-module Requests.Group exposing (..)
+module Requests.Group exposing (getAll, get, update, delete)
 
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Encode as Encode
 import Task exposing (Task)
 
 import Models.Group exposing (Group)
@@ -18,6 +19,19 @@ get groupId =
   Http.get (groupUrl groupId) groupDecoder
     |> Http.toTask
 
+update : Group -> Task Http.Error Group
+update group =
+  Http.request
+    { headers = []
+    , body = groupEncoder group
+    , expect = Http.expectJson groupDecoder
+    , method = "PATCH"
+    , timeout = Nothing
+    , url = groupUrl group.id
+    , withCredentials = False
+    } |> Http.toTask
+
+
 delete : Int -> Task Http.Error String
 delete groupId =
   Http.request
@@ -29,6 +43,20 @@ delete groupId =
     , url = groupUrl groupId
     , withCredentials = False
     } |> Http.toTask
+
+groupEncoder : Group -> Http.Body
+groupEncoder group =
+  let
+    attributes =
+      [ ( "id", Encode.int group.id )
+      , ( "name", Encode.string group.name )
+      , ( "disclosure", Encode.string group.disclosure )
+      , ( "form_type", Encode.string group.form_type )
+      , ( "payment_mode", Encode.int group.payment_mode )
+      ]
+  in
+    Encode.object attributes
+      |> Http.jsonBody
 
 groupsDecoder : Decode.Decoder (List Group)
 groupsDecoder =

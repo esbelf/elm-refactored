@@ -10,14 +10,14 @@ type Msg
   = SetName String
   | SetPaymentMode String
   | SetFormType String
+  | SetDisclosure String
+  | UpdateGroupRequest
+  | UpdateGroup (Result Http.Error Group)
 
 type alias Model =
   { group : Group
   , errorMsg : String
   , id : Int
-  , inputName : String
-  , inputPaymentMode : Int
-  , inputFormType : String
   }
 
 initialModel : Model
@@ -25,9 +25,6 @@ initialModel =
   { group = Models.Group.init
   , errorMsg = ""
   , id = 0
-  , inputName = ""
-  , inputPaymentMode = 0
-  , inputFormType = ""
   }
 
 init : Int -> Task Http.Error Model
@@ -38,10 +35,7 @@ addGroupToModel : Group -> Model
 addGroupToModel group =
   { initialModel |
     id = group.id,
-    group = group,
-    inputName = group.name,
-    inputPaymentMode = group.payment_mode,
-    inputFormType = group.form_type
+    group = group
   }
 
 
@@ -49,13 +43,39 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     SetName name ->
-      ({ model | inputName = name }, Cmd.none)
+      let
+        oldGroup = model.group
+      in
+        ({ model | group = { oldGroup | name = name } }, Cmd.none)
+
     SetPaymentMode paymentMode ->
       let
-        newPaymentMode = String.toInt paymentMode |> Result.toMaybe |> Maybe.withDefault model.inputPaymentMode
-      in
-        ({ model | inputPaymentMode = newPaymentMode }, Cmd.none)
-    SetFormType formType ->
-      ({ model | inputFormType = formType }, Cmd.none)
+        oldGroup = model.group
+        newPaymentMode = String.toInt paymentMode
+          |> Result.toMaybe
+          |> Maybe.withDefault oldGroup.payment_mode
 
+      in
+        ({ model | group = { oldGroup | payment_mode = newPaymentMode } }, Cmd.none)
+    SetFormType formType ->
+      let
+        oldGroup = model.group
+      in
+        ({ model | group = { oldGroup | form_type = formType } }, Cmd.none)
+    SetDisclosure disclosure ->
+      let
+        oldGroup = model.group
+      in
+        ({ model | group = { oldGroup | disclosure = disclosure } }, Cmd.none)
+    UpdateGroupRequest ->
+      let
+        newMsg = Requests.Group.update model.group
+          |> Task.attempt UpdateGroup
+      in
+        (model, newMsg)
+    UpdateGroup (Ok updatedGroup) ->
+      ({ model | group = updatedGroup }, Cmd.none)
+
+    UpdateGroup (Err error) ->
+      ({ model | errorMsg = (toString error) }, Cmd.none)
 

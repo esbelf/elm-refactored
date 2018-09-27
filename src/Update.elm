@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import Debug
 import Model exposing (Model, getPage, PageState(..))
 import Msg exposing (..)
 import Route exposing (updateRoute, parseLocation, setRoute)
@@ -31,7 +32,7 @@ update msg model =
           (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel
           msg = Cmd.map transformGroupsMsg newSubMsg
         in
-          ({ model | pageState = Loaded (Groups newSubModel) }, Cmd.none)
+          ({ model | pageState = Loaded (Groups newSubModel) }, msg)
 
       ( GroupsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Groups subModel) }, Cmd.none)
@@ -44,7 +45,7 @@ update msg model =
           (newSubModel, newSubMsg) = Pages.Group.update subMsg subModel
           msg = Cmd.map transformGroupMsg newSubMsg
         in
-          ({ model | pageState = Loaded (Group newSubModel) }, Cmd.none)
+          ({ model | pageState = Loaded (Group newSubModel) }, msg)
 
       ( GroupLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Group subModel) }, Cmd.none)
