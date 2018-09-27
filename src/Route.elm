@@ -16,7 +16,6 @@ import Page
 
 import Pages.Groups
 import Pages.Group
-import Pages.Posts
 import Pages.Login
 import Pages.Users
 
@@ -45,14 +44,6 @@ setRoute route model =
       in
         ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
 
-    Routes.Posts ->
-      let
-        token = model.session
-        msg = Pages.Posts.init token
-          |> Task.attempt PostsLoaded
-      in
-        ({ model | pageState = Loaded (Page.Posts Pages.Posts.initialModel) }, msg)
-
     Routes.Login ->
       ({ model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none)
 
@@ -77,7 +68,6 @@ routeParser =
     [ map Routes.Home top
     , map Routes.Groups (s ( routeToUrl Routes.Groups ))
     , map Routes.Group (s ( routeToUrl Routes.Groups ) </> int)
-    , map Routes.Posts (s ( routeToUrl Routes.Posts ))
     , map Routes.Users (s ( routeToUrl Routes.Users ))
     , map Routes.Login (s ( routeToUrl Routes.Login ))
     ]
@@ -99,8 +89,6 @@ routeToUrl route =
       "groups"
     Routes.Group _ ->
       "groups"
-    Routes.Posts ->
-      "posts"
     Routes.Users ->
       "users"
     Routes.Login ->

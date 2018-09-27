@@ -9,7 +9,6 @@ import Routes exposing (Route)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, href)
 
-import Views.Posts
 import Views.Login
 import Views.Users
 import Views.Groups
@@ -42,9 +41,6 @@ mainContent model =
 
     Group pageModel ->
       Views.Group.view pageModel
-
-    Posts pageModel ->
-      Views.Posts.view pageModel
 
     Login pageModel ->
       Views.Login.view pageModel
@@ -80,8 +76,6 @@ viewLinks =
   ul [ class "uk-navbar-nav"]
     [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
       [ text "Groups" ]
-    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Posts)
-      [ text "Posts" ]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
       [ text "Users" ]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)

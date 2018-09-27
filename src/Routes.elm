@@ -5,6 +5,5 @@ type Route
   | Home
   | Groups
   | Group Int
-  | Posts
   | Login
   | Users

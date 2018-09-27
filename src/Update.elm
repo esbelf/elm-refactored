@@ -5,7 +5,6 @@ import Msg exposing (..)
 import Route exposing (updateRoute, parseLocation, setRoute)
 
 import Page exposing (..)
-import Pages.Posts
 import Pages.Users
 import Pages.Login
 import Pages.Groups
@@ -60,19 +59,6 @@ update msg model =
         in
           ({ model | pageState = Loaded (Login newSubModel) }, msg)
 
-      -- Route.Posts
-      ( PostsMsg subMsg, Posts subModel) ->
-        let
-          (newSubModel, newSubMsg) = Pages.Posts.update subMsg subModel session
-          msg = Cmd.map transformPostMsg newSubMsg
-        in
-          ({ model | pageState = Loaded (Posts newSubModel) }, msg)
-      ( PostsLoaded (Ok subModel), _ ) ->
-        ({ model | pageState = Loaded (Posts subModel) },  Cmd.none)
-      ( PostsLoaded (Err error), _ ) ->
-        ({ model | pageState = Loaded Blank }, Cmd.none)
-        -- ({ model | pageState = Loaded (Errored error) }, Cmd.none)
-
       -- Route.Users
       ( UsersMsg subMsg, Users subModel) ->
         let
@@ -89,10 +75,6 @@ update msg model =
       (_, _) ->
         (model, Cmd.none)
 
-
-transformPostMsg : Pages.Posts.Msg -> Msg
-transformPostMsg subMsg =
-  PostsMsg subMsg
 
 transformLoginMsg : Pages.Login.Msg -> Msg
 transformLoginMsg subMsg =
