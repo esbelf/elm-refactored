@@ -31,7 +31,6 @@ mainContent model =
   let
     page = getPage model.pageState
     session = model.session
-    log = Debug.log "Error " page
   in
   case page of
     Blank ->
@@ -66,7 +65,8 @@ header model =
         [ div [ class "uk-navbar-left"]
           [ a ([ class "uk-logo uk-navbar-item" ] ++ onClickRoute Routes.Home)
             [ text "EasyINS" ]
-          , viewLinks
+          , ul [ class "uk-navbar-nav"]
+            [ viewLinks model.session ]
           ]
         , div [ class "uk-navbar-right" ]
           [ ul [ class "uk-navbar-nav" ]
@@ -76,16 +76,19 @@ header model =
         ]
       ]
 
-viewLinks : Html Msg
-viewLinks =
-  ul [ class "uk-navbar-nav"]
-    [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
-      [ text "Groups" ]
-    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
-      [ text "Batches"]
-    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
-      [ text "Users" ]
-    ]
+viewLinks : Session -> Html Msg
+viewLinks session =
+  if Models.Session.valid session then
+    div []
+      [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
+        [ text "Groups" ]
+      , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
+        [ text "Batches"]
+      , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
+        [ text "Users" ]
+      ]
+  else
+    div [] []
 
 viewAuth : Session -> Html Msg
 viewAuth session =
