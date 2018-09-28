@@ -1,13 +1,14 @@
 module Model exposing (Model, init, PageState(..), getPage)
 
 import Page exposing (Page)
+import Models.Session exposing (Session)
 
 type PageState
     = Loaded Page
     | TransitioningFrom Page
 
 type alias Model =
-  { session : String
+  { session : Session
   , pageState : PageState
   }
 
@@ -16,10 +17,17 @@ initialPage =
     Page.Blank
 
 init : String -> Model
-init session =
-  { pageState = Loaded initialPage
-  , session = session
-  }
+init token =
+  let
+    session =
+      if (String.isEmpty token) then
+        { token = Nothing }
+      else
+        { token = Just token }
+  in
+    { pageState = Loaded initialPage
+    , session = session
+    }
 
 getPage : PageState -> Page
 getPage pageState =

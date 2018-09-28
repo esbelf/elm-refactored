@@ -1,8 +1,12 @@
 module Update exposing (update)
 
 import Model exposing (Model, getPage, PageState(..))
+import Models.Session
 import Msg exposing (..)
 import Route exposing (updateRoute, parseLocation, setRoute)
+import Routes
+
+import Helper exposing (..)
 
 import Page exposing (..)
 import Pages.Users
@@ -10,11 +14,12 @@ import Pages.Login
 import Pages.Groups
 import Pages.Group
 
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   let
     page = (getPage model.pageState)
-    session = model.session
+    token = model.session.token
   in
     case (msg, page) of
       ( SetRoute route, _ ) ->
@@ -26,11 +31,15 @@ update msg model =
 
       -- Route.Groups
       ( GroupsMsg subMsg, Groups subModel ) ->
-        let
-          (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel session
-          msg = Cmd.map transformGroupsMsg newSubMsg
-        in
-          ({ model | pageState = Loaded (Groups newSubModel) }, msg)
+        case token of
+          Just token ->
+            let
+              (newSubModel, newSubMsg) = Pages.Groups.update subMsg subModel token
+              msg = Cmd.map transformGroupsMsg newSubMsg
+            in
+              ({ model | pageState = Loaded (Groups newSubModel) }, msg)
+          Nothing ->
+            pageErrored model
 
       ( GroupsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Groups subModel) }, Cmd.none)
@@ -39,11 +48,15 @@ update msg model =
 
       -- Route.Group
       ( GroupMsg subMsg, Group subModel ) ->
-        let
-          (newSubModel, newSubMsg) = Pages.Group.update subMsg subModel session
-          msg = Cmd.map transformGroupMsg newSubMsg
-        in
-          ({ model | pageState = Loaded (Group newSubModel) }, msg)
+        case token of
+          Just token ->
+            let
+              (newSubModel, newSubMsg) = Pages.Group.update subMsg subModel token
+              msg = Cmd.map transformGroupMsg newSubMsg
+            in
+              ({ model | pageState = Loaded (Group newSubModel) }, msg)
+          Nothing ->
+            pageErrored model
 
       ( GroupLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Group subModel) }, Cmd.none)
@@ -56,16 +69,25 @@ update msg model =
         let
           (newSubModel, newSubMsg) = Pages.Login.update subMsg subModel
           msg = Cmd.map transformLoginMsg newSubMsg
+          session = Models.Session.init newSubModel.token
         in
-          ({ model | pageState = Loaded (Login newSubModel) }, msg)
+          ({ model |
+            pageState = Loaded (Login newSubModel),
+            session = session
+          }, msg)
 
       -- Route.Users
       ( UsersMsg subMsg, Users subModel) ->
-        let
-          (newSubModel, newSubMsg) = Pages.Users.update subMsg subModel session
-          msg = Cmd.map transformUserMsg newSubMsg
-        in
-          ({ model | pageState = Loaded (Users newSubModel) }, msg)
+        case token of
+          Just token ->
+            let
+              (newSubModel, newSubMsg) = Pages.Users.update subMsg subModel token
+              msg = Cmd.map transformUserMsg newSubMsg
+            in
+              ({ model | pageState = Loaded (Users newSubModel) }, msg)
+          Nothing ->
+            pageErrored model
+
       ( UsersLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Users subModel) }, Cmd.none)
       ( UsersLoaded (Err error), _ ) ->

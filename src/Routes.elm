@@ -6,4 +6,5 @@ type Route
   | Groups
   | Group Int
   | Login
+  | Logout
   | Users

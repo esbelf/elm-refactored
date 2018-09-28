@@ -1,6 +1,7 @@
 port module Port exposing (..)
 
 import Json.Encode as Encode
+--import Msg exposing (..)
 
 type alias Model =
   { session : String }
@@ -11,6 +12,6 @@ init =
 
 port setStorage : Model -> Cmd msg
 
-port removeStorage : Model -> Cmd msg
+port removeStorage : () -> Cmd msg
 
 port getStorage : Encode.Value -> Cmd msg

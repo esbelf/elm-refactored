@@ -7,7 +7,6 @@ import Pages.Helper exposing (..)
 import Models.Group exposing (Group)
 import Requests.Group
 
-
 type Msg
   = DeleteGroupRequest Int
   | DeleteGroup Int (Result Http.Error String)

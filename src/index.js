@@ -11,24 +11,25 @@ require('./index.html');
 var Elm = require('./Main.elm');
 var mountNode = document.getElementById('main');
 
-var storedState = localStorage.getItem('token');
+var storedState = localStorage.getItem('session');
 var startingState = storedState ? JSON.parse(storedState) : null;
 
-// .embed() can take an optional second argument. This would be an object describing the data we need to start a program, i.e. a userID or some token
+// .embed() can take an optional second argument. This would be an object describing the data we need to start a program, i.e. a userID or some session
 var app = Elm.Main.embed(mountNode, startingState);
 
 app.ports.setStorage.subscribe(function(state) {
-  localStorage.setItem('token', JSON.stringify(state));
+  localStorage.setItem('session', JSON.stringify(state));
 });
 
 app.ports.getStorage.subscribe(function() {
-  var storedState = localStorage.getItem('token');
+  var storedState = localStorage.getItem('session');
   var startingState = storedState ? JSON.parse(storedState) : null;
-  localStorage.setItem('token', JSON.stringify(startingState));
+  localStorage.setItem('session', JSON.stringify(startingState));
 });
 
 app.ports.removeStorage.subscribe(function() {
-  localStorage.removeItem('token');
+  console.log("remove session");
+  localStorage.removeItem('session');
 });
 
 

@@ -13,6 +13,8 @@ import Msg exposing (..)
 import Model exposing (PageState(..), Model)
 import Routes exposing (Route)
 import Page
+import Port
+import Helper exposing (..)
 
 import Pages.Groups
 import Pages.Group
@@ -29,31 +31,52 @@ setRoute route model =
       ({ model | pageState = Loaded Page.Home }, Cmd.none)
 
     Routes.Groups ->
-      let
-        token = model.session
-        msg = Pages.Groups.init token
-          |> Task.attempt GroupsLoaded
-      in
-        ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
+      case model.session.token of
+        Just token ->
+          let
+            msg = Pages.Groups.init token
+              |> Task.attempt GroupsLoaded
+          in
+            ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
+        Nothing ->
+          pageErrored model
 
     Routes.Group groupId ->
-      let
-        token = model.session
-        msg = Pages.Group.init groupId token
-          |> Task.attempt GroupLoaded
-      in
-        ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
+      case model.session.token of
+        Just token ->
+          let
+            msg = Pages.Group.init groupId token
+              |> Task.attempt GroupLoaded
+          in
+            ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
+        Nothing ->
+          pageErrored model
 
     Routes.Login ->
       ({ model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none)
 
-    Routes.Users ->
+    Routes.Logout ->
       let
-        token = model.session
-        msg = Pages.Users.init token
-          |> Task.attempt UsersLoaded
+        oldSession =
+          model.session
       in
-        ({ model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg)
+        ({ model | session = { oldSession | token = Nothing } }, Cmd.batch
+          [ Port.removeStorage ()
+          , updateRoute Routes.Login
+          ]
+        )
+
+    Routes.Users ->
+      case model.session.token of
+        Just token ->
+          let
+            msg = Pages.Users.init token
+              |> Task.attempt UsersLoaded
+          in
+            ({ model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg)
+        Nothing ->
+          pageErrored model
+
 
 urlChange : Location -> Msg
 urlChange location =
@@ -93,6 +116,8 @@ routeToUrl route =
       "users"
     Routes.Login ->
       "login"
+    Routes.Logout ->
+      "logout"
     Routes.NotFound ->
       "not-found"
 
@@ -112,6 +137,10 @@ onClickRoute route =
     , onPreventDefaultClick (SetRoute route)
     ]
 
+--Cmd.batch
+--          [ Port.removeStorage ()
+--          , updateRoute Routes.Login
+--          ]
 
 onPreventDefaultClick : msg -> Html.Attribute msg
 onPreventDefaultClick message =

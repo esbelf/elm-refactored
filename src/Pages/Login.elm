@@ -2,7 +2,7 @@ module Pages.Login exposing (..)
 
 import Http
 import Task exposing (Task)
-import Json.Decode as Decode
+-- import Json.Decode as Decode
 import Port
 import Requests.Auth as Request
 

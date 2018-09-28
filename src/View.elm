@@ -1,5 +1,6 @@
 module View exposing(view)
 
+import Debug
 import Page exposing (..)
 import Msg exposing (..)
 import Model exposing (Model, getPage)
@@ -28,6 +29,7 @@ mainContent model =
   let
     page = getPage model.pageState
     session = model.session
+    log = Debug.log "Error " page
   in
   case page of
     Blank ->
@@ -35,6 +37,9 @@ mainContent model =
 
     Home ->
       text "Home Page, I would like this page to be visible to non users with some propaganda."
+
+    Error errorMessage ->
+      text errorMessage
 
     Groups pageModel ->
       Views.Groups.view pageModel
@@ -63,10 +68,8 @@ header model =
             , class "uk-navbar-item"
             ]
             [ text "Profile" ]
-          , a [ href ""
-            , class "uk-navbar-item"
-            ]
-            [ text "Log Out" ]
+          , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Logout)
+            [ text "Logout" ]
           ]
         ]
       ]

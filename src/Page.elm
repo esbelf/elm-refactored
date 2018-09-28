@@ -7,6 +7,7 @@ import Pages.Group as Group
 
 type Page
     = Blank
+    | Error String
     | Home
     | Groups Groups.Model
     | Group Group.Model
