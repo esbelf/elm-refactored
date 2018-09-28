@@ -14,6 +14,7 @@ import Views.Login
 import Views.Users
 import Views.Groups
 import Views.Group
+import Views.Batches
 
 view : Model -> Html Msg
 view model =
@@ -47,6 +48,9 @@ mainContent model =
     Group pageModel ->
       Views.Group.view pageModel
 
+    Batches pageModel ->
+      Views.Batches.view pageModel
+
     Login pageModel ->
       Views.Login.view pageModel
 
@@ -64,11 +68,7 @@ header model =
         ]
       , div [ class "uk-navbar-right" ]
         [ ul [ class "uk-navbar-nav" ]
-          [ a [ href ""
-            , class "uk-navbar-item"
-            ]
-            [ text "Profile" ]
-          , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Logout)
+          [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Logout)
             [ text "Logout" ]
           ]
         ]
@@ -79,6 +79,8 @@ viewLinks =
   ul [ class "uk-navbar-nav"]
     [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
       [ text "Groups" ]
+    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
+      [ text "Batches"]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
       [ text "Users" ]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)

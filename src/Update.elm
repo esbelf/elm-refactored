@@ -64,6 +64,12 @@ update msg model =
       ( GroupLoaded (Err error), _ ) ->
         ({ model | pageState = Loaded Blank }, Cmd.none)
 
+      ( BatchesLoaded (Ok subModel), _ ) ->
+        ({ model | pageState = Loaded (Batches subModel) }, Cmd.none)
+
+      ( BatchesLoaded (Err error), _ ) ->
+        ({ model | pageState = Loaded Blank }, Cmd.none)
+
       -- Route.Login
       ( LoginMsg subMsg, Login subModel ) ->
         let

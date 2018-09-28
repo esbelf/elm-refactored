@@ -5,6 +5,7 @@ type Route
   | Home
   | Groups
   | Group Int
+  | Batches
   | Login
   | Logout
   | Users

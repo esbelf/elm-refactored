@@ -20,6 +20,7 @@ import Pages.Groups
 import Pages.Group
 import Pages.Login
 import Pages.Users
+import Pages.Batches
 
 setRoute : Routes.Route -> Model -> ( Model, Cmd Msg )
 setRoute route model =
@@ -49,6 +50,17 @@ setRoute route model =
               |> Task.attempt GroupLoaded
           in
             ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
+        Nothing ->
+          pageErrored model
+
+    Routes.Batches ->
+      case model.session.token of
+        Just token ->
+          let
+            msg = Pages.Batches.init token
+              |> Task.attempt BatchesLoaded
+          in
+            ({ model | pageState = Loaded (Page.Batches Pages.Batches.initialModel) }, msg)
         Nothing ->
           pageErrored model
 
@@ -91,6 +103,7 @@ routeParser =
     [ map Routes.Home top
     , map Routes.Groups (s ( routeToUrl Routes.Groups ))
     , map Routes.Group (s ( routeToUrl Routes.Groups ) </> int)
+    , map Routes.Batches (s (routeToUrl Routes.Batches ))
     , map Routes.Users (s ( routeToUrl Routes.Users ))
     , map Routes.Login (s ( routeToUrl Routes.Login ))
     ]
@@ -112,6 +125,8 @@ routeToUrl route =
       "groups"
     Routes.Group _ ->
       "groups"
+    Routes.Batches ->
+      "batches"
     Routes.Users ->
       "users"
     Routes.Login ->
