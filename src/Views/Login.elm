@@ -4,7 +4,7 @@ import Msg exposing (..)
 import Pages.Login exposing (Model)
 
 import Html exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
 
 view : Model -> Html Msg
@@ -28,7 +28,7 @@ view model =
         [ input
           [ class "uk-input"
           , name "password"
-          , type_ "input"
+          , type_ "password"
           , value model.password
           , placeholder "Password"
           , onInput (LoginMsg << Pages.Login.SetPassword)

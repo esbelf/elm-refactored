@@ -4,7 +4,6 @@ import Model exposing (Model, getPage, PageState(..))
 import Models.Session
 import Msg exposing (..)
 import Route exposing (updateRoute, parseLocation, setRoute)
-import Routes
 
 import Helper exposing (..)
 

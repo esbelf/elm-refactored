@@ -1,4 +1,4 @@
-module Models.Session exposing (Session, init)
+module Models.Session exposing (Session, init, valid)
 
 -- import Models.User exposing (User)
 
@@ -11,6 +11,17 @@ init token =
       { token = Nothing }
     else
       { token = Just token }
+
+valid : Session -> Bool
+valid session =
+  let
+    maybeToken = session.token
+  in
+    case maybeToken of
+      Just maybeToken ->
+        True
+      Nothing ->
+        False
 
 
 --type alias Session =

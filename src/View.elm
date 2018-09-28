@@ -4,6 +4,7 @@ import Debug
 import Page exposing (..)
 import Msg exposing (..)
 import Model exposing (Model, getPage)
+import Models.Session exposing (Session)
 import Route exposing (onClickRoute)
 import Routes exposing (Route)
 
@@ -60,16 +61,17 @@ mainContent model =
 
 header : Model -> Html Msg
 header model =
-    nav [ class "uk-navbar-container tm-navbar-container uk-container", attribute "uk-navbar" ""]
-      [ div [ class "uk-navbar-left"]
-        [ a ([ class "uk-logo uk-navbar-item" ] ++ onClickRoute Routes.Home)
-          [ text "EasyINS" ]
-        , viewLinks
-        ]
-      , div [ class "uk-navbar-right" ]
-        [ ul [ class "uk-navbar-nav" ]
-          [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Logout)
-            [ text "Logout" ]
+    div [ class "tm-navbar-container" ]
+      [ nav [ class "uk-navbar-container tm-navbar-container uk-container", attribute "uk-navbar" ""]
+        [ div [ class "uk-navbar-left"]
+          [ a ([ class "uk-logo uk-navbar-item" ] ++ onClickRoute Routes.Home)
+            [ text "EasyINS" ]
+          , viewLinks
+          ]
+        , div [ class "uk-navbar-right" ]
+          [ ul [ class "uk-navbar-nav" ]
+            [ viewAuth model.session
+            ]
           ]
         ]
       ]
@@ -83,9 +85,18 @@ viewLinks =
       [ text "Batches"]
     , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
       [ text "Users" ]
-    , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)
-      [ text "Login" ]
     ]
+
+viewAuth : Session -> Html Msg
+viewAuth session =
+  if Models.Session.valid session then
+    a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Logout)
+      [ text "Logout" ]
+  else
+    a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)
+      [ text "Login" ]
+
+
 
 footer : Html Msg
 footer =

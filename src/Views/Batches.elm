@@ -3,8 +3,6 @@ module Views.Batches exposing (view)
 import Msg exposing (..)
 import Pages.Batches exposing (Model)
 import Models.Batch exposing (Batch)
-import Route exposing (onClickRoute)
-import Routes exposing (Route)
 
 import Html exposing (..)
 -- import Html.Events exposing (onClick)
