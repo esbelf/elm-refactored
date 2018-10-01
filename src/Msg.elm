@@ -20,4 +20,5 @@ type Msg
   | LoginMsg Pages.Login.Msg
   | UsersLoaded (Result Http.Error (Pages.Users.Model))
   | UsersMsg Pages.Users.Msg
+  | FileRequest Int (Result Http.Error String)
 

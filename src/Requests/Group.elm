@@ -1,4 +1,4 @@
-module Requests.Group exposing (getAll, get, update, delete)
+module Requests.Group exposing (getAll, get, update, delete, previewUrl)
 
 import Http
 import Json.Decode as Decode
@@ -57,6 +57,10 @@ delete groupId token =
     , url = groupUrl groupId
     , withCredentials = False
     } |> Http.toTask
+
+previewUrl : Int -> String -> String
+previewUrl groupId fileToken =
+  (groupUrl groupId) ++ "/preview?file_token=" ++ fileToken
 
 groupEncoder : Group -> Http.Body
 groupEncoder group =

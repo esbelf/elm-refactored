@@ -32,4 +32,6 @@ app.ports.removeStorage.subscribe(function() {
   localStorage.removeItem('session');
 });
 
-
+app.ports.openWindow.subscribe(function(url) {
+  window.open(url);
+});

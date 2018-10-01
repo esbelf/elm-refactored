@@ -6,6 +6,8 @@ import Msg exposing (..)
 import Route exposing (updateRoute, parseLocation, setRoute)
 
 import Helper exposing (..)
+import Port
+import Requests.Group
 
 import Page exposing (..)
 import Pages.Users
@@ -96,6 +98,12 @@ update msg model =
       ( UsersLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Users subModel) }, Cmd.none)
       ( UsersLoaded (Err error), _ ) ->
+        ({ model | pageState = Loaded Blank }, Cmd.none)
+
+      -- File Request
+      ( FileRequest groupId (Ok token ), _ ) ->
+        (model, Port.openWindow (Requests.Group.previewUrl groupId token))
+      ( FileRequest _ (Err error), _ ) ->
         ({ model | pageState = Loaded Blank }, Cmd.none)
 
       -- Catch All for now

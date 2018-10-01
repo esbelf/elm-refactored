@@ -65,8 +65,7 @@ header model =
         [ div [ class "uk-navbar-left"]
           [ a ([ class "uk-logo uk-navbar-item" ] ++ onClickRoute Routes.Home)
             [ text "EasyINS" ]
-          , ul [ class "uk-navbar-nav"]
-            [ viewLinks model.session ]
+          , viewLinks model.session
           ]
         , div [ class "uk-navbar-right" ]
           [ ul [ class "uk-navbar-nav" ]
@@ -79,7 +78,7 @@ header model =
 viewLinks : Session -> Html Msg
 viewLinks session =
   if Models.Session.valid session then
-    div []
+    ul [ class "uk-navbar-nav"]
       [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
         [ text "Groups" ]
       , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
@@ -88,7 +87,7 @@ viewLinks session =
         [ text "Users" ]
       ]
   else
-    div [] []
+    ul [ class "uk-navbar-nav"] []
 
 viewAuth : Session -> Html Msg
 viewAuth session =

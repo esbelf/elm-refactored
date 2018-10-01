@@ -15,3 +15,5 @@ port setStorage : Model -> Cmd msg
 port removeStorage : () -> Cmd msg
 
 port getStorage : Encode.Value -> Cmd msg
+
+port openWindow : String -> Cmd msg

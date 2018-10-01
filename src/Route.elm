@@ -15,6 +15,8 @@ import Routes exposing (Route)
 import Page
 import Port
 import Helper exposing (..)
+import Requests.Base
+-- import Requests.Group
 
 import Pages.Groups
 import Pages.Group
@@ -50,6 +52,20 @@ setRoute route model =
               |> Task.attempt GroupLoaded
           in
             ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
+        Nothing ->
+          pageErrored model
+
+    Routes.GroupPreview groupId ->
+      case model.session.token of
+        Just token ->
+          let
+            -- fetch temp key
+            newMsg = Requests.Base.getFileToken token
+              -- |> Requests.Group.previewUrl
+              |> Task.attempt (FileRequest groupId)
+            -- url = Requests.Group.previewUrl groupId fileToken
+          in
+            (model, newMsg)
         Nothing ->
           pageErrored model
 
@@ -103,6 +119,7 @@ routeParser =
     [ map Routes.Home top
     , map Routes.Groups (s ( routeToUrl Routes.Groups ))
     , map Routes.Group (s ( routeToUrl Routes.Groups ) </> int)
+    , map Routes.GroupPreview (s ( routeToUrl Routes.Groups ) </> int </> s("preview") )
     , map Routes.Batches (s (routeToUrl Routes.Batches ))
     , map Routes.Users (s ( routeToUrl Routes.Users ))
     , map Routes.Login (s ( routeToUrl Routes.Login ))
@@ -124,6 +141,8 @@ routeToUrl route =
     Routes.Groups ->
       "groups"
     Routes.Group _ ->
+      "groups"
+    Routes.GroupPreview _ ->
       "groups"
     Routes.Batches ->
       "batches"
@@ -152,10 +171,14 @@ onClickRoute route =
     , onPreventDefaultClick (SetRoute route)
     ]
 
---Cmd.batch
---          [ Port.removeStorage ()
---          , updateRoute Routes.Login
---          ]
+--onClickFile : Html.Attribute msg
+--onClickFile =
+--  onWithOptions "click"
+--    { defaultOptions | preventDefault = False }
+--    (preventDefault2
+--        |> Json.Decode.andThen (maybePreventDefault message)
+--    )
+
 
 onPreventDefaultClick : msg -> Html.Attribute msg
 onPreventDefaultClick message =

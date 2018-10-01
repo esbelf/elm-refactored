@@ -43,9 +43,10 @@ viewGroup group =
       ]
     , td []
       [ button
-        [ class "uk-button uk-button-default uk-button-small"
+        ([ class "uk-button uk-button-default uk-button-small"
         , type_ "button"
-        ] [ text "Preview" ]
+        ] ++ onClickRoute (Routes.GroupPreview group.id) )
+        [ text "Preview" ]
       ]
     , td []
       [ button
