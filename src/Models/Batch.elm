@@ -1,5 +1,7 @@
 module Models.Batch exposing (Batch)
 
+-- import Models.Group exposing (Group)
+
 type alias Batch =
   { id : Int
   , group_id : Int
