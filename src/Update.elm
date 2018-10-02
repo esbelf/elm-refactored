@@ -23,7 +23,10 @@ update msg model =
     token = model.session.token
   in
     case (msg, page) of
-      ( SetRoute route, _ ) ->
+      (SetRoute route, _ ) ->
+        (model, updateRoute route)
+
+      (RouteChanged route, _ ) ->
         setRoute route model
 
       -- Route.Home
