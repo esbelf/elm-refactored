@@ -111,7 +111,7 @@ urlChange location =
   let
     route = parseLocation location
   in
-    SetRoute route
+    RouteChanged route
 
 routeParser : Parser ( Route -> a ) a
 routeParser =
