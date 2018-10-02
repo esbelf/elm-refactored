@@ -11,6 +11,7 @@ import Pages.Batches
 
 type Msg
   = SetRoute Route
+  | RouteChanged Route
   | HomeMsg
   | GroupsLoaded (Result Http.Error (Pages.Groups.Model))
   | GroupsMsg Pages.Groups.Msg
