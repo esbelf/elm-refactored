@@ -1,6 +1,6 @@
 module View exposing(view)
 
-import Debug
+-- import Debug
 import Page exposing (..)
 import Msg exposing (..)
 import Model exposing (Model, getPage)
@@ -9,6 +9,7 @@ import Route exposing (onClickRoute)
 import Routes exposing (Route)
 
 import Html exposing (..)
+import Html.Events exposing (onClick)
 import Html.Attributes exposing (attribute, class, href)
 
 import Views.Login
@@ -92,7 +93,9 @@ viewLinks session =
 viewAuth : Session -> Html Msg
 viewAuth session =
   if Models.Session.valid session then
-    a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Logout)
+    a [ class "uk-navbar-item"
+      , onClick LogoutRequest
+      ]
       [ text "Logout" ]
   else
     a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)

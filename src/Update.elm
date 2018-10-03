@@ -1,8 +1,10 @@
 module Update exposing (update)
 
+import Debug
 import Model exposing (Model, getPage, PageState(..))
 import Models.Session
 import Msg exposing (..)
+import Routes
 import Route exposing (updateRoute, parseLocation, setRoute)
 
 import Helper exposing (..)
@@ -48,7 +50,10 @@ update msg model =
       ( GroupsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Groups subModel) }, Cmd.none)
       ( GroupsLoaded (Err error), _ ) ->
-        ({ model | pageState = Loaded Blank }, Cmd.none)
+        let
+          log = Debug.log "Error from Group load" (toString error)
+        in
+          ({ model | pageState = Loaded Blank }, Cmd.none)
 
       -- Route.Group
       ( GroupMsg subMsg, Group subModel ) ->
@@ -108,6 +113,18 @@ update msg model =
         (model, Port.openWindow (Requests.Group.previewUrl groupId token))
       ( FileRequest _ (Err error), _ ) ->
         ({ model | pageState = Loaded Blank }, Cmd.none)
+
+      -- Logout Request
+      ( LogoutRequest , _ ) ->
+        let
+          oldSession =
+            model.session
+        in
+          ({ model | session = { oldSession | token = Nothing } }, Cmd.batch
+            [ Port.removeStorage ()
+            , updateRoute Routes.Login
+            ]
+          )
 
       -- Catch All for now
       (_, _) ->

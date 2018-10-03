@@ -1,4 +1,4 @@
-module Requests.Base exposing (baseUrl, getFileToken)
+module Requests.Base exposing (baseUrl, getFileToken, stringToInt)
 
 import Http
 import Json.Decode as Decode
@@ -21,6 +21,12 @@ fileTokenDecoder : Decode.Decoder String
 fileTokenDecoder =
   Decode.field "token" Decode.string
 
+stringToInt : String -> Decode.Decoder Int
+stringToInt strNum =
+  case String.toInt strNum of
+    Ok num -> Decode.succeed num
+    Err msg -> Decode.fail msg
+
 fileTokenUrl : String
 fileTokenUrl =
   baseUrl ++ "/file_authenticate"
@@ -28,3 +34,5 @@ fileTokenUrl =
 baseUrl : String
 baseUrl =
   "http://localhost:3000/api/v1"
+
+

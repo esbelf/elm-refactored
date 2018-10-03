@@ -3,6 +3,8 @@ module Views.Batches exposing (view)
 import Msg exposing (..)
 import Pages.Batches exposing (Model)
 import Models.Batch exposing (Batch)
+import Route exposing (onClickRoute)
+import Routes exposing (Route)
 
 import Html exposing (..)
 -- import Html.Events exposing (onClick)
@@ -41,10 +43,13 @@ viewBatchList batches =
 viewBatch : Batch -> Html Msg
 viewBatch batch =
   tr []
-    [ th [] [ text "Batches Group Name" ]
-    , th [] [ text "Effective Date" ]
+    [ th []
+      [ a ([] ++ onClickRoute (Routes.Group batch.group_id) )
+        [ text batch.group_name ]
+      ]
+    , th [] [ text batch.start_date ]
     , th [] [ text (toString batch.census_count) ]
-    , th [] [ text "File Size" ]
+    , th [] [ text "Download link add here" ]
     , th [] [ text batch.created_at ]
-    , th [] [ text "User Name" ]
+    , th [] [ text batch.user_email ]
     ]

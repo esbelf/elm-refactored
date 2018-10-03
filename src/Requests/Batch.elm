@@ -2,7 +2,7 @@ module Requests.Batch exposing (getAll)
 
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode.Pipeline exposing (decode, required, optional, requiredAt, optionalAt, custom)
 -- import Json.Encode as Encode
 import Task exposing (Task)
 
@@ -23,17 +23,19 @@ getAll token =
 
 batchesDecoder : Decode.Decoder (List Batch)
 batchesDecoder =
-  Decode.list batchDecoder
+  Decode.field "data" (Decode.list batchDecoder)
 
 batchDecoder : Decode.Decoder Batch
 batchDecoder =
   decode Batch
-    |> required "id" Decode.int
-    |> required "group_id" Decode.int
-    |> required "user_id" Decode.int
-    |> optional "census_count" Decode.int 0
-    |> optional "start_date" Decode.string ""
-    |> optional "created_at" Decode.string ""
+    |> custom ((Decode.at [ "id" ] Decode.string) |> Decode.andThen stringToInt )
+    |> requiredAt [ "attributes", "group_id" ] Decode.int
+    |> optionalAt [ "attributes", "group_name" ] Decode.string ""
+    |> requiredAt [ "attributes", "user_id" ] Decode.int
+    |> optionalAt [ "attributes", "user_email" ] Decode.string ""
+    |> optionalAt [ "attributes", "census_count"] Decode.int 0
+    |> optionalAt [ "attributes", "start_date" ] Decode.string ""
+    |> optionalAt [ "attributes", "created_at" ] Decode.string ""
 
 batchesUrl : String
 batchesUrl =

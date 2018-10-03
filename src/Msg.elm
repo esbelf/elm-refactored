@@ -12,6 +12,7 @@ import Pages.Batches
 type Msg
   = SetRoute Route
   | RouteChanged Route
+  | LogoutRequest
   | HomeMsg
   | GroupsLoaded (Result Http.Error (Pages.Groups.Model))
   | GroupsMsg Pages.Groups.Msg

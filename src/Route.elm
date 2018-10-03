@@ -1,5 +1,6 @@
 module Route exposing (urlChange, setRoute, parseLocation, routeToUrl, onClickRoute, updateRoute)
 
+import Debug
 import Navigation exposing(Location)
 import UrlParser exposing (..)
 
@@ -87,6 +88,7 @@ setRoute route model =
       let
         oldSession =
           model.session
+        log = Debug.log "logout" oldSession
       in
         ({ model | session = { oldSession | token = Nothing } }, Cmd.batch
           [ Port.removeStorage ()
@@ -140,8 +142,8 @@ routeToUrl route =
       ""
     Routes.Groups ->
       "groups"
-    Routes.Group _ ->
-      "groups"
+    Routes.Group id ->
+      "groups/" ++ (toString id)
     Routes.GroupPreview _ ->
       "groups"
     Routes.Batches ->
@@ -159,7 +161,7 @@ routeToUrl route =
 
 updateRoute : Routes.Route -> Cmd Msg
 updateRoute route =
-  Navigation.newUrl (routeToUrl route)
+  Navigation.newUrl ("/" ++ (routeToUrl route))
 
 -- VIEW HELPERS ---
 
@@ -167,17 +169,9 @@ updateRoute route =
 onClickRoute : Routes.Route -> List (Html.Attribute Msg)
 onClickRoute route =
     [ style [ ( "pointer", "cursor" ) ]
-    , href (routeToUrl route)
+    , href (baseUrl ++ (routeToUrl route))
     , onPreventDefaultClick (SetRoute route)
     ]
-
---onClickFile : Html.Attribute msg
---onClickFile =
---  onWithOptions "click"
---    { defaultOptions | preventDefault = False }
---    (preventDefault2
---        |> Json.Decode.andThen (maybePreventDefault message)
---    )
 
 
 onPreventDefaultClick : msg -> Html.Attribute msg
@@ -205,6 +199,10 @@ maybePreventDefault msg preventDefault =
 
         False ->
             Json.Decode.fail "Normal link"
+
+baseUrl : String
+baseUrl =
+  "http://localhost:8080/"
 
 
 invertedOr : Bool -> Bool -> Bool

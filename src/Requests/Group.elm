@@ -2,9 +2,10 @@ module Requests.Group exposing (getAll, get, update, delete, previewUrl)
 
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode.Pipeline exposing (decode, required, optional, requiredAt, optionalAt, custom)
 import Json.Encode as Encode
 import Task exposing (Task)
+-- import Date exposing (Date)
 
 import Models.Group exposing (Group)
 import Requests.Base exposing (..)
@@ -14,7 +15,7 @@ getAll token =
   Http.request
     { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = Http.emptyBody
-    , expect = Http.expectJson groupsDecoder
+    , expect = Http.expectJson (dataDecoder groupsDecoder)
     , method = "GET"
     , timeout = Nothing
     , url = groupsUrl
@@ -26,7 +27,7 @@ get groupId token =
   Http.request
     { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = Http.emptyBody
-    , expect = Http.expectJson groupDecoder
+    , expect = Http.expectJson (dataDecoder groupDecoder)
     , method = "GET"
     , timeout = Nothing
     , url = groupUrl groupId
@@ -38,7 +39,7 @@ update group token =
   Http.request
     { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = groupEncoder group
-    , expect = Http.expectJson groupDecoder
+    , expect = Http.expectJson (dataDecoder groupDecoder)
     , method = "PATCH"
     , timeout = Nothing
     , url = groupUrl group.id
@@ -76,19 +77,23 @@ groupEncoder group =
     Encode.object attributes
       |> Http.jsonBody
 
+dataDecoder : Decode.Decoder a -> Decode.Decoder a
+dataDecoder innerDecoder =
+  Decode.field "data" (innerDecoder)
+
 groupsDecoder : Decode.Decoder (List Group)
 groupsDecoder =
   Decode.list groupDecoder
 
-
 groupDecoder : Decode.Decoder Group
 groupDecoder =
   decode Group
-    |> required "id" Decode.int
-    |> required "name" Decode.string
-    |> optional "disclosure" Decode.string ""
-    |> optional "form_type" Decode.string ""
-    |> optional "payment_mode" Decode.int 12
+    |> custom ((Decode.at [ "id" ] Decode.string) |> Decode.andThen stringToInt )
+    |> requiredAt ["attributes", "name"] Decode.string
+    |> optionalAt ["attributes", "disclosure"] Decode.string ""
+    |> optionalAt ["attributes", "form_type"] Decode.string ""
+    |> optionalAt ["attributes", "payment_mode"] Decode.int 12
+
 
 groupUrl : Int -> String
 groupUrl groupId =
