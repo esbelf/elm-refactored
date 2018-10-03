@@ -7,7 +7,7 @@ import Route exposing (onClickRoute)
 import Routes exposing (Route)
 
 import Html exposing (..)
--- import Html.Events exposing (onClick)
+import Html.Events exposing (onClick)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
 
 view : Model -> Html Msg
@@ -49,7 +49,10 @@ viewBatch batch =
       ]
     , th [] [ text batch.start_date ]
     , th [] [ text (toString batch.census_count) ]
-    , th [] [ text "Download link add here" ]
+    , th []
+      [ a [ onClick (BatchesMsg (Pages.Batches.DownloadFormRequest batch.id) ) ]
+        [ text "Download" ]
+      ]
     , th [] [ text batch.created_at ]
     , th [] [ text batch.user_email ]
     ]

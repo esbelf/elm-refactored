@@ -7,7 +7,7 @@ import Route exposing (onClickRoute)
 import Routes exposing (Route)
 
 import Html exposing (..)
--- import Html.Events exposing (onClick)
+import Html.Events exposing (onClick)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
 
 view : Model -> Html Msg
@@ -43,9 +43,10 @@ viewGroup group =
       ]
     , td []
       [ button
-        ([ class "uk-button uk-button-default uk-button-small"
+        [ class "uk-button uk-button-default uk-button-small"
         , type_ "button"
-        ] ++ onClickRoute (Routes.GroupPreview group.id) )
+        , onClick (GroupsMsg (Pages.Groups.PreviewGroupRequest group.id) )
+        ]
         [ text "Preview" ]
       ]
     , td []

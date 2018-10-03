@@ -1,4 +1,4 @@
-module Requests.Batch exposing (getAll)
+module Requests.Batch exposing (getAll, formUrl)
 
 import Http
 import Json.Decode as Decode
@@ -20,6 +20,10 @@ getAll token =
     , url = batchesUrl
     , withCredentials = False
     } |> Http.toTask
+
+formUrl : Int -> String -> String
+formUrl batchId fileToken =
+  batchesUrl ++ "/" ++ (toString batchId) ++ "/download?file_token=" ++ fileToken
 
 batchesDecoder : Decode.Decoder (List Batch)
 batchesDecoder =

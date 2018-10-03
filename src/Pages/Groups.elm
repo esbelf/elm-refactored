@@ -6,12 +6,14 @@ import Task exposing (Task)
 import Pages.Helper exposing (..)
 import Models.Group exposing (Group)
 import Requests.Group
+import Requests.Base
+import Port
 
 type Msg
   = DeleteGroupRequest Int
   | DeleteGroup Int (Result Http.Error String)
-  --| PreviewGroupRequest Int
-  --| PreviewGroup (Result Http.Error String)
+  | PreviewGroupRequest Int
+  | PreviewGroup Int (Result Http.Error String)
 
 type alias Model =
   { groups : List Group
@@ -45,6 +47,16 @@ update msg model token =
       ({ model | groups = removeModelFromList id model.groups }, Cmd.none)
 
     DeleteGroup id (Err error) ->
+      ({ model | errorMsg = (toString error) }, Cmd.none)
+    PreviewGroupRequest id ->
+      let
+        newMsg = Requests.Base.getFileToken token
+          |> Task.attempt (PreviewGroup id)
+      in
+        (model, newMsg)
+    PreviewGroup id (Ok token) ->
+      (model, Port.openWindow (Requests.Group.previewUrl id token))
+    PreviewGroup id (Err error) ->
       ({ model | errorMsg = (toString error) }, Cmd.none)
 
 

@@ -19,8 +19,10 @@ type Msg
   | GroupLoaded (Result Http.Error (Pages.Group.Model))
   | GroupMsg Pages.Group.Msg
   | BatchesLoaded (Result Http.Error (Pages.Batches.Model))
+  | BatchesMsg Pages.Batches.Msg
+  | BathesLoaded (Result Http.Error (Pages.Batches.Model))
   | LoginMsg Pages.Login.Msg
   | UsersLoaded (Result Http.Error (Pages.Users.Model))
   | UsersMsg Pages.Users.Msg
-  | FileRequest Int (Result Http.Error String)
+  | BatchFormRequest Int (Result Http.Error String)
 

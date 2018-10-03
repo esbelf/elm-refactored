@@ -1,6 +1,5 @@
 module Update exposing (update)
 
-import Debug
 import Model exposing (Model, getPage, PageState(..))
 import Models.Session
 import Msg exposing (..)
@@ -9,14 +8,13 @@ import Route exposing (updateRoute, parseLocation, setRoute)
 
 import Helper exposing (..)
 import Port
-import Requests.Group
 
 import Page exposing (..)
 import Pages.Users
 import Pages.Login
 import Pages.Groups
 import Pages.Group
-
+import Pages.Batches
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -50,10 +48,7 @@ update msg model =
       ( GroupsLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Groups subModel) }, Cmd.none)
       ( GroupsLoaded (Err error), _ ) ->
-        let
-          log = Debug.log "Error from Group load" (toString error)
-        in
-          ({ model | pageState = Loaded Blank }, Cmd.none)
+        ({ model | pageState = Loaded Blank }, Cmd.none)
 
       -- Route.Group
       ( GroupMsg subMsg, Group subModel ) ->
@@ -72,6 +67,17 @@ update msg model =
 
       ( GroupLoaded (Err error), _ ) ->
         ({ model | pageState = Loaded Blank }, Cmd.none)
+
+      ( BatchesMsg subMsg, Batches subModel ) ->
+        case token of
+          Just token ->
+            let
+              (newSubModel, newSubMsg) = Pages.Batches.update subMsg subModel token
+              msg = Cmd.map transformBatchesMsg newSubMsg
+            in
+              ({ model | pageState = Loaded (Batches newSubModel) }, msg)
+          Nothing ->
+            pageErrored model
 
       ( BatchesLoaded (Ok subModel), _ ) ->
         ({ model | pageState = Loaded (Batches subModel) }, Cmd.none)
@@ -108,12 +114,6 @@ update msg model =
       ( UsersLoaded (Err error), _ ) ->
         ({ model | pageState = Loaded Blank }, Cmd.none)
 
-      -- File Request
-      ( FileRequest groupId (Ok token ), _ ) ->
-        (model, Port.openWindow (Requests.Group.previewUrl groupId token))
-      ( FileRequest _ (Err error), _ ) ->
-        ({ model | pageState = Loaded Blank }, Cmd.none)
-
       -- Logout Request
       ( LogoutRequest , _ ) ->
         let
@@ -146,6 +146,10 @@ transformGroupsMsg subMsg =
 transformGroupMsg : Pages.Group.Msg -> Msg
 transformGroupMsg subMsg =
   GroupMsg subMsg
+
+transformBatchesMsg : Pages.Batches.Msg -> Msg
+transformBatchesMsg subMsg =
+  BatchesMsg subMsg
 
 --transformMsg : a -> b -> Msg
 --transformMsg mainMsg subMsg =
