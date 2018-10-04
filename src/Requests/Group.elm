@@ -79,10 +79,6 @@ groupEncoder group =
     Encode.object attributes
       |> Http.jsonBody
 
-dataDecoder : Decode.Decoder a -> Decode.Decoder a
-dataDecoder innerDecoder =
-  Decode.field "data" (innerDecoder)
-
 groupsDecoder : Decode.Decoder (List Group)
 groupsDecoder =
   Decode.list groupDecoder

@@ -2,7 +2,7 @@ module Requests.User exposing (..)
 
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (decode, required, optional, requiredAt, optionalAt, custom)
 -- import Json.Encode as Encode
 import Task exposing (Task)
 
@@ -14,7 +14,7 @@ fetch token =
   Http.request
     { body = Http.emptyBody
     , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-    , expect = Http.expectJson usersDecoder
+    , expect = Http.expectJson (dataDecoder usersDecoder)
     , method = "GET"
     , timeout = Nothing
     , url = userUrl
@@ -34,6 +34,7 @@ delete userId token =
     , withCredentials = False
     } |> Http.toTask
 
+
 usersDecoder : Decode.Decoder (List User)
 usersDecoder =
   Decode.list userDecoder
@@ -41,8 +42,8 @@ usersDecoder =
 userDecoder : Decode.Decoder User
 userDecoder =
   decode User
-    |> required "id" Decode.int
-    |> required "email" Decode.string
+    |> custom ((Decode.at [ "id" ] Decode.string) |> Decode.andThen stringToInt )
+    |> requiredAt ["attributes", "email"] Decode.string
 
 
 --encode : User -> Encode.Value

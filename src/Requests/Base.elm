@@ -1,8 +1,9 @@
-module Requests.Base exposing (baseUrl, getFileToken, stringToInt)
+module Requests.Base exposing (baseUrl, getFileToken, stringToInt, dataDecoder)
 
 import Http
 import Json.Decode as Decode
 import Task exposing (Task)
+
 
 getFileToken : String -> Task Http.Error String
 getFileToken token =
@@ -20,6 +21,10 @@ getFileToken token =
 fileTokenDecoder : Decode.Decoder String
 fileTokenDecoder =
   Decode.field "token" Decode.string
+
+dataDecoder : Decode.Decoder a -> Decode.Decoder a
+dataDecoder innerDecoder =
+  Decode.field "data" (innerDecoder)
 
 stringToInt : String -> Decode.Decoder Int
 stringToInt strNum =

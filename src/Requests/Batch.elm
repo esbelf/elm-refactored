@@ -14,7 +14,7 @@ getAll token =
   Http.request
     { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = Http.emptyBody
-    , expect = Http.expectJson batchesDecoder
+    , expect = Http.expectJson (dataDecoder batchesDecoder)
     , method = "GET"
     , timeout = Nothing
     , url = batchesUrl
@@ -27,7 +27,7 @@ formUrl batchId fileToken =
 
 batchesDecoder : Decode.Decoder (List Batch)
 batchesDecoder =
-  Decode.field "data" (Decode.list batchDecoder)
+  Decode.list batchDecoder
 
 batchDecoder : Decode.Decoder Batch
 batchDecoder =
