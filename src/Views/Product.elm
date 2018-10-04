@@ -1,7 +1,7 @@
 module Views.Product exposing (view)
 
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
-import Requests.Product exposing (encodeModel)
+import Requests.Product exposing (encode)
 import Models.Product exposing (..)
 import Pages.Product
 import Pages.Group
@@ -25,7 +25,7 @@ view model =
       , textarea [ name "group[product_pricing]"
                  , style [ ("display", "none") ]
                  ]
-                 [ text (Json.Encode.encode 0 <| encodeModel model) ]
+                 [ text (Json.Encode.encode 0 <| encode model.products) ]
       , renderModal model
       ])
 

@@ -73,6 +73,7 @@ groupEncoder group =
       , ( "disclosure", Encode.string group.disclosure )
       , ( "form_type", Encode.string group.form_type )
       , ( "payment_mode", Encode.int group.payment_mode )
+      , ( "product_pricing", (Requests.Product.encode group.products))
       ]
   in
     Encode.object attributes

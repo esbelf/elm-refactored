@@ -13,14 +13,20 @@ import Dict exposing (Dict)
 
 --- ENCODING PARTS -----
 
-encodeModel : Pages.Product.Model -> Value
-encodeModel model =
+encode : List Product -> Value
+encode products =
     Enc.object <|
-        [ ("products", encodeProductList model) ]
+        [ ("products", encodeProductList products)]
+        -- Enc.list <| List.map encodeProduct products
 
-encodeProductList : Pages.Product.Model -> Value
-encodeProductList model =
-    Enc.list <| List.map encodeProduct model.products
+--encodeModel : Pages.Product.Model -> Value
+--encodeModel model =
+--    Enc.object <|
+--        [ ("products", encodeProductList model) ]
+
+encodeProductList : List Product -> Value
+encodeProductList products =
+    Enc.list <| List.map encodeProduct products
 
 coveragePricing : Coverage -> Product -> PriceGrid
 coveragePricing coverage product =
