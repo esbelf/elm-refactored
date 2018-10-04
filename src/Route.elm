@@ -12,6 +12,7 @@ import Task exposing (Task)
 
 import Msg exposing (..)
 import Model exposing (PageState(..), Model)
+import Models.Session
 import Routes exposing (Route)
 import Page
 import Port
@@ -33,36 +34,33 @@ setRoute route model =
       ({ model | pageState = Loaded Page.Home }, Cmd.none)
 
     Routes.Groups ->
-      case model.session.token of
-        Just token ->
-          let
-            msg = Pages.Groups.init token
-              |> Task.attempt GroupsLoaded
-          in
-            ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
-        Nothing ->
-          pageErrored model
+      if Models.Session.valid model.session then
+        let
+          msg = Pages.Groups.init model.session.token
+            |> Task.attempt GroupsLoaded
+        in
+          ({ model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg)
+      else
+        pageErrored model
 
     Routes.Group groupId ->
-      case model.session.token of
-        Just token ->
-          let
-            msg = Pages.Group.init groupId token
-              |> Task.attempt GroupLoaded
-          in
-            ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
-        Nothing ->
-          pageErrored model
+      if Models.Session.valid model.session then
+        let
+          msg = Pages.Group.init groupId model.session.token
+            |> Task.attempt GroupLoaded
+        in
+          ({ model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg)
+      else
+        pageErrored model
 
     Routes.Batches ->
-      case model.session.token of
-        Just token ->
+      if Models.Session.valid model.session then
           let
-            msg = Pages.Batches.init token
+            msg = Pages.Batches.init model.session.token
               |> Task.attempt BatchesLoaded
           in
             ({ model | pageState = Loaded (Page.Batches Pages.Batches.initialModel) }, msg)
-        Nothing ->
+      else
           pageErrored model
 
     Routes.Login ->
@@ -73,23 +71,23 @@ setRoute route model =
         oldSession =
           model.session
         log = Debug.log "logout" oldSession
+        newSession = Models.Session.init "" ""
       in
-        ({ model | session = { oldSession | token = Nothing } }, Cmd.batch
+        ({ model | session = newSession }, Cmd.batch
           [ Port.removeStorage ()
           , updateRoute Routes.Login
           ]
         )
 
     Routes.Users ->
-      case model.session.token of
-        Just token ->
+      if Models.Session.valid model.session then
           let
-            msg = Pages.Users.init token
+            msg = Pages.Users.init model.session.token
               |> Task.attempt UsersLoaded
           in
             ({ model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg)
-        Nothing ->
-          pageErrored model
+      else
+        pageErrored model
 
 
 urlChange : Location -> Msg

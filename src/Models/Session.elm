@@ -1,28 +1,82 @@
 module Models.Session exposing (Session, init, valid)
 
 -- import Models.User exposing (User)
+--import Debug
+--import Time.DateTime as DateTime exposing (DateTime, fromTimestamp)
+--import Time.Date exposing (Date)
+--import Json.Decode exposing (Decoder, string, andThen, succeed, fail)
+--import Json.Decode.Extra exposing (fromResult)
+--import ISO8601
+--import Time.DateTime as DateTime exposing(DateTime)
+--import Time exposing (..)
+--import Task exposing (Task)
+
+import Port
 
 type alias Session =
-  { token : Maybe String }
+  { token : String
+  , exp : String
+  }
 
-init : String -> Session
-init token =
-    if (String.isEmpty token) then
-      { token = Nothing }
-    else
-      { token = Just token }
+init : String -> String -> Session
+init token exp =
+  if (String.isEmpty token) then
+    { token = ""
+    , exp = ""
+    }
+  else
+    { token = token
+    , exp = exp
+    }
 
 valid : Session -> Bool
 valid session =
   let
-    maybeToken = session.token
+    token = session.token
   in
-    case maybeToken of
-      Just maybeToken ->
-        True
-      Nothing ->
-        False
+    if (String.isEmpty token) then
+      False
+    else
+      True
 
+
+
+    --case Port.expired of
+    --  Ok result ->
+    --    True
+    --  Err _ ->
+    --    False
+
+    --expTimestamp = ISO8601.fromString session.exp
+
+    --currentTimestamp = Task.attempt processTime Time.now
+
+    --result = compare expTimestamp currentTimestamp
+    ---- log = Debug.log "Valid timestamp" timestamp
+
+
+
+--processTime : Result String Time.Time -> Time.Time
+--processTime result =
+--  case result of
+--    Ok time ->
+--      time
+--    Err _ ->
+--      millisToPosix 0
+
+    --currentTimestamp =
+    --  case Time.now of
+    --    Ok res ->
+    --      res
+    --    Err err ->
+    --      0
+
+
+--convertTimestamp : Decoder Date
+--convertTimestamp =
+--  string |> andThen (Time.Date.fromString >> fromResult)
+
+--  2018-10-04T23:27:18.958Z
 
 --type alias Session =
 --  { user : Maybe User

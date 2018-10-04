@@ -35,3 +35,12 @@ app.ports.removeStorage.subscribe(function() {
 app.ports.openWindow.subscribe(function(url) {
   window.open(url);
 });
+
+app.ports.expired.subscribe(function(exp) {
+  expDate = new Date(exp);
+  currentTime = Date.now();
+  if( expDate > currentTime ) {
+    return false;
+  }
+  return true;
+});

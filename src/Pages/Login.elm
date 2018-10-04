@@ -5,18 +5,19 @@ import Task exposing (Task)
 -- import Json.Decode as Decode
 import Port
 import Requests.Auth as Request
+import Models.Session exposing (Session)
 
 type Msg
   = SetEmail String
   | SetPassword String
   | Submit
-  | Authenticated (Result Http.Error String)
+  | Authenticated (Result Http.Error Session)
 
 type alias Model =
   { email : String
   , password : String
   , errorMsg : String
-  , token : String
+  , session : Session
   }
 
 initialModel : Model
@@ -24,7 +25,7 @@ initialModel =
   { email = ""
   , password = ""
   , errorMsg = ""
-  , token = ""
+  , session = (Models.Session.init "" "")
   }
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -44,8 +45,8 @@ update msg model =
           |> Task.attempt Authenticated
       in
         (model, newMsg)
-    Authenticated (Ok token ) ->
-      setStorageHelper { model | token = token }
+    Authenticated (Ok session ) ->
+      setStorageHelper { model | session = session }
     Authenticated (Err error ) ->
       ({ model | errorMsg = (toString error) }, Cmd.none)
 
@@ -53,7 +54,11 @@ update msg model =
 setStorageHelper : Model -> ( Model, Cmd Msg )
 setStorageHelper model =
   let
-    portModel = { session = model.token }
+    session = model.session
+    portModel =
+      { token = session.token
+      , exp = session.exp
+      }
   in
     ( model, Port.setStorage portModel )
 

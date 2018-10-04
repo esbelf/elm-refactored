@@ -54,6 +54,10 @@ showErrors model =
       ]
     , div []
       [ text "Token: "
-      , text model.token
+      , text model.session.token
+      ]
+    , div []
+      [ text "Exp: "
+      , text model.session.exp
       ]
     ]

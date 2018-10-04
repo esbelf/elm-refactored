@@ -4,11 +4,15 @@ import Json.Encode as Encode
 --import Msg exposing (..)
 
 type alias Model =
-  { session : String }
+  { token : String
+  , exp : String
+  }
 
 init : Model
 init =
-  { session = "" }
+  { token = ""
+  , exp = ""
+  }
 
 port setStorage : Model -> Cmd msg
 
@@ -17,3 +21,5 @@ port removeStorage : () -> Cmd msg
 port getStorage : Encode.Value -> Cmd msg
 
 port openWindow : String -> Cmd msg
+
+-- port expired : String -> Cmd msg

@@ -20,9 +20,10 @@ init flags location =
           portModel
         Nothing ->
           Port.init
-    log = Debug.log "session" ports.session
+    log1 = Debug.log "token" ports.token
+    log2 = Debug.log "exp" ports.exp
   in
-    Route.setRoute currentRoute (Model.init ports.session)
+    Route.setRoute currentRoute (Model.init ports)
 
 main : Program (Maybe Port.Model) Model Msg
 main =

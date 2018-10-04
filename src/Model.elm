@@ -1,5 +1,6 @@
 module Model exposing (Model, init, PageState(..), getPage)
 
+import Debug
 import Page exposing (Page)
 import Models.Session exposing (Session)
 
@@ -16,14 +17,15 @@ initialPage : Page
 initialPage =
     Page.Blank
 
-init : String -> Model
-init token =
+init : Session -> Model
+init session =
   let
-    session =
-      if (String.isEmpty token) then
-        { token = Nothing }
-      else
-        { token = Just token }
+    log = Debug.log "Model Init" session
+    --session =
+    --  if (String.isEmpty token) then
+    --    { token = Nothing }
+    --  else
+    --    { token = Just token }
   in
     { pageState = Loaded initialPage
     , session = session
