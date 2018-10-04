@@ -6,6 +6,8 @@ import Task exposing (Task)
 import Models.Group exposing (Group)
 import Requests.Group
 
+import Pages.Product
+
 type Msg
   = SetName String
   | SetPaymentMode String
@@ -13,11 +15,13 @@ type Msg
   | SetDisclosure String
   | UpdateGroupRequest
   | UpdateGroup (Result Http.Error Group)
+  | ProductMsg Pages.Product.Msg
 
 type alias Model =
   { group : Group
   , errorMsg : String
   , id : Int
+  , productPageModel : Pages.Product.Model
   }
 
 initialModel : Model
@@ -25,6 +29,7 @@ initialModel =
   { group = Models.Group.init
   , errorMsg = ""
   , id = 0
+  , productPageModel = Pages.Product.init
   }
 
 init : Int -> String -> Task Http.Error Model
@@ -80,3 +85,13 @@ update msg model token =
     UpdateGroup (Err error) ->
       ({ model | errorMsg = (toString error) }, Cmd.none)
 
+    ProductMsg subMsg ->
+      let
+        (newProductPageModel, newSubMsg) = Pages.Product.update subMsg model.productPageModel token
+        msg = Cmd.map transformProductMsg newSubMsg
+      in
+        ({ model | productPageModel = newProductPageModel }, msg)
+
+transformProductMsg : Pages.Product.Msg -> Msg
+transformProductMsg subMsg =
+  ProductMsg subMsg

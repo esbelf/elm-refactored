@@ -9,6 +9,7 @@ import Task exposing (Task)
 
 import Models.Group exposing (Group)
 import Requests.Base exposing (..)
+import Requests.Product
 
 getAll : String -> Task Http.Error (List Group)
 getAll token =
@@ -93,6 +94,7 @@ groupDecoder =
     |> optionalAt ["attributes", "disclosure"] Decode.string ""
     |> optionalAt ["attributes", "form_type"] Decode.string ""
     |> optionalAt ["attributes", "payment_mode"] Decode.int 12
+    |> optionalAt ["attributes", "product_pricing", "products"] Requests.Product.productsDecoder []
 
 
 groupUrl : Int -> String

@@ -4,6 +4,8 @@ import Msg exposing (..)
 import Pages.Group exposing (Model)
 import Models.Group exposing (Group)
 
+import Views.Product
+
 import Html exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Html.Attributes exposing (attribute, class, href, name, type_, value, placeholder)
@@ -17,7 +19,7 @@ view model =
       [ div [ class "uk-child-width-1-1@s uk-child-width-1-2@m" ]
         [ p [] [ text model.errorMsg ]
         , (groupInputs model.group)
-        , (groupProducts model.group)
+        , (Views.Product.view model.productPageModel)
         , button
           [ class "uk-button uk-button-primary uk-margin-small"
           , type_ "button"
@@ -26,16 +28,6 @@ view model =
         ]
       ]
     ]
-
-groupProducts : Group -> Html Msg
-groupProducts group =
-  div []
-    [ h3 [] [ text "Products" ]
-    , div [ ]
-      [
-      ]
-    ]
-
 
 groupInputs : Group -> Html Msg
 groupInputs group =
@@ -83,12 +75,4 @@ groupInputs group =
           ] []
         ]
       ]
-
-
---restrictPaymentMode : Int -> Int
---restrictPaymentMode num =
---  if num < 1 then
---    1
---  else
---    num
 
