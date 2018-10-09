@@ -15,7 +15,10 @@ var storedState = localStorage.getItem('session');
 var startingState = storedState ? JSON.parse(storedState) : null;
 
 // .embed() can take an optional second argument. This would be an object describing the data we need to start a program, i.e. a userID or some session
-var app = Elm.Main.embed(mountNode, startingState);
+var app = Elm.Main.embed(mountNode, {
+  state: startingState,
+  now: Time.now()
+});
 
 app.ports.setStorage.subscribe(function(state) {
   localStorage.setItem('session', JSON.stringify(state));

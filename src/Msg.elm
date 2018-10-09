@@ -25,3 +25,4 @@ type Msg
     | UsersLoaded (Result Http.Error Pages.Users.Model)
     | UsersMsg Pages.Users.Msg
     | BatchFormRequest Int (Result Http.Error String)
+    | TimeTick Time

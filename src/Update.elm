@@ -25,6 +25,9 @@ update msg model =
             model.session.token
     in
     case ( msg, page ) of
+        ( TimeTick now, _ ) ->
+            { model | session = Models.Session.updateCurrentTime now }
+
         ( SetRoute route, _ ) ->
             ( model, updateRoute route )
 

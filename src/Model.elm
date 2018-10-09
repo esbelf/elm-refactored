@@ -3,6 +3,7 @@ module Model exposing (Model, PageState(..), getPage, init)
 import Debug
 import Models.Session exposing (Session)
 import Page exposing (Page)
+import Time.DateTime as DateTime exposing (DateTime)
 
 
 type PageState
@@ -11,8 +12,9 @@ type PageState
 
 
 type alias Model =
-    { session : Session
+    { session : Maybe Session
     , pageState : PageState
+    , now : DateTime
     }
 
 
@@ -21,20 +23,15 @@ initialPage =
     Page.Blank
 
 
-init : Session -> Model
-init session =
+init : Maybe Session -> Float -> Model
+init session now =
     let
         log =
             Debug.log "Model Init" session
-
-        --session =
-        --  if (String.isEmpty token) then
-        --    { token = Nothing }
-        --  else
-        --    { token = Just token }
     in
     { pageState = Loaded initialPage
     , session = session
+    , currentTime = DateTime.fromTimestamp now
     }
 
 

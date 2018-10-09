@@ -1,49 +1,76 @@
-module Models.Session exposing (Session, init, valid)
+module Models.Session exposing (Session, init, initWithRecord, toPortModel, valid)
 
 -- import Models.User exposing (User)
 --import Debug
---import Time.DateTime as DateTime exposing (DateTime, fromTimestamp)
---import Time.Date exposing (Date)
---import Json.Decode exposing (Decoder, string, andThen, succeed, fail)
---import Json.Decode.Extra exposing (fromResult)
---import ISO8601
---import Time.DateTime as DateTime exposing(DateTime)
---import Time exposing (..)
---import Task exposing (Task)
 
 import Port
+import String.Extra exposing (nonEmpty)
+import Time.DateTime as DateTime exposing (DateTime)
+import Time.Iso8601 exposing (fromDateTime, toDateTime)
 
 
 type alias Session =
     { token : String
-    , exp : String
+    , exp : DateTime
     }
 
 
-init : String -> String -> Session
+{-| Take a token and expiry string, returning Nothing if either:
+
+  - token string is empty
+  - exp string is empty or unable to be parsed from ISO8601 format
+
+-}
+init : String -> String -> Maybe Session
 init token exp =
-    if String.isEmpty token then
-        { token = ""
-        , exp = ""
-        }
-
-    else
-        { token = token
-        , exp = exp
-        }
-
-
-valid : Session -> Bool
-valid session =
     let
-        token =
-            session.token
+        parsedExp =
+            toDateTime exp
+                |> Result.toMaybe
     in
-    if String.isEmpty token then
-        False
+    Maybe.map2 Session (nonEmpty token) parsedExp
 
-    else
-        True
+
+initWithRecord : Maybe { token : String, exp : String } -> Maybe Session
+initWithRecord maybeRec =
+    case maybeRec of
+        Just record ->
+            init record.token record.exp
+
+        Nothing ->
+            Nothing
+
+
+validateSession : Session -> DateTime -> Bool
+validateSession session now =
+    case DateTime.compare session.exp now of
+        LT ->
+            True
+
+        _ ->
+            False
+
+
+valid : Maybe Session -> DateTime -> Bool
+valid maybeSession now =
+    case maybeSession of
+        Just session ->
+            validateSession session now
+
+        Nothing ->
+            False
+
+
+toPortModel : Maybe Session -> Port.Model
+toPortModel maybeSession =
+    let
+        sessionToPort session =
+            { token = session.token
+            , exp = fromDateTime session.exp
+            }
+    in
+    Maybe.map sessionToPort maybeSession
+        |> Maybe.withDefault Port.init
 
 
 
