@@ -38,9 +38,6 @@ renderProduct index product =
             product.benefits
                 |> List.Extra.getAt product.focusedBenefit
                 |> Maybe.withDefault (Tier "ERROR" -1)
-
-        log =
-            Debug.log "benefitTier" benefitTier
     in
     div []
         [ input

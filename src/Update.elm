@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import Debug
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
 import Models.Session

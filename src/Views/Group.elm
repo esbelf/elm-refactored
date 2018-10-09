@@ -18,7 +18,9 @@ view model =
             [ div [ class "uk-child-width-1-1@s uk-child-width-1-2@m" ]
                 [ p [] [ text model.errorMsg ]
                 , groupInputs model.group
-                , Views.Product.view model.productPageModel
+                ]
+            , div [ class "uk-child-width-1-1@s" ]
+                [ Views.Product.view model.productPageModel
                 , button
                     [ class "uk-button uk-button-primary uk-margin-small"
                     , type_ "button"

@@ -41,9 +41,17 @@ init groupId token =
 
 addGroupToModel : Group -> Model
 addGroupToModel group =
+    let
+        pageProductModel =
+            Pages.Product.init
+
+        productPageModel =
+            { pageProductModel | products = group.products }
+    in
     { initialModel
         | id = group.id
         , group = group
+        , productPageModel = productPageModel
     }
 
 
@@ -104,8 +112,16 @@ update msg model token =
 
                 msg =
                     Cmd.map transformProductMsg newSubMsg
+
+                oldGroup =
+                    model.group
             in
-            ( { model | productPageModel = newProductPageModel }, msg )
+            ( { model
+                | productPageModel = newProductPageModel
+                , group = { oldGroup | products = newProductPageModel.products }
+              }
+            , msg
+            )
 
 
 transformProductMsg : Pages.Product.Msg -> Msg

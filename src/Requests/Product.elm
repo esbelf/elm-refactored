@@ -7,7 +7,6 @@ import Json.Decode as Dec exposing (Decoder, andThen, at, bool, dict, float, lis
 import Json.Decode.Pipeline exposing (custom, decode, hardcoded, optional, optionalAt, required, requiredAt)
 import Json.Encode as Enc exposing (Value)
 import Models.Product exposing (..)
-import Pages.Product
 
 
 
@@ -18,14 +17,6 @@ encode : List Product -> Value
 encode products =
     Enc.object <|
         [ ( "products", encodeProductList products ) ]
-
-
-
--- Enc.list <| List.map encodeProduct products
---encodeModel : Pages.Product.Model -> Value
---encodeModel model =
---    Enc.object <|
---        [ ("products", encodeProductList model) ]
 
 
 encodeProductList : List Product -> Value
