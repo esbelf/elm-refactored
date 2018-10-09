@@ -1,10 +1,11 @@
-module Page exposing (..)
+module Page exposing (Page(..))
 
+import Pages.Batches as Batches
+import Pages.Group as Group
+import Pages.Groups as Groups
 import Pages.Login as Login
 import Pages.Users as Users
-import Pages.Groups as Groups
-import Pages.Group as Group
-import Pages.Batches as Batches
+
 
 type Page
     = Blank
@@ -15,4 +16,3 @@ type Page
     | Batches Batches.Model
     | Login Login.Model
     | Users Users.Model
-
