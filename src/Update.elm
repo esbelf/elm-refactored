@@ -1,6 +1,5 @@
 module Update exposing (update)
 
-import Debug
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
 import Models.Session
@@ -26,6 +25,9 @@ update msg model =
             model.session.token
     in
     case ( msg, page ) of
+        ( TimeTick now, _ ) ->
+            { model | session = Models.Session.updateCurrentTime now }
+
         ( SetRoute route, _ ) ->
             ( model, updateRoute route )
 

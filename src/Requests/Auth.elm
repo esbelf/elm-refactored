@@ -7,6 +7,8 @@ import Json.Encode as Encode
 import Models.Session exposing (Session)
 import Requests.Base exposing (..)
 import Task exposing (Task)
+import Time.DateTime exposing (DateTime)
+import Time.Iso8601 exposing (toDateTime)
 
 
 type alias AuthObj =
@@ -28,7 +30,12 @@ sessionDecoder : Decode.Decoder Session
 sessionDecoder =
     decode Session
         |> required "token" Decode.string
-        |> required "exp" Decode.string
+        |> required "exp" dateTimeFromIsoString
+
+
+dateTimeFromIsoString : Decode.Decoder DateTime
+dateTimeFromIsoString =
+    Decode.map toDateTime Decode.string
 
 
 encode : AuthObj -> Encode.Value
