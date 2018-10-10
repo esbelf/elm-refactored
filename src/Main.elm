@@ -2,35 +2,36 @@ module Main exposing (main)
 
 import Debug
 import Model exposing (..)
+import Models.Session
 import Msg exposing (..)
 import Navigation
 import Port
 import Route exposing (parseLocation, setRoute, urlChange)
+import Time exposing (minute)
 import Update
 import View
 
 
-init : Maybe Port.Model -> Navigation.Location -> ( Model, Cmd Msg )
+type alias Flags =
+    { state : Maybe Port.Model
+    , now : Float
+    }
+
+
+init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
 init flags location =
     let
         currentRoute =
             Route.parseLocation location
 
-        ports =
-            case flags of
-                Just portModel ->
-                    portModel
-
-                Nothing ->
-                    Port.init
-
-        log1 =
-            Debug.log "token" ports.token
-
-        log2 =
-            Debug.log "exp" ports.exp
+        session =
+            Models.Session.initWithRecord flags.state
     in
-    Route.setRoute currentRoute (Model.init ports)
+    Route.setRoute currentRoute (Model.init session flags.now)
+
+
+subscriptions =
+    Time.every minute TimeTick
 
 
 main : Program (Maybe Port.Model) Model Msg
@@ -39,5 +40,5 @@ main =
         { init = init
         , view = View.view
         , update = Update.update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }

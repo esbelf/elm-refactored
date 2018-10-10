@@ -1,7 +1,5 @@
 module Pages.Login exposing (Model, Msg(..), initialModel, setStorageHelper, update)
 
--- import Json.Decode as Decode
-
 import Http
 import Models.Session exposing (Session)
 import Port
@@ -65,12 +63,7 @@ update msg model =
 setStorageHelper : Model -> ( Model, Cmd Msg )
 setStorageHelper model =
     let
-        session =
-            model.session
-
         portModel =
-            { token = session.token
-            , exp = session.exp
-            }
+            Models.Session.sessionToPort model.session
     in
     ( model, Port.setStorage portModel )
