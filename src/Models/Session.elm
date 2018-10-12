@@ -48,7 +48,7 @@ checkSessionValidity maybeSession now =
 {-| -}
 sessionExpiredCheck : DateTime -> Session -> Maybe Session
 sessionExpiredCheck now session =
-    case DateTime.compare session.exp now of
+    case DateTime.compare now session.exp of
         LT ->
             Just session
 
