@@ -3,7 +3,7 @@ module View exposing (view)
 -- import Debug
 
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, href)
+import Html.Attributes exposing (attribute, class, href, style)
 import Html.Events exposing (onClick)
 import Model exposing (Model, getPage)
 import Models.Session exposing (Session)
@@ -24,7 +24,7 @@ view model =
         [ header model
         , div [ class "uk-container" ]
             [ mainContent model ]
-        , footer
+        , debugFooter model
         ]
 
 
@@ -113,6 +113,14 @@ viewAuth maybeSession =
                 [ text "Login" ]
 
 
-footer : Html Msg
-footer =
+debugFooter : Model -> Html Msg
+debugFooter model =
+    code
+        [ style [ ( "white-space", "normal" ) ] ]
+        [ text (toString model)
+        ]
+
+
+footer : Model -> Html Msg
+footer model =
     div [] []
