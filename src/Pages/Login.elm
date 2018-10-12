@@ -18,7 +18,7 @@ type alias Model =
     { email : String
     , password : String
     , errorMsg : String
-    , session : Session
+    , session : Maybe Session
     }
 
 
@@ -27,7 +27,7 @@ initialModel =
     { email = ""
     , password = ""
     , errorMsg = ""
-    , session = Models.Session.init "" ""
+    , session = Nothing
     }
 
 
@@ -54,7 +54,7 @@ update msg model =
             ( model, newMsg )
 
         Authenticated (Ok session) ->
-            setStorageHelper { model | session = session }
+            setStorageHelper { model | session = Just session }
 
         Authenticated (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )
@@ -64,6 +64,6 @@ setStorageHelper : Model -> ( Model, Cmd Msg )
 setStorageHelper model =
     let
         portModel =
-            Models.Session.sessionToPort model.session
+            Models.Session.toPortModel model.session
     in
     ( model, Port.setStorage portModel )

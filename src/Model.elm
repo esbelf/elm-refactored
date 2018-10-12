@@ -14,7 +14,7 @@ type PageState
 type alias Model =
     { session : Maybe Session
     , pageState : PageState
-    , now : DateTime
+    , currentTime : DateTime
     }
 
 

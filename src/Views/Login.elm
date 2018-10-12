@@ -3,8 +3,10 @@ module Views.Login exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Models.Session exposing (Session)
 import Msg exposing (..)
 import Pages.Login exposing (Model)
+import Time.Iso8601 exposing (fromDateTime)
 
 
 view : Model -> Html Msg
@@ -50,17 +52,36 @@ view model =
 
 showErrors : Model -> Html Msg
 showErrors model =
-    div []
-        [ div []
+    let
+        errorDebugHtml =
             [ text "Error: "
             , text model.errorMsg
             ]
-        , div []
-            [ text "Token: "
-            , text model.session.token
-            ]
-        , div []
-            [ text "Exp: "
-            , text model.session.exp
-            ]
+
+        sessionDebugHtml =
+            model.session
+                |> Maybe.map sessionDebug
+                >> Maybe.withDefault missingSessionDebug
+    in
+    div [] (errorDebugHtml ++ sessionDebugHtml)
+
+
+sessionDebug : Session -> List (Html Msg)
+sessionDebug session =
+    [ div []
+        [ text "Session Token: "
+        , text session.token
         ]
+    , div []
+        [ text "Session Exp: "
+        , text (fromDateTime session.exp)
+        ]
+    ]
+
+
+missingSessionDebug : List (Html Msg)
+missingSessionDebug =
+    [ div []
+        [ text "[No session present]"
+        ]
+    ]

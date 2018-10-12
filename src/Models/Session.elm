@@ -1,4 +1,4 @@
-module Models.Session exposing (Session, init, initWithRecord, toPortModel, valid)
+module Models.Session exposing (Session, checkSessionValidity, init, initWithRecord, toPortModel)
 
 import Port
 import String.Extra exposing (nonEmpty)
@@ -38,24 +38,22 @@ initWithRecord maybeRec =
             Nothing
 
 
-validateSession : Session -> DateTime -> Bool
-validateSession session now =
+{-| Remove sessions that are invalid -- currently, only check is time expiry
+-}
+checkSessionValidity : Maybe Session -> DateTime -> Maybe Session
+checkSessionValidity maybeSession now =
+    Maybe.andThen (sessionExpiredCheck now) maybeSession
+
+
+{-| -}
+sessionExpiredCheck : DateTime -> Session -> Maybe Session
+sessionExpiredCheck now session =
     case DateTime.compare session.exp now of
         LT ->
-            True
+            Just session
 
         _ ->
-            False
-
-
-valid : Maybe Session -> DateTime -> Bool
-valid maybeSession now =
-    case maybeSession of
-        Just session ->
-            validateSession session now
-
-        Nothing ->
-            False
+            Nothing
 
 
 toPortModel : Maybe Session -> Port.Model
@@ -67,4 +65,4 @@ toPortModel maybeSession =
             }
     in
     Maybe.map sessionToPort maybeSession
-        |> Maybe.withDefault Port.init
+        |> Maybe.withDefault Port.blank

@@ -1,7 +1,7 @@
 module Route exposing (onClickRoute, parseLocation, routeToUrl, setRoute, updateRoute, urlChange)
 
 import Debug
-import Helper exposing (..)
+import Helper exposing (pageErrored)
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, href, style)
 import Html.Events exposing (defaultOptions, onWithOptions)
@@ -24,81 +24,66 @@ import UrlParser exposing (..)
 
 setRoute : Routes.Route -> Model -> ( Model, Cmd Msg )
 setRoute route model =
-    case route of
-        Routes.NotFound ->
+    let
+        checkedSession =
+            Models.Session.checkSessionValidity model.session model.currentTime
+    in
+    case ( route, checkedSession ) of
+        ( Routes.NotFound, _ ) ->
             ( model, Cmd.none )
 
-        Routes.Home ->
+        ( Routes.Home, _ ) ->
             ( { model | pageState = Loaded Page.Home }, Cmd.none )
 
-        Routes.Groups ->
-            if Models.Session.valid model.session then
-                let
-                    msg =
-                        Pages.Groups.init model.session.token
-                            |> Task.attempt GroupsLoaded
-                in
-                ( { model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg )
-
-            else
-                pageErrored model
-
-        Routes.Group groupId ->
-            if Models.Session.valid model.session then
-                let
-                    msg =
-                        Pages.Group.init groupId model.session.token
-                            |> Task.attempt GroupLoaded
-                in
-                ( { model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg )
-
-            else
-                pageErrored model
-
-        Routes.Batches ->
-            if Models.Session.valid model.session then
-                let
-                    msg =
-                        Pages.Batches.init model.session.token
-                            |> Task.attempt BatchesLoaded
-                in
-                ( { model | pageState = Loaded (Page.Batches Pages.Batches.initialModel) }, msg )
-
-            else
-                pageErrored model
-
-        Routes.Login ->
+        ( Routes.Login, _ ) ->
             ( { model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none )
 
-        Routes.Logout ->
+        ( Routes.Logout, _ ) ->
             let
-                oldSession =
-                    model.session
-
                 log =
-                    Debug.log "logout" oldSession
-
-                newSession =
-                    Models.Session.init "" ""
+                    Debug.log "logout" model.session
             in
-            ( { model | session = newSession }
+            ( { model | session = Nothing }
             , Cmd.batch
                 [ Port.removeStorage ()
                 , updateRoute Routes.Login
                 ]
             )
 
-        Routes.Users ->
-            if Models.Session.valid model.session then
-                let
-                    msg =
-                        Pages.Users.init model.session.token
-                            |> Task.attempt UsersLoaded
-                in
-                ( { model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg )
+        ( Routes.Groups, Just session ) ->
+            let
+                msg =
+                    Pages.Groups.init session.token
+                        |> Task.attempt GroupsLoaded
+            in
+            ( { model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg )
 
-            else
-                pageErrored model
+        ( Routes.Group groupId, Just session ) ->
+            let
+                msg =
+                    Pages.Group.init groupId session.token
+                        |> Task.attempt GroupLoaded
+            in
+            ( { model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg )
+
+        ( Routes.Batches, Just session ) ->
+            let
+                msg =
+                    Pages.Batches.init session.token
+                        |> Task.attempt BatchesLoaded
+            in
+            ( { model | pageState = Loaded (Page.Batches Pages.Batches.initialModel) }, msg )
+
+        ( Routes.Users, Just session ) ->
+            let
+                msg =
+                    Pages.Users.init session.token
+                        |> Task.attempt UsersLoaded
+            in
+            ( { model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg )
+
+        ( _, _ ) ->
+            pageErrored model
 
 
 urlChange : Location -> Msg

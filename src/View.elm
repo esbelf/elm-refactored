@@ -81,34 +81,36 @@ header model =
         ]
 
 
-viewLinks : Session -> Html Msg
-viewLinks session =
-    if Models.Session.valid session then
-        ul [ class "uk-navbar-nav" ]
-            [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
-                [ text "Groups" ]
-            , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
-                [ text "Batches" ]
-            , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
-                [ text "Users" ]
-            ]
+viewLinks : Maybe Session -> Html Msg
+viewLinks maybeSession =
+    case maybeSession of
+        Just session ->
+            ul [ class "uk-navbar-nav" ]
+                [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
+                    [ text "Groups" ]
+                , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
+                    [ text "Batches" ]
+                , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
+                    [ text "Users" ]
+                ]
 
-    else
-        ul [ class "uk-navbar-nav" ] []
+        Nothing ->
+            ul [ class "uk-navbar-nav" ] []
 
 
-viewAuth : Session -> Html Msg
-viewAuth session =
-    if Models.Session.valid session then
-        a
-            [ class "uk-navbar-item"
-            , onClick LogoutRequest
-            ]
-            [ text "Logout" ]
+viewAuth : Maybe Session -> Html Msg
+viewAuth maybeSession =
+    case maybeSession of
+        Just session ->
+            a
+                [ class "uk-navbar-item"
+                , onClick LogoutRequest
+                ]
+                [ text "Logout" ]
 
-    else
-        a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)
-            [ text "Login" ]
+        Nothing ->
+            a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)
+                [ text "Login" ]
 
 
 footer : Html Msg

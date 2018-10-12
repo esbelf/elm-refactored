@@ -1,4 +1,4 @@
-port module Port exposing (Model, getStorage, init, openWindow, removeStorage, setStorage)
+port module Port exposing (Model, blank, getStorage, openWindow, removeStorage, setStorage)
 
 import Json.Encode as Encode
 
@@ -13,8 +13,10 @@ type alias Model =
     }
 
 
-init : Model
-init =
+{-| Blank port model -- encodes/decodes from model.session == Nothing
+-}
+blank : Model
+blank =
     { token = ""
     , exp = ""
     }

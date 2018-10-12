@@ -9,6 +9,7 @@ import Requests.Base exposing (..)
 import Task exposing (Task)
 import Time.DateTime exposing (DateTime)
 import Time.Iso8601 exposing (toDateTime)
+import Time.Iso8601ErrorMsg as ParseError
 
 
 type alias AuthObj =
@@ -35,7 +36,18 @@ sessionDecoder =
 
 dateTimeFromIsoString : Decode.Decoder DateTime
 dateTimeFromIsoString =
-    Decode.map toDateTime Decode.string
+    let
+        isoToDateTime dateString =
+            case toDateTime dateString of
+                Ok dateTime ->
+                    Decode.succeed dateTime
+
+                Err error ->
+                    ParseError.renderText error
+                        |> Decode.fail
+    in
+    Decode.string
+        |> Decode.andThen isoToDateTime
 
 
 encode : AuthObj -> Encode.Value

@@ -13,6 +13,15 @@ import Pages.Users
 import Port
 import Route exposing (parseLocation, setRoute, updateRoute)
 import Routes
+import Time exposing (Time)
+import Time.DateTime as DateTime
+
+
+updateWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toPage toMsg model ( subModel, subCmd ) =
+    ( { model | pageState = Loaded (toPage subModel) }
+    , Cmd.map toMsg subCmd
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -21,12 +30,17 @@ update msg model =
         page =
             getPage model.pageState
 
-        token =
-            model.session.token
+        requireSessionOrError callback =
+            case model.session of
+                Just session ->
+                    callback session
+
+                Nothing ->
+                    pageErrored model
     in
     case ( msg, page ) of
         ( TimeTick now, _ ) ->
-            { model | session = Models.Session.updateCurrentTime now }
+            ( { model | currentTime = DateTime.fromTimestamp now }, Cmd.none )
 
         ( SetRoute route, _ ) ->
             ( model, updateRoute route )
@@ -35,23 +49,18 @@ update msg model =
             setRoute route model
 
         -- Route.Home
+        -- TODO! This doesn't seem like what we want to do?
+        -- potential Cmd race condition when navigating away from Home?
         ( HomeMsg, _ ) ->
             ( { model | pageState = Loaded Home }, Cmd.none )
 
         -- Route.Groups
         ( GroupsMsg subMsg, Groups subModel ) ->
-            if Models.Session.valid model.session then
-                let
-                    ( newSubModel, newSubMsg ) =
-                        Pages.Groups.update subMsg subModel token
-
-                    msg =
-                        Cmd.map transformGroupsMsg newSubMsg
-                in
-                ( { model | pageState = Loaded (Groups newSubModel) }, msg )
-
-            else
-                pageErrored model
+            requireSessionOrError
+                (\session ->
+                    Pages.Groups.update subMsg subModel session.token
+                        |> updateWith Groups GroupsMsg model
+                )
 
         ( GroupsLoaded (Ok subModel), _ ) ->
             ( { model | pageState = Loaded (Groups subModel) }, Cmd.none )
@@ -61,18 +70,11 @@ update msg model =
 
         -- Route.Group
         ( GroupMsg subMsg, Group subModel ) ->
-            if Models.Session.valid model.session then
-                let
-                    ( newSubModel, newSubMsg ) =
-                        Pages.Group.update subMsg subModel token
-
-                    msg =
-                        Cmd.map transformGroupMsg newSubMsg
-                in
-                ( { model | pageState = Loaded (Group newSubModel) }, msg )
-
-            else
-                pageErrored model
+            requireSessionOrError
+                (\session ->
+                    Pages.Group.update subMsg subModel session.token
+                        |> updateWith Group GroupMsg model
+                )
 
         ( GroupLoaded (Ok subModel), _ ) ->
             ( { model | pageState = Loaded (Group subModel) }, Cmd.none )
@@ -81,18 +83,11 @@ update msg model =
             ( { model | pageState = Loaded Blank }, Cmd.none )
 
         ( BatchesMsg subMsg, Batches subModel ) ->
-            if Models.Session.valid model.session then
-                let
-                    ( newSubModel, newSubMsg ) =
-                        Pages.Batches.update subMsg subModel token
-
-                    msg =
-                        Cmd.map transformBatchesMsg newSubMsg
-                in
-                ( { model | pageState = Loaded (Batches newSubModel) }, msg )
-
-            else
-                pageErrored model
+            requireSessionOrError
+                (\session ->
+                    Pages.Batches.update subMsg subModel session.token
+                        |> updateWith Batches BatchesMsg model
+                )
 
         ( BatchesLoaded (Ok subModel), _ ) ->
             ( { model | pageState = Loaded (Batches subModel) }, Cmd.none )
@@ -107,7 +102,7 @@ update msg model =
                     Pages.Login.update subMsg subModel
 
                 msg =
-                    Cmd.map transformLoginMsg newSubMsg
+                    Cmd.map LoginMsg newSubMsg
 
                 session =
                     newSubModel.session
@@ -120,11 +115,7 @@ update msg model =
             )
 
         ( LogoutRequest, _ ) ->
-            let
-                emptySession =
-                    Models.Session.init "" ""
-            in
-            ( { model | session = emptySession }
+            ( { model | session = Nothing }
             , Cmd.batch
                 [ Port.removeStorage ()
                 , updateRoute Routes.Login
@@ -133,18 +124,11 @@ update msg model =
 
         -- Route.Users
         ( UsersMsg subMsg, Users subModel ) ->
-            if Models.Session.valid model.session then
-                let
-                    ( newSubModel, newSubMsg ) =
-                        Pages.Users.update subMsg subModel token
-
-                    msg =
-                        Cmd.map transformUserMsg newSubMsg
-                in
-                ( { model | pageState = Loaded (Users newSubModel) }, msg )
-
-            else
-                pageErrored model
+            requireSessionOrError
+                (\session ->
+                    Pages.Users.update subMsg subModel session.token
+                        |> updateWith Users UsersMsg model
+                )
 
         ( UsersLoaded (Ok subModel), _ ) ->
             ( { model | pageState = Loaded (Users subModel) }, Cmd.none )
@@ -155,38 +139,3 @@ update msg model =
         -- Catch All for now
         ( _, _ ) ->
             ( model, Cmd.none )
-
-
-transformLoginMsg : Pages.Login.Msg -> Msg
-transformLoginMsg subMsg =
-    LoginMsg subMsg
-
-
-transformUserMsg : Pages.Users.Msg -> Msg
-transformUserMsg subMsg =
-    UsersMsg subMsg
-
-
-transformGroupsMsg : Pages.Groups.Msg -> Msg
-transformGroupsMsg subMsg =
-    GroupsMsg subMsg
-
-
-transformGroupMsg : Pages.Group.Msg -> Msg
-transformGroupMsg subMsg =
-    GroupMsg subMsg
-
-
-transformBatchesMsg : Pages.Batches.Msg -> Msg
-transformBatchesMsg subMsg =
-    BatchesMsg subMsg
-
-
-
---transformMsg : a -> b -> Msg
---transformMsg mainMsg subMsg =
---  Cmd.map (transformMsgHelper mainMsg) subMsg
---transformMsgHelper : String -> Msg
---transformMsgHelper a =
---  a b
---type alias MsgType a =

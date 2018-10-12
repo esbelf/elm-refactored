@@ -30,11 +30,12 @@ init flags location =
     Route.setRoute currentRoute (Model.init session flags.now)
 
 
-subscriptions =
+subscriptions : Model -> Sub Msg
+subscriptions model =
     Time.every minute TimeTick
 
 
-main : Program (Maybe Port.Model) Model Msg
+main : Program Flags Model Msg
 main =
     Navigation.programWithFlags Route.urlChange
         { init = init
