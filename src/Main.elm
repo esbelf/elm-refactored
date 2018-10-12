@@ -1,6 +1,5 @@
 module Main exposing (main)
 
-import Debug
 import Model exposing (..)
 import Models.Session
 import Msg exposing (..)
