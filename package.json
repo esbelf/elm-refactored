@@ -6,9 +6,10 @@
   "scripts": {
     "fake-api": "node api.js",
     "other-fake-api": "json-server --watch db.json --port 4000",
-    "build": "webpack",
+    "build": "webpack --output=dist/app.js",
     "client": "webpack-dev-server --port 8080",
-    "other-client": "elm-live src/Main.elm --pushstate"
+    "other-client": "elm-live src/Main.elm --pushstate",
+    "deploy": "aws s3 sync dist/ s3://easyins"
   },
   "devDependencies": {
     "css-loader": "^1.0.0",
