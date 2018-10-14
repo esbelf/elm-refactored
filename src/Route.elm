@@ -39,10 +39,6 @@ setRoute route model =
             ( { model | pageState = Loaded (Page.Login Pages.Login.initialModel) }, Cmd.none )
 
         ( Routes.Logout, _ ) ->
-            let
-                log =
-                    Debug.log "logout" model.session
-            in
             ( { model | session = Nothing }
             , Cmd.batch
                 [ Port.removeStorage ()
@@ -191,7 +187,7 @@ maybePreventDefault msg preventDefault =
 
 baseUrl : String
 baseUrl =
-    "http://localhost:8080/"
+    "http://easyins.s3-website-us-east-1.amazonaws.com"
 
 
 invertedOr : Bool -> Bool -> Bool

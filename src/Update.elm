@@ -48,12 +48,6 @@ update msg model =
         ( RouteChanged route, _ ) ->
             setRoute route model
 
-        -- Route.Home
-        -- TODO! This doesn't seem like what we want to do?
-        -- potential Cmd race condition when navigating away from Home?
-        ( HomeMsg, _ ) ->
-            ( { model | pageState = Loaded Home }, Cmd.none )
-
         -- Route.Groups
         ( GroupsMsg subMsg, Groups subModel ) ->
             requireSessionOrError

@@ -24,7 +24,6 @@ view model =
         [ header model
         , div [ class "uk-container" ]
             [ mainContent model ]
-        , debugFooter model
         ]
 
 

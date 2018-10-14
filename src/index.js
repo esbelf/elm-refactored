@@ -14,7 +14,9 @@ var mountNode = document.getElementById('main');
 var storedState = localStorage.getItem('session');
 var startingState = storedState ? JSON.parse(storedState) : null;
 
-// .embed() can take an optional second argument. This would be an object describing the data we need to start a program, i.e. a userID or some session
+// .embed() can take an optional second argument.
+// This would be an object describing the data we need to start
+// a program, i.e. a userID or some session
 var app = Elm.Main.embed(mountNode, {
   state: startingState,
   now: Date.now()
@@ -31,7 +33,6 @@ app.ports.getStorage.subscribe(function() {
 });
 
 app.ports.removeStorage.subscribe(function() {
-  console.log("remove session");
   localStorage.removeItem('session');
 });
 
@@ -39,11 +40,3 @@ app.ports.openWindow.subscribe(function(url) {
   window.open(url);
 });
 
-// app.ports.expired.subscribe(function(exp) {
-//   expDate = new Date(exp);
-//   currentTime = Date.now();
-//   if( expDate > currentTime ) {
-//     return false;
-//   }
-//   return true;
-// });
