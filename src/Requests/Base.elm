@@ -2,6 +2,7 @@ module Requests.Base exposing (baseUrl, dataDecoder, getFileToken, stringToInt)
 
 import Http
 import Json.Decode as Decode
+import Navigation exposing (Location)
 import Task exposing (Task)
 
 
@@ -46,4 +47,11 @@ fileTokenUrl =
 
 baseUrl : String
 baseUrl =
-    "https://easyins-staging.herokuapp.com/api/v1"
+    "http://localhost:3000/api/v1"
+
+
+
+--if String.contains Navigation.Location.host "localhost" then
+--    "http://localhost:3000/api/v1"
+--else
+--    "https://easyins-staging.herokuapp.com/api/v1"

@@ -1,9 +1,10 @@
 module Views.Group exposing (view)
 
+-- import Models.Group exposing (Group)
+
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, href, name, placeholder, type_, value)
+import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Models.Group exposing (Group)
 import Msg exposing (..)
 import Pages.Group exposing (Model)
 import Views.Product
@@ -17,7 +18,7 @@ view model =
         , fieldset [ class "uk-fieldset" ]
             [ div [ class "uk-child-width-1-1@s uk-child-width-1-2@m" ]
                 [ p [] [ text model.errorMsg ]
-                , groupInputs model.group
+                , groupInputs model
                 ]
             , div [ class "uk-child-width-1-1@s" ]
                 [ Views.Product.view model.productPageModel
@@ -32,11 +33,17 @@ view model =
         ]
 
 
-groupInputs : Group -> Html Msg
-groupInputs group =
+groupInputs : Model -> Html Msg
+groupInputs model =
+    let
+        group =
+            model.group
+    in
     div []
         [ div [ class "uk-margin" ]
-            [ input
+            [ span [ class "uk-label" ]
+                [ text "Name" ]
+            , input
                 [ class "uk-input"
                 , name "name"
                 , type_ "input"
@@ -71,6 +78,8 @@ groupInputs group =
                 []
             ]
         , div [ class "uk-margin" ]
+            [ toggleEmployeeContribution model ]
+        , div [ class "uk-margin" ]
             [ span [ class "uk-label" ] [ text "Disclosure" ]
             , textarea
                 [ class "uk-textarea"
@@ -80,4 +89,56 @@ groupInputs group =
                 ]
                 []
             ]
+        ]
+
+
+toggleEmployeeContribution : Model -> Html Msg
+toggleEmployeeContribution model =
+    let
+        group =
+            model.group
+
+        textBox =
+            if model.showEmployeeContribution then
+                div []
+                    [ textarea
+                        [ class "uk-textarea"
+                        , name "employee_contribution"
+                        , value group.employee_contribution
+                        , onInput (GroupMsg << Pages.Group.SetEmployeeContribution)
+                        ]
+                        []
+                    ]
+
+            else
+                div [] []
+    in
+    div []
+        [ span [ class "uk-label" ]
+            [ text "Contributions" ]
+        , div [ class "uk-grid-small uk-child-width-auto uk-grid" ]
+            [ label []
+                [ input
+                    [ class "uk-radio"
+                    , type_ "radio"
+                    , name "employee-contribution"
+                    , checked (not model.showEmployeeContribution)
+                    , onClick (GroupMsg Pages.Group.ToggleEmployeeContribution)
+                    ]
+                    []
+                , text "Employee Contribution"
+                ]
+            , label []
+                [ input
+                    [ class "uk-radio"
+                    , type_ "radio"
+                    , name "employee-contribution"
+                    , checked model.showEmployeeContribution
+                    , onClick (GroupMsg Pages.Group.ToggleEmployeeContribution)
+                    ]
+                    []
+                , text "100% Employer Paid"
+                ]
+            ]
+        , textBox
         ]

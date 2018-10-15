@@ -81,6 +81,7 @@ groupEncoder group =
             , ( "name", Encode.string group.name )
             , ( "disclosure", Encode.string group.disclosure )
             , ( "form_type", Encode.string group.form_type )
+            , ( "employee_contribution", Encode.string group.employee_contribution )
             , ( "payment_mode", Encode.int group.payment_mode )
             , ( "product_pricing", Requests.Product.encode group.products )
             ]
@@ -101,6 +102,7 @@ groupDecoder =
         |> requiredAt [ "attributes", "name" ] Decode.string
         |> optionalAt [ "attributes", "disclosure" ] Decode.string ""
         |> optionalAt [ "attributes", "form_type" ] Decode.string ""
+        |> optionalAt [ "attributes", "employee_contribution" ] Decode.string ""
         |> optionalAt [ "attributes", "payment_mode" ] Decode.int 12
         |> optionalAt [ "attributes", "product_pricing", "products" ] Requests.Product.productsDecoder []
 

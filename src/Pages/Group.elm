@@ -12,6 +12,8 @@ type Msg
     | SetPaymentMode String
     | SetFormType String
     | SetDisclosure String
+    | SetEmployeeContribution String
+    | ToggleEmployeeContribution
     | UpdateGroupRequest
     | UpdateGroup (Result Http.Error Group)
     | ProductMsg Pages.Product.Msg
@@ -22,6 +24,7 @@ type alias Model =
     , errorMsg : String
     , id : Int
     , productPageModel : Pages.Product.Model
+    , showEmployeeContribution : Bool
     }
 
 
@@ -31,6 +34,7 @@ initialModel =
     , errorMsg = ""
     , id = 0
     , productPageModel = Pages.Product.init
+    , showEmployeeContribution = False
     }
 
 
@@ -47,11 +51,15 @@ addGroupToModel group =
 
         productPageModel =
             { pageProductModel | products = group.products }
+
+        showEmployeeContribution =
+            not (String.isEmpty group.employee_contribution)
     in
     { initialModel
         | id = group.id
         , group = group
         , productPageModel = productPageModel
+        , showEmployeeContribution = showEmployeeContribution
     }
 
 
@@ -90,6 +98,29 @@ update msg model token =
                     model.group
             in
             ( { model | group = { oldGroup | disclosure = disclosure } }, Cmd.none )
+
+        SetEmployeeContribution contributionText ->
+            let
+                oldGroup =
+                    model.group
+            in
+            ( { model | group = { oldGroup | employee_contribution = contributionText } }, Cmd.none )
+
+        ToggleEmployeeContribution ->
+            if model.showEmployeeContribution then
+                ( { model | showEmployeeContribution = not model.showEmployeeContribution }, Cmd.none )
+
+            else
+                let
+                    oldGroup =
+                        model.group
+                in
+                ( { model
+                    | showEmployeeContribution = not model.showEmployeeContribution
+                    , group = { oldGroup | employee_contribution = "" }
+                  }
+                , Cmd.none
+                )
 
         UpdateGroupRequest ->
             let
