@@ -27,6 +27,6 @@ init =
 
 
 type FormType
-    = Chubb
+    = Life
     | Ibew
     | HealthSuppOnlyProduct

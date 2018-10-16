@@ -59,7 +59,7 @@ groupInputs model =
                 , name "form_type"
                 , onInput (GroupMsg << Pages.Group.SetFormType)
                 ]
-                [ option [ value "chubb" ] [ text "Chubb" ]
+                [ option [ value "life" ] [ text "Life" ]
                 , option [ value "ibew" ] [ text "IBEW" ]
                 , option [ value "health_supp_only_product" ]
                     [ text "Health Supply Only Product" ]
