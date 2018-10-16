@@ -5,7 +5,8 @@ type Route
     = NotFound
     | Home
     | Groups
-    | Group Int
+    | EditGroup Int
+    | CreateGroup
     | Batches
     | Login
     | Logout

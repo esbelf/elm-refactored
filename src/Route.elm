@@ -1,6 +1,5 @@
 module Route exposing (onClickRoute, parseLocation, routeToUrl, setRoute, updateRoute, urlChange)
 
-import Debug
 import Helper exposing (pageErrored)
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, href, style)
@@ -12,7 +11,8 @@ import Msg exposing (..)
 import Navigation exposing (Location)
 import Page
 import Pages.Batches
-import Pages.Group
+import Pages.CreateGroup
+import Pages.EditGroup
 import Pages.Groups
 import Pages.Login
 import Pages.Users
@@ -54,13 +54,16 @@ setRoute route model =
             in
             ( { model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg )
 
-        ( Routes.Group groupId, Just session ) ->
+        ( Routes.EditGroup groupId, Just session ) ->
             let
                 msg =
-                    Pages.Group.init groupId session.token
-                        |> Task.attempt GroupLoaded
+                    Pages.EditGroup.init groupId session.token
+                        |> Task.attempt EditGroupLoaded
             in
-            ( { model | pageState = Loaded (Page.Group Pages.Group.initialModel) }, msg )
+            ( { model | pageState = Loaded (Page.EditGroup Pages.EditGroup.initialModel) }, msg )
+
+        ( Routes.CreateGroup, _ ) ->
+            ( { model | pageState = Loaded (Page.CreateGroup Pages.CreateGroup.initialModel) }, Cmd.none )
 
         ( Routes.Batches, Just session ) ->
             let
@@ -96,7 +99,8 @@ routeParser =
     oneOf
         [ map Routes.Home top
         , map Routes.Groups (s (routeToUrl Routes.Groups))
-        , map Routes.Group (s (routeToUrl Routes.Groups) </> int)
+        , map Routes.EditGroup (s (routeToUrl Routes.Groups) </> int)
+        , map Routes.CreateGroup (s "group") -- How to make it "groups/new"
         , map Routes.Batches (s (routeToUrl Routes.Batches))
         , map Routes.Users (s (routeToUrl Routes.Users))
         , map Routes.Login (s (routeToUrl Routes.Login))
@@ -122,8 +126,11 @@ routeToUrl route =
         Routes.Groups ->
             "groups"
 
-        Routes.Group id ->
+        Routes.EditGroup id ->
             "groups/" ++ toString id
+
+        Routes.CreateGroup ->
+            "groups/new"
 
         Routes.Batches ->
             "batches"

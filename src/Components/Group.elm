@@ -1,8 +1,8 @@
-module Pages.Group exposing (Model, Msg(..), addGroupToModel, init, initialModel, transformProductMsg, update)
+module Components.Group exposing (Model, Msg(..), addGroupToModel, init, initialModel, update)
 
+import Components.Product
 import Http
 import Models.Group exposing (Group)
-import Pages.Product
 import Requests.Group
 import Task exposing (Task)
 
@@ -16,14 +16,14 @@ type Msg
     | ToggleEmployeeContribution
     | UpdateGroupRequest
     | UpdateGroup (Result Http.Error Group)
-    | ProductMsg Pages.Product.Msg
+    | ProductMsg Components.Product.Msg
 
 
 type alias Model =
     { group : Group
     , errorMsg : String
     , id : Int
-    , productPageModel : Pages.Product.Model
+    , productPageModel : Components.Product.Model
     , showEmployeeContribution : Bool
     }
 
@@ -33,7 +33,7 @@ initialModel =
     { group = Models.Group.init
     , errorMsg = ""
     , id = 0
-    , productPageModel = Pages.Product.init
+    , productPageModel = Components.Product.init
     , showEmployeeContribution = False
     }
 
@@ -47,7 +47,7 @@ addGroupToModel : Group -> Model
 addGroupToModel group =
     let
         pageProductModel =
-            Pages.Product.init
+            Components.Product.init
 
         productPageModel =
             { pageProductModel | products = group.products }
@@ -139,10 +139,10 @@ update msg model token =
         ProductMsg subMsg ->
             let
                 ( newProductPageModel, newSubMsg ) =
-                    Pages.Product.update subMsg model.productPageModel token
+                    Components.Product.update subMsg model.productPageModel token
 
                 msg =
-                    Cmd.map transformProductMsg newSubMsg
+                    Cmd.map ProductMsg newSubMsg
 
                 oldGroup =
                     model.group
@@ -153,8 +153,3 @@ update msg model token =
               }
             , msg
             )
-
-
-transformProductMsg : Pages.Product.Msg -> Msg
-transformProductMsg subMsg =
-    ProductMsg subMsg

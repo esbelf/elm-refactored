@@ -12,8 +12,14 @@ import Routes exposing (Route)
 
 view : Model -> Html Msg
 view model =
-    div [ class "uk-margin" ]
-        [ h1 [] [ text "Groups" ]
+    div [ class "uk-margin uk-margin-top" ]
+        [ div [ class "uk-flex uk-flex-wrap uk-flex-wrap around" ]
+            [ h1 [ class "uk-width-1-2" ] [ text "Groups" ]
+            , div [ class "uk-width-1-2" ]
+                [ a ([ class "uk-button-primary uk-button uk-align-right" ] ++ onClickRoute Routes.CreateGroup)
+                    [ text "Create Group" ]
+                ]
+            ]
         , div []
             [ p [] [ text model.errorMsg ]
             ]
@@ -41,7 +47,7 @@ viewGroup : Group -> Html Msg
 viewGroup group =
     tr []
         [ td []
-            [ a ([ class "uk-link-text" ] ++ onClickRoute (Routes.Group group.id))
+            [ a ([ class "uk-link-text" ] ++ onClickRoute (Routes.EditGroup group.id))
                 [ text group.name ]
             ]
         , td []

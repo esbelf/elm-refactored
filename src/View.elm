@@ -12,7 +12,8 @@ import Page exposing (..)
 import Route exposing (onClickRoute)
 import Routes exposing (Route)
 import Views.Batches
-import Views.Group
+import Views.CreateGroup
+import Views.EditGroup
 import Views.Groups
 import Views.Login
 import Views.Users
@@ -49,8 +50,11 @@ mainContent model =
         Groups pageModel ->
             Views.Groups.view pageModel
 
-        Group pageModel ->
-            Views.Group.view pageModel
+        EditGroup pageModel ->
+            Views.EditGroup.view pageModel
+
+        CreateGroup pageModel ->
+            Views.CreateGroup.view pageModel
 
         Batches pageModel ->
             Views.Batches.view pageModel

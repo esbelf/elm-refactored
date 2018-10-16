@@ -1,7 +1,8 @@
 module Page exposing (Page(..))
 
 import Pages.Batches as Batches
-import Pages.Group as Group
+import Pages.CreateGroup as CreateGroup
+import Pages.EditGroup as EditGroup
 import Pages.Groups as Groups
 import Pages.Login as Login
 import Pages.Users as Users
@@ -12,7 +13,8 @@ type Page
     | Error String
     | Home
     | Groups Groups.Model
-    | Group Group.Model
+    | EditGroup EditGroup.Model
+    | CreateGroup CreateGroup.Model
     | Batches Batches.Model
     | Login Login.Model
     | Users Users.Model

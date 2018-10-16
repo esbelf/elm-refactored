@@ -6,7 +6,8 @@ import Models.Session
 import Msg exposing (..)
 import Page exposing (..)
 import Pages.Batches
-import Pages.Group
+import Pages.CreateGroup
+import Pages.EditGroup
 import Pages.Groups
 import Pages.Login
 import Pages.Users
@@ -62,20 +63,35 @@ update msg model =
         ( GroupsLoaded (Err error), _ ) ->
             ( { model | pageState = Loaded Blank }, Cmd.none )
 
-        -- Route.Group
-        ( GroupMsg subMsg, Group subModel ) ->
+        -- Route.EditGroup
+        ( EditGroupMsg subMsg, EditGroup subModel ) ->
             requireSessionOrError
                 (\session ->
-                    Pages.Group.update subMsg subModel session.token
-                        |> updateWith Group GroupMsg model
+                    Pages.EditGroup.update subMsg subModel session.token
+                        |> updateWith EditGroup EditGroupMsg model
                 )
 
-        ( GroupLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (Group subModel) }, Cmd.none )
+        ( EditGroupLoaded (Ok subModel), _ ) ->
+            ( { model | pageState = Loaded (EditGroup subModel) }, Cmd.none )
 
-        ( GroupLoaded (Err error), _ ) ->
+        ( EditGroupLoaded (Err error), _ ) ->
             ( { model | pageState = Loaded Blank }, Cmd.none )
 
+        -- Routes.CreateGroup
+        ( CreateGroupMsg subMsg, CreateGroup subModel ) ->
+            requireSessionOrError
+                (\session ->
+                    Pages.CreateGroup.update subMsg subModel session.token
+                        |> updateWith CreateGroup CreateGroupMsg model
+                )
+
+        ( CreateGroupLoaded (Ok subModel), _ ) ->
+            ( { model | pageState = Loaded (CreateGroup subModel) }, Cmd.none )
+
+        ( CreateGroupLoaded (Err error), _ ) ->
+            ( { model | pageState = Loaded Blank }, Cmd.none )
+
+        -- Route.Batches
         ( BatchesMsg subMsg, Batches subModel ) ->
             requireSessionOrError
                 (\session ->

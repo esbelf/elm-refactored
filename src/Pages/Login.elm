@@ -54,10 +54,19 @@ update msg model =
             ( model, newMsg )
 
         Authenticated (Ok session) ->
-            setStorageHelper { model | session = Just session }
+            setStorageHelper
+                { model
+                    | session = Just session
+                    , errorMsg = ""
+                }
 
         Authenticated (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model
+                | session = Nothing
+                , errorMsg = toString error
+              }
+            , Cmd.none
+            )
 
 
 setStorageHelper : Model -> ( Model, Cmd Msg )

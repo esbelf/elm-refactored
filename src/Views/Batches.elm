@@ -46,7 +46,7 @@ viewBatch : Batch -> Html Msg
 viewBatch batch =
     tr []
         [ th []
-            [ a ([] ++ onClickRoute (Routes.Group batch.group_id))
+            [ a ([] ++ onClickRoute (Routes.EditGroup batch.group_id))
                 [ text batch.group_name ]
             ]
         , th [] [ text batch.start_date ]

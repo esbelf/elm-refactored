@@ -1,5 +1,6 @@
 module Views.Product exposing (view)
 
+import Components.Product
 import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
@@ -9,15 +10,14 @@ import Html.Events exposing (onClick, onFocus, onInput)
 import Json.Encode
 import List.Extra
 import Models.Product exposing (..)
-import Pages.Product
 import Requests.Product exposing (encode)
 
 
-view : Pages.Product.Model -> Html Pages.Product.Msg
+view : Components.Product.Model -> Html Components.Product.Msg
 view model =
     div []
         (List.indexedMap renderProduct model.products
-            ++ [ a [ onClick Pages.Product.AddProduct ]
+            ++ [ a [ onClick Components.Product.AddProduct ]
                     [ text "Add Product" ]
                , textarea
                     [ name "group[product_pricing]"
@@ -29,7 +29,7 @@ view model =
         )
 
 
-renderProduct : Int -> Product -> Html Pages.Product.Msg
+renderProduct : Int -> Product -> Html Components.Product.Msg
 renderProduct index product =
     let
         benefitTier =
@@ -40,7 +40,7 @@ renderProduct index product =
     div []
         [ input
             [ class "uk-input"
-            , onInput (Pages.Product.SetProductName index)
+            , onInput (Components.Product.SetProductName index)
             , placeholder "Product Name"
             , value product.name
             ]
@@ -52,7 +52,7 @@ renderProduct index product =
             [ textarea
                 [ class "uk-input uk-width-4-5"
                 , style [ ( "line-height", "1.5rem" ) ]
-                , onInput (Pages.Product.SetBenefitDisplay index benefitTier.key)
+                , onInput (Components.Product.SetBenefitDisplay index benefitTier.key)
                 , rows 3
                 , value benefitTier.display
                 ]
@@ -60,13 +60,13 @@ renderProduct index product =
             , div [ class "uk-align-right" ]
                 [ span
                     [ attribute "uk-icon" "close"
-                    , onClick (Pages.Product.ConfirmRemoveTier index BenefitTier benefitTier.key)
+                    , onClick (Components.Product.ConfirmRemoveTier index BenefitTier benefitTier.key)
                     , title "Remove Benefit Tier"
                     ]
                     []
                 , span
                     [ attribute "uk-icon" "plus-circle"
-                    , onClick (Pages.Product.AddBenefitTier index)
+                    , onClick (Components.Product.AddBenefitTier index)
                     , title "Add Benefit Tier"
                     ]
                     []
@@ -81,7 +81,7 @@ renderProduct index product =
         ]
 
 
-explicitDeductionToggle : Int -> Product -> Html Pages.Product.Msg
+explicitDeductionToggle : Int -> Product -> Html Components.Product.Msg
 explicitDeductionToggle index product =
     div [ class "uk-margin uk-grid-small uk-child-width-auto uk-grid" ]
         [ label []
@@ -90,7 +90,7 @@ explicitDeductionToggle index product =
                 , type_ "radio"
                 , name "exp-deduction"
                 , checked (not product.explicitDeductions)
-                , onClick (Pages.Product.ToggleExplicitDeductions index)
+                , onClick (Components.Product.ToggleExplicitDeductions index)
                 ]
                 []
             , text "Auto-calculate deductions from monthly"
@@ -101,7 +101,7 @@ explicitDeductionToggle index product =
                 , type_ "radio"
                 , name "exp-deduction"
                 , checked product.explicitDeductions
-                , onClick (Pages.Product.ToggleExplicitDeductions index)
+                , onClick (Components.Product.ToggleExplicitDeductions index)
                 ]
                 []
             , text "Enter explicit deduction amounts"
@@ -109,7 +109,7 @@ explicitDeductionToggle index product =
         ]
 
 
-riskLevelToggle : Int -> Product -> Html Pages.Product.Msg
+riskLevelToggle : Int -> Product -> Html Components.Product.Msg
 riskLevelToggle index product =
     let
         hasRiskLevels =
@@ -122,7 +122,7 @@ riskLevelToggle index product =
                 , type_ "radio"
                 , name "risk-levels-toggle"
                 , checked (not hasRiskLevels)
-                , onClick (Pages.Product.ToggleRiskLevel index)
+                , onClick (Components.Product.ToggleRiskLevel index)
                 ]
                 []
             , text "Normal risk level only"
@@ -133,7 +133,7 @@ riskLevelToggle index product =
                 , type_ "radio"
                 , name "risk-levels-toggle"
                 , checked hasRiskLevels
-                , onClick (Pages.Product.ToggleRiskLevel index)
+                , onClick (Components.Product.ToggleRiskLevel index)
                 ]
                 []
             , text "Normal and High risk levels"
@@ -143,19 +143,19 @@ riskLevelToggle index product =
             , value product.riskLabel
             , placeholder "Label"
             , disabled (not hasRiskLevels)
-            , onInput (Pages.Product.SetRiskLabel index)
+            , onInput (Components.Product.SetRiskLabel index)
             ]
             []
         ]
 
 
-benefitTabs : Int -> Product -> Html Pages.Product.Msg
+benefitTabs : Int -> Product -> Html Components.Product.Msg
 benefitTabs index product =
     ul [ class "uk-child-width-expand", attribute "uk-tab" "1" ]
         (List.map (benefitTab index product.focusedBenefit) product.benefits)
 
 
-benefitTab : Int -> Int -> Tier -> Html Pages.Product.Msg
+benefitTab : Int -> Int -> Tier -> Html Components.Product.Msg
 benefitTab productIndex benefitIndex benefit =
     let
         tabClass key =
@@ -167,12 +167,12 @@ benefitTab productIndex benefitIndex benefit =
     in
     li
         [ class (tabClass benefit.key)
-        , onClick (Pages.Product.FocusBenefit productIndex benefit.key)
+        , onClick (Components.Product.FocusBenefit productIndex benefit.key)
         ]
         [ a [] [ text benefit.display ] ]
 
 
-headerRow : Int -> Product -> Html Pages.Product.Msg
+headerRow : Int -> Product -> Html Components.Product.Msg
 headerRow index product =
     tr []
         [ th []
@@ -199,7 +199,7 @@ headerRow index product =
         ]
 
 
-deductionPriceTable : Int -> Product -> Html Pages.Product.Msg
+deductionPriceTable : Int -> Product -> Html Components.Product.Msg
 deductionPriceTable index product =
     case product.focus of
         Nothing ->
@@ -321,7 +321,7 @@ calculateDeduction monthly deductMode =
         |> DecimalField.fromFloat
 
 
-deductionPriceRow : ( Int, Int, Coverage, RiskLevel ) -> Product -> DeductionMode -> Html Pages.Product.Msg
+deductionPriceRow : ( Int, Int, Coverage, RiskLevel ) -> Product -> DeductionMode -> Html Components.Product.Msg
 deductionPriceRow ( productIndex, ageIndex, coverage, risk ) product deductMode =
     if deductMode == Monthly || product.explicitDeductions then
         explicitDeductionPriceRow ( productIndex, ageIndex, coverage, risk ) product deductMode
@@ -345,7 +345,7 @@ deductionPriceRow ( productIndex, ageIndex, coverage, risk ) product deductMode 
             ]
 
 
-explicitDeductionPriceRow : ( Int, Int, Coverage, RiskLevel ) -> Product -> DeductionMode -> Html Pages.Product.Msg
+explicitDeductionPriceRow : ( Int, Int, Coverage, RiskLevel ) -> Product -> DeductionMode -> Html Components.Product.Msg
 explicitDeductionPriceRow ( productIndex, ageIndex, coverage, risk ) product deductMode =
     let
         price =
@@ -356,20 +356,20 @@ explicitDeductionPriceRow ( productIndex, ageIndex, coverage, risk ) product ded
             [ text (deductionModeLabel deductMode) ]
         , input
             [ value (DecimalField.inputValue price)
-            , onInput (Pages.Product.SetPrice productIndex ageIndex coverage deductMode risk)
+            , onInput (Components.Product.SetPrice productIndex ageIndex coverage deductMode risk)
             ]
             []
         ]
 
 
-tableBody : Int -> Product -> List (Html Pages.Product.Msg)
+tableBody : Int -> Product -> List (Html Components.Product.Msg)
 tableBody index product =
     List.map (renderBenefitRow index product) product.ages
         ++ [ tr []
                 ([ th []
                     [ span
                         [ attribute "uk-icon" "plus-circle"
-                        , onClick (Pages.Product.AddAgeTier index)
+                        , onClick (Components.Product.AddAgeTier index)
                         , title "Add Age Tier"
                         ]
                         []
@@ -381,14 +381,14 @@ tableBody index product =
            ]
 
 
-renderBenefitRow : Int -> Product -> Tier -> Html Pages.Product.Msg
+renderBenefitRow : Int -> Product -> Tier -> Html Components.Product.Msg
 renderBenefitRow index product ageTier =
     tr []
         ([ td []
             [ input
                 [ class "uk-input"
                 , value ageTier.display
-                , onInput (Pages.Product.SetTierDisplay index ageTier.key)
+                , onInput (Components.Product.SetTierDisplay index ageTier.key)
                 ]
                 []
             ]
@@ -398,7 +398,7 @@ renderBenefitRow index product ageTier =
             ++ [ td []
                     [ span
                         [ attribute "uk-icon" "close"
-                        , onClick (Pages.Product.ConfirmRemoveTier index AgeTier ageTier.key)
+                        , onClick (Components.Product.ConfirmRemoveTier index AgeTier ageTier.key)
                         , title "Remove Age Tier"
                         ]
                         []
@@ -407,7 +407,7 @@ renderBenefitRow index product ageTier =
         )
 
 
-renderCell : Int -> Tier -> Int -> EveryDict Coverage PriceGrid -> List RiskLevel -> Coverage -> Html Pages.Product.Msg
+renderCell : Int -> Tier -> Int -> EveryDict Coverage PriceGrid -> List RiskLevel -> Coverage -> Html Components.Product.Msg
 renderCell productIndex ageTier benefitIndex pricing riskLevels coverage =
     let
         multiRisk =
@@ -443,7 +443,7 @@ renderCell productIndex ageTier benefitIndex pricing riskLevels coverage =
         ]
 
 
-renderInput : Int -> Int -> Coverage -> DeductionMode -> (RiskLevel -> DecimalField) -> Bool -> RiskLevel -> Html Pages.Product.Msg
+renderInput : Int -> Int -> Coverage -> DeductionMode -> (RiskLevel -> DecimalField) -> Bool -> RiskLevel -> Html Components.Product.Msg
 renderInput productIndex ageIndex coverage deductMode getPrice multiRisk risk =
     let
         className =
@@ -460,14 +460,14 @@ renderInput productIndex ageIndex coverage deductMode getPrice multiRisk risk =
         [ input
             [ class "uk-input"
             , value (DecimalField.inputValue (getPrice risk))
-            , onInput (Pages.Product.SetPrice productIndex ageIndex coverage deductMode risk)
-            , onFocus (Pages.Product.SetFocus productIndex ageIndex coverage risk)
+            , onInput (Components.Product.SetPrice productIndex ageIndex coverage deductMode risk)
+            , onFocus (Components.Product.SetFocus productIndex ageIndex coverage risk)
             ]
             []
         ]
 
 
-renderModal : Pages.Product.Model -> Html Pages.Product.Msg
+renderModal : Components.Product.Model -> Html Components.Product.Msg
 renderModal model =
     case model.removeTier of
         Nothing ->
@@ -533,13 +533,13 @@ renderModal model =
                         [ button
                             [ class "uk-button uk-button-default uk-modal-close"
                             , type_ "button"
-                            , onClick Pages.Product.CancelRemoveTier
+                            , onClick Components.Product.CancelRemoveTier
                             ]
                             [ text "Cancel" ]
                         , button
                             [ class "uk-button uk-button-primary"
                             , type_ "button"
-                            , onClick Pages.Product.RemoveTier
+                            , onClick Components.Product.RemoveTier
                             ]
                             [ text "Delete" ]
                         ]

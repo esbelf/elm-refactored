@@ -1,4 +1,4 @@
-module Pages.Product exposing (Model, Msg(..), addAgeTier, addBenefitTier, addProduct, addTier, cancelRemoveTier, confirmRemoveTier, focusBenefit, init, rekey, removeAgePricing, removeAgePricing_, removeBenefitPricing, removeBenefitPricing_, removeBenefitPricing__, removeTier, renameBaseTier, setBenefitDisplay, setFocus, setName, setPrice, setRiskLabel, setTierDisplay, toggleExplicitDeductions, toggleRiskLevel, update)
+module Components.Product exposing (Model, Msg(..), addAgeTier, addBenefitTier, addProduct, addTier, cancelRemoveTier, confirmRemoveTier, focusBenefit, init, rekey, removeAgePricing, removeAgePricing_, removeBenefitPricing, removeBenefitPricing_, removeBenefitPricing__, removeTier, renameBaseTier, setBenefitDisplay, setFocus, setName, setPrice, setRiskLabel, setTierDisplay, toggleExplicitDeductions, toggleRiskLevel, update)
 
 import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)

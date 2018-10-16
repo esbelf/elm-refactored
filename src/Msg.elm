@@ -2,7 +2,8 @@ module Msg exposing (Msg(..))
 
 import Http
 import Pages.Batches
-import Pages.Group
+import Pages.CreateGroup
+import Pages.EditGroup
 import Pages.Groups
 import Pages.Login
 import Pages.Users
@@ -17,8 +18,10 @@ type Msg
     | HomeMsg
     | GroupsLoaded (Result Http.Error Pages.Groups.Model)
     | GroupsMsg Pages.Groups.Msg
-    | GroupLoaded (Result Http.Error Pages.Group.Model)
-    | GroupMsg Pages.Group.Msg
+    | EditGroupLoaded (Result Http.Error Pages.EditGroup.Model)
+    | EditGroupMsg Pages.EditGroup.Msg
+    | CreateGroupMsg Pages.CreateGroup.Msg
+    | CreateGroupLoaded (Result Http.Error Pages.CreateGroup.Model)
     | BatchesLoaded (Result Http.Error Pages.Batches.Model)
     | BatchesMsg Pages.Batches.Msg
     | BathesLoaded (Result Http.Error Pages.Batches.Model)
