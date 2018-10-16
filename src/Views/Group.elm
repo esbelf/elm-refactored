@@ -7,10 +7,20 @@ import Html.Attributes exposing (attribute, checked, class, href, name, placehol
 import Html.Events exposing (onClick, onInput)
 import Msg exposing (..)
 import Pages.Group exposing (Model)
+import Pages.Product
 import Views.Product
 
 
-view : Model -> Html Msg
+
+-- Html Pages.Product.Msg -> Html Pages.Group.Msg
+
+
+convertToGroupMsgHtml : (subMsg -> mainMsg) -> Html subMsg -> Html mainMsg
+convertToGroupMsgHtml toGroupMsg subMsgHtml =
+    Html.map toGroupMsg subMsgHtml
+
+
+view : Pages.Group.Model -> Html Msg
 view model =
     div [ class "uk-margin" ]
         [ h1 [] [ text "Edit Group" ]
@@ -21,7 +31,7 @@ view model =
                 , groupInputs model
                 ]
             , div [ class "uk-child-width-1-1@s" ]
-                [ Views.Product.view model.productPageModel
+                [ convertToGroupMsgHtml GroupMsg (convertToGroupMsgHtml Pages.Group.ProductMsg (Views.Product.view model.productPageModel))
                 , button
                     [ class "uk-button uk-button-primary uk-margin-small"
                     , type_ "button"

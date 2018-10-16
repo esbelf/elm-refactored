@@ -1,6 +1,5 @@
 module Model exposing (Model, PageState(..), getPage, init)
 
-import Debug
 import Models.Session exposing (Session)
 import Page exposing (Page)
 import Time.DateTime as DateTime exposing (DateTime)
