@@ -10,7 +10,6 @@ type alias Group =
     , form_type : String
     , employee_contribution : String
     , payment_mode : Int
-    , products : List Product
     }
 
 
@@ -22,7 +21,6 @@ init =
     , form_type = ""
     , employee_contribution = ""
     , payment_mode = 0
-    , products = []
     }
 
 

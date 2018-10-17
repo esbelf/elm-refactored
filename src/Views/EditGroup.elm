@@ -12,5 +12,5 @@ view : Pages.EditGroup.Model -> Html Msg
 view model =
     div [ class "uk-margin" ]
         [ h1 [] [ text "Edit Group" ]
-        , convertMsgHtml EditGroupMsg (convertMsgHtml Pages.EditGroup.GroupMsg (Views.Group.view model.groupComponent))
+        , convertMsgHtml EditGroupMsg (convertMsgHtml Pages.EditGroup.GroupMsg (Views.Components.Group.view model.groupComponent))
         ]

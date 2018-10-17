@@ -12,5 +12,5 @@ view : Pages.CreateGroup.Model -> Html Msg
 view model =
     div [ class "uk-margin" ]
         [ h1 [] [ text "CreateGroup" ]
-        , convertMsgHtml CreateGroupMsg (convertMsgHtml Pages.CreateGroup.GroupMsg (Views.Group.view model.groupComponent))
+        , convertMsgHtml CreateGroupMsg (convertMsgHtml Pages.CreateGroup.GroupMsg (Views.Components.Group.view model.groupComponent))
         ]

@@ -1,4 +1,4 @@
-module View.CreateProduct exposing (view)
+module Views.CreateProduct exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
@@ -12,5 +12,5 @@ view : Pages.CreateProduct.Model -> Html Msg
 view model =
     div [ class "uk-margin" ]
         [ h1 [] [ text "Create Product" ]
-        , convertMsgHtml CreateProductMsg (convertMsgHtml Pages.CreateProduct.ProductMsg (Views.Product.view model.productComponent))
+        , convertMsgHtml CreateProductMsg (convertMsgHtml Pages.CreateProduct.ProductMsg (Views.Components.Product.view model.productComponent))
         ]

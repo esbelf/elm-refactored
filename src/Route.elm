@@ -17,6 +17,7 @@ import Pages.EditGroup
 import Pages.EditProduct
 import Pages.Groups
 import Pages.Login
+import Pages.Products
 import Pages.Users
 import Port
 import Routes exposing (Route)

@@ -1,4 +1,4 @@
-module Pages.Products exposing (Model, addProductsToModel, init, initialModel)
+module Pages.Products exposing (Model, Msg(..), addProductsToModel, init, initialModel, update)
 
 import Http
 import Models.Product exposing (Product)

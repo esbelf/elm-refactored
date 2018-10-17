@@ -1,13 +1,12 @@
-module Requests.Product exposing (coveragePricing, decodePriceGrid, decodePricing, decodeRiskLevels, decodeTierList, delete, encode, encodeAgePricing, encodeBenefitPricing, encodePricing, encodeProduct, encodeProductList, encodeTier, getAll, labeledDeductionMode, labeledRiskLevel, productDecoder, productUrl, productsDecoder, productsUrl, setExplicitDeduction, toCoverage, toDeductionMode, toRisk, transformDeductionMode, transformPriceGrid, transformPriceGrid_, transformPricing, transformRisk)
+module Requests.Product exposing (delete, get, getAll, productDecoder, productEncoder, productUrl, productsDecoder, productsUrl)
 
-import Dict exposing (Dict)
-import EveryDict exposing (EveryDict)
-import Helpers.DecimalField as DecimalField exposing (DecimalField)
+-- import Json.Encode as Encode
+
 import Http
-import Json.Decode as Dec exposing (Decoder, andThen, at, bool, dict, float, list, string, succeed)
-import Json.Decode.Pipeline exposing (custom, decode, hardcoded, optional, optionalAt, required, requiredAt)
-import Json.Encode as Enc exposing (Value)
-import Models.Product exposing (..)
+import Json.Decode as Decode
+import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import Json.Encode as Encode
+import Models.Product exposing (Product)
 import Requests.Base exposing (..)
 import Task exposing (Task)
 
@@ -30,6 +29,20 @@ getAll token =
         |> Http.toTask
 
 
+get : Int -> String -> Task Http.Error Product
+get productId token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , body = Http.emptyBody
+        , expect = Http.expectJson (dataDecoder productDecoder)
+        , method = "GET"
+        , timeout = Nothing
+        , url = productUrl productId
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
 delete : Int -> String -> Task Http.Error String
 delete productId token =
     Http.request
@@ -44,6 +57,30 @@ delete productId token =
         |> Http.toTask
 
 
+productsDecoder : Decode.Decoder (List Product)
+productsDecoder =
+    Decode.list productDecoder
+
+
+productDecoder : Decode.Decoder Product
+productDecoder =
+    decode Product
+        |> custom (Decode.at [ "id" ] Decode.string |> Decode.andThen stringToInt)
+        |> requiredAt [ "attributes", "name" ] Decode.string
+
+
+productEncoder : Product -> Http.Body
+productEncoder product =
+    let
+        attributes =
+            [ ( "id", Encode.int product.id )
+            , ( "name", Encode.string product.name )
+            ]
+    in
+    Encode.object attributes
+        |> Http.jsonBody
+
+
 productsUrl : String
 productsUrl =
     baseUrl ++ "/products"
@@ -52,310 +89,3 @@ productsUrl =
 productUrl : Int -> String
 productUrl productId =
     productsUrl ++ "/" ++ toString productId
-
-
-
---- ENCODING PARTS -----
-
-
-encode : List Product -> Value
-encode products =
-    Enc.object <|
-        [ ( "products", encodeProductList products ) ]
-
-
-encodeProductList : List Product -> Value
-encodeProductList products =
-    Enc.list <| List.map encodeProduct products
-
-
-coveragePricing : Coverage -> Product -> PriceGrid
-coveragePricing coverage product =
-    EveryDict.get coverage product.pricing
-        |> Maybe.withDefault Dict.empty
-
-
-encodeProduct : Product -> Value
-encodeProduct product =
-    let
-        hasRisk =
-            List.length product.riskLevels > 1
-    in
-    Enc.object <|
-        [ ( "name", Enc.string product.name )
-        , ( "benefits", Enc.list <| List.map encodeTier product.benefits )
-        , ( "ages", Enc.list <| List.map encodeTier product.ages )
-        , ( "risk"
-          , Enc.object <|
-                [ ( "enabled", Enc.bool <| hasRisk )
-                , ( "label", Enc.string <| product.riskLabel )
-                ]
-          )
-        , ( "pricing"
-          , Enc.object <|
-                [ ( "EE", encodeAgePricing product (coveragePricing Employee product) )
-                , ( "SP", encodeAgePricing product (coveragePricing PlusSpouse product) )
-                , ( "CH", encodeAgePricing product (coveragePricing PlusKids product) )
-                , ( "FM", encodeAgePricing product (coveragePricing PlusFamily product) )
-                ]
-          )
-        ]
-
-
-encodeTier : Tier -> Value
-encodeTier tier =
-    Enc.object <|
-        [ ( "display", Enc.string tier.display )
-        ]
-
-
-encodeAgePricing : Product -> PriceGrid -> Value
-encodeAgePricing product pricing =
-    Enc.list <| List.map (encodeBenefitPricing product pricing) product.ages
-
-
-encodeBenefitPricing : Product -> PriceGrid -> Tier -> Value
-encodeBenefitPricing product pricing ageTier =
-    let
-        deductionModes =
-            if product.explicitDeductions then
-                [ Monthly, SemiMonthly, BiWeekly, Weekly ]
-
-            else
-                [ Monthly ]
-    in
-    Enc.list <| List.map (encodePricing ( deductionModes, product.riskLevels ) pricing ageTier.key) product.benefits
-
-
-encodePricing : ( List DeductionMode, List RiskLevel ) -> PriceGrid -> Int -> Tier -> Value
-encodePricing ( deductModes, riskLevels ) pricing ageIndex benefitTier =
-    let
-        deductions =
-            List.map labeledDeductionMode deductModes
-
-        risks =
-            List.map labeledRiskLevel riskLevels
-
-        agePrices =
-            Dict.get ageIndex pricing
-                |> Maybe.withDefault Dict.empty
-
-        benePrices =
-            Dict.get benefitTier.key agePrices
-                |> Maybe.withDefault EveryDict.empty
-
-        riskPrice deductMode riskLevel =
-            let
-                dmPrices =
-                    EveryDict.get deductMode benePrices
-                        |> Maybe.withDefault EveryDict.empty
-            in
-            EveryDict.get riskLevel dmPrices
-                |> Maybe.withDefault (DecimalField.fromFloat 0.0)
-                |> .value
-
-        encodeDM ( label, deductMode ) =
-            ( label
-            , Enc.object <|
-                List.map (\( l, r ) -> ( l, Enc.float <| riskPrice deductMode r )) risks
-            )
-    in
-    Enc.object <| List.map encodeDM deductions
-
-
-labeledDeductionMode : DeductionMode -> ( String, DeductionMode )
-labeledDeductionMode mode =
-    case mode of
-        Monthly ->
-            ( "M", Monthly )
-
-        SemiMonthly ->
-            ( "S", SemiMonthly )
-
-        BiWeekly ->
-            ( "B", BiWeekly )
-
-        Weekly ->
-            ( "W", Weekly )
-
-
-labeledRiskLevel : RiskLevel -> ( String, RiskLevel )
-labeledRiskLevel level =
-    case level of
-        NormalRisk ->
-            ( "N", NormalRisk )
-
-        HighRisk ->
-            ( "H", HighRisk )
-
-
-
---- DECODING PARTS -----
-
-
-productsDecoder : Decoder (List Product)
-productsDecoder =
-    list productDecoder
-
-
-productDecoder : Decoder Product
-productDecoder =
-    decode Product
-        |> required "name" string
-        |> required "pricing" decodePricing
-        |> required "benefits" decodeTierList
-        |> required "ages" decodeTierList
-        |> requiredAt [ "risk", "label" ] string
-        |> custom
-            (at [ "risk", "enabled" ] bool
-                |> andThen decodeRiskLevels
-            )
-        |> hardcoded 0
-        |> custom
-            (at [ "pricing" ] decodePricing
-                |> andThen setExplicitDeduction
-            )
-        |> hardcoded Nothing
-
-
-decodePricing : Decoder (EveryDict Coverage PriceGrid)
-decodePricing =
-    dict decodePriceGrid
-        |> andThen
-            (\d ->
-                d
-                    |> transformPricing
-                    |> succeed
-            )
-
-
-transformPricing : Dict String PriceGrid -> EveryDict Coverage PriceGrid
-transformPricing d =
-    d
-        |> Dict.toList
-        |> List.map (\( c, a ) -> ( toCoverage c, a ))
-        |> EveryDict.fromList
-
-
-decodePriceGrid : Decoder PriceGrid
-decodePriceGrid =
-    list (list (dict (dict float)))
-        |> andThen
-            (\g ->
-                g
-                    |> transformPriceGrid
-                    |> succeed
-            )
-
-
-transformPriceGrid_ : List (Dict String (Dict String Float)) -> Dict Int (EveryDict DeductionMode (EveryDict RiskLevel DecimalField))
-transformPriceGrid_ l =
-    l
-        |> List.indexedMap (\index -> \d -> ( index, transformDeductionMode d ))
-        |> Dict.fromList
-
-
-transformPriceGrid : List (List (Dict String (Dict String Float))) -> PriceGrid
-transformPriceGrid l =
-    l
-        |> List.indexedMap (\index -> \nested -> ( index, transformPriceGrid_ nested ))
-        |> Dict.fromList
-
-
-transformDeductionMode : Dict String (Dict String Float) -> EveryDict DeductionMode (EveryDict RiskLevel DecimalField)
-transformDeductionMode d =
-    d
-        |> Dict.toList
-        |> List.map (\( m, r ) -> ( toDeductionMode m, transformRisk r ))
-        |> EveryDict.fromList
-
-
-decodeTierList : Decoder (List Tier)
-decodeTierList =
-    list (dict string)
-        |> andThen
-            (\l ->
-                l
-                    |> List.indexedMap
-                        (\i ->
-                            \t ->
-                                Tier
-                                    (Dict.get "display" t |> Maybe.withDefault "")
-                                    i
-                        )
-                    |> succeed
-            )
-
-
-decodeRiskLevels : Bool -> Decoder (List RiskLevel)
-decodeRiskLevels flag =
-    if flag then
-        succeed [ NormalRisk, HighRisk ]
-
-    else
-        succeed [ NormalRisk ]
-
-
-setExplicitDeduction : EveryDict Coverage PriceGrid -> Decoder Bool
-setExplicitDeduction d =
-    let
-        deductionModes =
-            EveryDict.get Employee d
-                |> Maybe.withDefault Dict.empty
-                |> Dict.get 0
-                |> Maybe.withDefault Dict.empty
-                |> Dict.get 0
-                |> Maybe.withDefault EveryDict.empty
-                |> EveryDict.keys
-    in
-    succeed (List.length deductionModes > 1)
-
-
-toDeductionMode : String -> DeductionMode
-toDeductionMode d =
-    case d of
-        "S" ->
-            SemiMonthly
-
-        "B" ->
-            BiWeekly
-
-        "W" ->
-            Weekly
-
-        _ ->
-            Monthly
-
-
-toCoverage : String -> Coverage
-toCoverage c =
-    case c of
-        "SP" ->
-            PlusSpouse
-
-        "CH" ->
-            PlusKids
-
-        "FM" ->
-            PlusFamily
-
-        _ ->
-            Employee
-
-
-toRisk : String -> RiskLevel
-toRisk r =
-    case r of
-        "H" ->
-            HighRisk
-
-        _ ->
-            NormalRisk
-
-
-transformRisk : Dict String Float -> EveryDict RiskLevel DecimalField
-transformRisk r =
-    r
-        |> Dict.toList
-        |> List.map (\( l, f ) -> ( toRisk l, DecimalField.fromFloat f ))
-        |> EveryDict.fromList

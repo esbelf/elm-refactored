@@ -8,7 +8,6 @@ import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, requ
 import Json.Encode as Encode
 import Models.Group exposing (Group)
 import Requests.Base exposing (..)
-import Requests.Product
 import Task exposing (Task)
 
 
@@ -83,7 +82,6 @@ groupEncoder group =
             , ( "form_type", Encode.string group.form_type )
             , ( "employee_contribution", Encode.string group.employee_contribution )
             , ( "payment_mode", Encode.int group.payment_mode )
-            , ( "product_pricing", Requests.Product.encode group.products )
             ]
     in
     Encode.object attributes
@@ -104,7 +102,6 @@ groupDecoder =
         |> optionalAt [ "attributes", "form_type" ] Decode.string ""
         |> optionalAt [ "attributes", "employee_contribution" ] Decode.string ""
         |> optionalAt [ "attributes", "payment_mode" ] Decode.int 12
-        |> optionalAt [ "attributes", "product_pricing", "products" ] Requests.Product.productsDecoder []
 
 
 groupUrl : Int -> String
