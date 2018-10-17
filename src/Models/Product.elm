@@ -9,8 +9,7 @@ import Helpers.DecimalField exposing (DecimalField)
 type alias Product =
     { id : Int
     , name : String
-
-    -- , rates : List Column
+    , rates : List Column
     }
 
 
@@ -18,8 +17,7 @@ init : Product
 init =
     { id = 0
     , name = ""
-
-    --  , rates = []
+    , rates = []
     }
 
 
@@ -39,8 +37,11 @@ type alias Data =
     , max : Int
     , received : String
     , amount : String
-    , costs : Dict TimeSplit Cost
     }
+
+
+
+-- , costs : Dict TimeSplit Cost
 
 
 type alias Cost =

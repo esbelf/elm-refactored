@@ -1,4 +1,4 @@
-module Requests.Group exposing (delete, get, getAll, previewUrl, update)
+module Requests.Group exposing (create, delete, get, getAll, previewUrl, update)
 
 -- import Date exposing (Date)
 
@@ -34,6 +34,20 @@ get groupId token =
         , method = "GET"
         , timeout = Nothing
         , url = groupUrl groupId
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
+create : Group -> String -> Task Http.Error Group
+create group token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , body = groupEncoder group
+        , expect = Http.expectJson (dataDecoder groupDecoder)
+        , method = "POST"
+        , timeout = Nothing
+        , url = groupsUrl
         , withCredentials = False
         }
         |> Http.toTask

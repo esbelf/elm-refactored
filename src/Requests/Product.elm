@@ -1,4 +1,4 @@
-module Requests.Product exposing (delete, get, getAll, productDecoder, productEncoder, productUrl, productsDecoder, productsUrl)
+module Requests.Product exposing (create, delete, get, getAll, update)
 
 -- import Json.Encode as Encode
 
@@ -43,6 +43,34 @@ get productId token =
         |> Http.toTask
 
 
+create : Product -> String -> Task Http.Error Product
+create product token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , body = productEncoder product
+        , expect = Http.expectJson (dataDecoder productDecoder)
+        , method = "POST"
+        , timeout = Nothing
+        , url = productsUrl
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
+update : Product -> String -> Task Http.Error Product
+update product token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , body = productEncoder product
+        , expect = Http.expectJson (dataDecoder productDecoder)
+        , method = "PATCH"
+        , timeout = Nothing
+        , url = productUrl product.id
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
 delete : Int -> String -> Task Http.Error String
 delete productId token =
     Http.request
@@ -67,6 +95,41 @@ productDecoder =
     decode Product
         |> custom (Decode.at [ "id" ] Decode.string |> Decode.andThen stringToInt)
         |> requiredAt [ "attributes", "name" ] Decode.string
+        |> requiredAt [ "attributes", "rates" ] decodeColumns
+
+
+decodeColumns : Decode.Decoder (List Models.Product.Column)
+decodeColumns =
+    Decode.list decodeColumn
+
+
+decodeColumn : Decode.Decoder Models.Product.Column
+decodeColumn =
+    decode Models.Product.Column
+        |> requiredAt [ "name" ] Decode.string
+        |> requiredAt [ "data" ] decodeDatas
+
+
+decodeDatas : Decode.Decoder (List Models.Product.Data)
+decodeDatas =
+    Decode.list decodeData
+
+
+decodeData : Decode.Decoder Models.Product.Data
+decodeData =
+    decode Models.Product.Data
+        |> required "display" Decode.string
+        |> required "min" Decode.int
+        |> required "max" Decode.int
+        |> optional "received" Decode.string ""
+        |> required "amount" Decode.string
+
+
+
+--  |> required "costs" Decode.dict decodeCosts
+--decodeCosts : Decode.Decoder (Dict Models.Product.TimeSplit Models.Product.Cost)
+--decodeCosts =
+--    Decode.dict decode
 
 
 productEncoder : Product -> Http.Body

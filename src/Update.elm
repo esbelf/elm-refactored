@@ -1,8 +1,8 @@
 module Update exposing (update)
 
+import Debug
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
-import Models.Session
 import Msg exposing (..)
 import Page exposing (..)
 import Pages.Batches
@@ -17,7 +17,6 @@ import Pages.Users
 import Port
 import Route exposing (parseLocation, setRoute, updateRoute)
 import Routes
-import Time exposing (Time)
 import Time.DateTime as DateTime
 
 
@@ -64,6 +63,10 @@ update msg model =
             ( { model | pageState = Loaded (Products subModel) }, Cmd.none )
 
         ( ProductsLoaded (Err error), _ ) ->
+            let
+                log =
+                    Debug.log "Error " error
+            in
             ( { model | pageState = Loaded Blank }, Cmd.none )
 
         -- Route.EditProduct

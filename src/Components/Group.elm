@@ -13,8 +13,8 @@ type Msg
     | SetDisclosure String
     | SetEmployeeContribution String
     | ToggleEmployeeContribution
-    | UpdateGroupRequest
-    | UpdateGroup (Result Http.Error Group)
+    | GroupRequest
+    | GroupLoaded (Result Http.Error Group)
 
 
 type alias Model =
@@ -111,18 +111,24 @@ update msg model token =
                 , Cmd.none
                 )
 
-        UpdateGroupRequest ->
+        GroupRequest ->
             let
+                request =
+                    if model.group.id == 0 then
+                        Requests.Group.create model.group token
+
+                    else
+                        Requests.Group.update model.group token
+
                 newMsg =
-                    Requests.Group.update model.group token
-                        |> Task.attempt UpdateGroup
+                    request |> Task.attempt GroupLoaded
             in
             ( model, newMsg )
 
-        UpdateGroup (Ok updatedGroup) ->
+        GroupLoaded (Ok updatedGroup) ->
             ( { model | group = updatedGroup }, Cmd.none )
 
-        UpdateGroup (Err error) ->
+        GroupLoaded (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )
 
 

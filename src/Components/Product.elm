@@ -14,6 +14,8 @@ import Task exposing (Task)
 type Msg
     = SetName String
     | SetRiskLevel String
+    | ProductRequest
+    | ProductLoaded (Result Http.Error Product)
 
 
 type alias Model =
@@ -58,3 +60,23 @@ update msg model token =
 
         SetRiskLevel level ->
             ( { model | riskLevel = level }, Cmd.none )
+
+        ProductRequest ->
+            let
+                request =
+                    if model.product.id == 0 then
+                        Requests.Product.create model.product token
+
+                    else
+                        Requests.Product.update model.product token
+
+                newMsg =
+                    request |> Task.attempt ProductLoaded
+            in
+            ( model, newMsg )
+
+        ProductLoaded (Ok updatedProduct) ->
+            ( { model | product = updatedProduct }, Cmd.none )
+
+        ProductLoaded (Err error) ->
+            ( { model | errorMsg = toString error }, Cmd.none )
