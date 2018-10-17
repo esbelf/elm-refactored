@@ -3,9 +3,12 @@ module Msg exposing (Msg(..))
 import Http
 import Pages.Batches
 import Pages.CreateGroup
+import Pages.CreateProduct
 import Pages.EditGroup
+import Pages.EditProduct
 import Pages.Groups
 import Pages.Login
+import Pages.Products
 import Pages.Users
 import Routes exposing (Route)
 import Time exposing (Time)
@@ -21,7 +24,11 @@ type Msg
     | EditGroupLoaded (Result Http.Error Pages.EditGroup.Model)
     | EditGroupMsg Pages.EditGroup.Msg
     | CreateGroupMsg Pages.CreateGroup.Msg
-    | CreateGroupLoaded (Result Http.Error Pages.CreateGroup.Model)
+    | ProductsLoaded (Result Http.Error Pages.Products.Model)
+    | ProductsMsg Pages.Products.Msg
+    | CreateProductMsg Pages.CreateProduct.Msg
+    | EditProductLoaded (Result Http.Error Pages.EditProduct.Model)
+    | EditProductMsg Pages.EditProduct.Msg
     | BatchesLoaded (Result Http.Error Pages.Batches.Model)
     | BatchesMsg Pages.Batches.Msg
     | BathesLoaded (Result Http.Error Pages.Batches.Model)

@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
 import Msg exposing (..)
 import Pages.EditGroup
-import Views.Group
+import Views.Components.Group
 import Views.Helper exposing (convertMsgHtml)
 
 

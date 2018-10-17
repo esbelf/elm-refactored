@@ -12,7 +12,9 @@ import Navigation exposing (Location)
 import Page
 import Pages.Batches
 import Pages.CreateGroup
+import Pages.CreateProduct
 import Pages.EditGroup
+import Pages.EditProduct
 import Pages.Groups
 import Pages.Login
 import Pages.Users
@@ -65,6 +67,25 @@ setRoute route model =
         ( Routes.CreateGroup, _ ) ->
             ( { model | pageState = Loaded (Page.CreateGroup Pages.CreateGroup.initialModel) }, Cmd.none )
 
+        ( Routes.Products, Just session ) ->
+            let
+                msg =
+                    Pages.Products.init session.token
+                        |> Task.attempt ProductsLoaded
+            in
+            ( { model | pageState = Loaded (Page.Products Pages.Products.initialModel) }, msg )
+
+        ( Routes.EditProduct productId, Just session ) ->
+            let
+                msg =
+                    Pages.EditProduct.init productId session.token
+                        |> Task.attempt EditProductLoaded
+            in
+            ( { model | pageState = Loaded (Page.EditProduct Pages.EditProduct.initialModel) }, msg )
+
+        ( Routes.CreateProduct, _ ) ->
+            ( { model | pageState = Loaded (Page.CreateProduct Pages.CreateProduct.initialModel) }, Cmd.none )
+
         ( Routes.Batches, Just session ) ->
             let
                 msg =
@@ -101,6 +122,9 @@ routeParser =
         , map Routes.Groups (s (routeToUrl Routes.Groups))
         , map Routes.EditGroup (s (routeToUrl Routes.Groups) </> int)
         , map Routes.CreateGroup (s "group") -- How to make it "groups/new"
+        , map Routes.Products (s (routeToUrl Routes.Products))
+        , map Routes.EditProduct (s (routeToUrl Routes.Products) </> int)
+        , map Routes.CreateProduct (s "product")
         , map Routes.Batches (s (routeToUrl Routes.Batches))
         , map Routes.Users (s (routeToUrl Routes.Users))
         , map Routes.Login (s (routeToUrl Routes.Login))
@@ -131,6 +155,15 @@ routeToUrl route =
 
         Routes.CreateGroup ->
             "groups/new"
+
+        Routes.Products ->
+            "products"
+
+        Routes.EditProduct id ->
+            "products/" ++ toString id
+
+        Routes.CreateProduct ->
+            "products/new"
 
         Routes.Batches ->
             "batches"

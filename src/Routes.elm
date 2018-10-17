@@ -7,6 +7,9 @@ type Route
     | Groups
     | EditGroup Int
     | CreateGroup
+    | Products
+    | EditProduct Int
+    | CreateProduct
     | Batches
     | Login
     | Logout

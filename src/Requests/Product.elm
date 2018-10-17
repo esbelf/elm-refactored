@@ -1,12 +1,57 @@
-module Requests.Product exposing (coveragePricing, decodePriceGrid, decodePricing, decodeRiskLevels, decodeTierList, encode, encodeAgePricing, encodeBenefitPricing, encodePricing, encodeProduct, encodeProductList, encodeTier, labeledDeductionMode, labeledRiskLevel, productDecoder, productsDecoder, setExplicitDeduction, toCoverage, toDeductionMode, toRisk, transformDeductionMode, transformPriceGrid, transformPriceGrid_, transformPricing, transformRisk)
+module Requests.Product exposing (coveragePricing, decodePriceGrid, decodePricing, decodeRiskLevels, decodeTierList, delete, encode, encodeAgePricing, encodeBenefitPricing, encodePricing, encodeProduct, encodeProductList, encodeTier, getAll, labeledDeductionMode, labeledRiskLevel, productDecoder, productUrl, productsDecoder, productsUrl, setExplicitDeduction, toCoverage, toDeductionMode, toRisk, transformDeductionMode, transformPriceGrid, transformPriceGrid_, transformPricing, transformRisk)
 
 import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
+import Http
 import Json.Decode as Dec exposing (Decoder, andThen, at, bool, dict, float, list, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, hardcoded, optional, optionalAt, required, requiredAt)
 import Json.Encode as Enc exposing (Value)
 import Models.Product exposing (..)
+import Requests.Base exposing (..)
+import Task exposing (Task)
+
+
+
+--- NEW STUFF ---
+
+
+getAll : String -> Task Http.Error (List Product)
+getAll token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Beader " ++ token) ]
+        , body = Http.emptyBody
+        , expect = Http.expectJson (dataDecoder productsDecoder)
+        , method = "GET"
+        , timeout = Nothing
+        , url = productsUrl
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
+delete : Int -> String -> Task Http.Error String
+delete productId token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , expect = Http.expectString
+        , body = Http.emptyBody
+        , method = "DELETE"
+        , timeout = Nothing
+        , url = productUrl productId
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
+productsUrl : String
+productsUrl =
+    baseUrl ++ "/products"
+
+
+productUrl : Int -> String
+productUrl productId =
+    productsUrl ++ "/" ++ toString productId
 
 
 

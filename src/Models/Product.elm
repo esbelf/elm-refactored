@@ -6,7 +6,8 @@ import Helpers.DecimalField exposing (DecimalField)
 
 
 type alias Product =
-    { name : String
+    { id : Int
+    , name : String
     , pricing : EveryDict Coverage PriceGrid
     , benefits : List Tier
     , ages : List Tier
@@ -20,7 +21,8 @@ type alias Product =
 
 init : Product
 init =
-    { name = ""
+    { id = 0
+    , name = ""
     , pricing = initPricingDict
     , benefits = initTier "One Benefit"
     , ages = initTier "One Age Range"

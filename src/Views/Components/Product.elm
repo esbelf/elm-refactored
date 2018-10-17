@@ -1,4 +1,4 @@
-module Views.Product exposing (view)
+module Views.Components.Product exposing (view)
 
 import Components.Product
 import Dict exposing (Dict)

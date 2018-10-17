@@ -1,6 +1,5 @@
 module Components.Group exposing (Model, Msg(..), addGroupToModel, init, initialModel, update)
 
-import Components.Product
 import Http
 import Models.Group exposing (Group)
 import Requests.Group
@@ -16,14 +15,12 @@ type Msg
     | ToggleEmployeeContribution
     | UpdateGroupRequest
     | UpdateGroup (Result Http.Error Group)
-    | ProductMsg Components.Product.Msg
 
 
 type alias Model =
     { group : Group
     , errorMsg : String
     , id : Int
-    , productPageModel : Components.Product.Model
     , showEmployeeContribution : Bool
     }
 
@@ -33,7 +30,6 @@ initialModel =
     { group = Models.Group.init
     , errorMsg = ""
     , id = 0
-    , productPageModel = Components.Product.init
     , showEmployeeContribution = False
     }
 
@@ -46,19 +42,12 @@ init groupId token =
 addGroupToModel : Group -> Model
 addGroupToModel group =
     let
-        pageProductModel =
-            Components.Product.init
-
-        productPageModel =
-            { pageProductModel | products = group.products }
-
         showEmployeeContribution =
             not (String.isEmpty group.employee_contribution)
     in
     { initialModel
         | id = group.id
         , group = group
-        , productPageModel = productPageModel
         , showEmployeeContribution = showEmployeeContribution
     }
 
@@ -136,20 +125,20 @@ update msg model token =
         UpdateGroup (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )
 
-        ProductMsg subMsg ->
-            let
-                ( newProductPageModel, newSubMsg ) =
-                    Components.Product.update subMsg model.productPageModel token
 
-                msg =
-                    Cmd.map ProductMsg newSubMsg
 
-                oldGroup =
-                    model.group
-            in
-            ( { model
-                | productPageModel = newProductPageModel
-                , group = { oldGroup | products = newProductPageModel.products }
-              }
-            , msg
-            )
+--ProductMsg subMsg ->
+--    let
+--        ( newProductPageModel, newSubMsg ) =
+--            Components.Product.update subMsg model.productPageModel token
+--        msg =
+--            Cmd.map ProductMsg newSubMsg
+--        oldGroup =
+--            model.group
+--    in
+--    ( { model
+--        | productPageModel = newProductPageModel
+--        , group = { oldGroup | products = newProductPageModel.products }
+--      }
+--    , msg
+--    )

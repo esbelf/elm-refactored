@@ -13,9 +13,12 @@ import Route exposing (onClickRoute)
 import Routes exposing (Route)
 import Views.Batches
 import Views.CreateGroup
+import Views.CreateProduct
 import Views.EditGroup
+import Views.EditProduct
 import Views.Groups
 import Views.Login
+import Views.Products
 import Views.Users
 
 
@@ -56,6 +59,15 @@ mainContent model =
         CreateGroup pageModel ->
             Views.CreateGroup.view pageModel
 
+        Products pageModel ->
+            Views.Products.view pageModel
+
+        EditProduct pageModel ->
+            Views.EditProduct.view pageModel
+
+        CreateProduct pageModel ->
+            Views.CreateProduct.view pageModel
+
         Batches pageModel ->
             Views.Batches.view pageModel
 
@@ -93,6 +105,8 @@ viewLinks maybeSession =
                     [ text "Groups" ]
                 , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
                     [ text "Batches" ]
+                , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Products)
+                    [ text "Products" ]
                 , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
                     [ text "Users" ]
                 ]
