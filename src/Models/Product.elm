@@ -27,6 +27,8 @@ init =
 
 type alias Column =
     { name : String -- EE, SP, Child or what not
+    , received : String
+    , amount : String
     , data : List Data
     }
 
@@ -35,8 +37,7 @@ type alias Data =
     { display : String
     , min : Int
     , max : Int
-    , received : String
-    , amount : String
+    , costs : Dict String Cost
     }
 
 
@@ -45,8 +46,8 @@ type alias Data =
 
 
 type alias Cost =
-    { normal : DecimalField
-    , high : DecimalField
+    { normal : Float
+    , high : Float
     }
 
 

@@ -2,6 +2,7 @@ module Requests.Product exposing (create, delete, get, getAll, update)
 
 -- import Json.Encode as Encode
 
+import Helpers.DecimalField
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
@@ -106,8 +107,10 @@ decodeColumns =
 decodeColumn : Decode.Decoder Models.Product.Column
 decodeColumn =
     decode Models.Product.Column
-        |> requiredAt [ "name" ] Decode.string
-        |> requiredAt [ "data" ] decodeDatas
+        |> required "name" Decode.string
+        |> optional "received" Decode.string ""
+        |> optional "amount" Decode.string ""
+        |> required "data" decodeDatas
 
 
 decodeDatas : Decode.Decoder (List Models.Product.Data)
@@ -121,15 +124,14 @@ decodeData =
         |> required "display" Decode.string
         |> required "min" Decode.int
         |> required "max" Decode.int
-        |> optional "received" Decode.string ""
-        |> required "amount" Decode.string
+        |> required "cost" (Decode.dict decodeCosts)
 
 
-
---  |> required "costs" Decode.dict decodeCosts
---decodeCosts : Decode.Decoder (Dict Models.Product.TimeSplit Models.Product.Cost)
---decodeCosts =
---    Decode.dict decode
+decodeCosts : Decode.Decoder Models.Product.Cost
+decodeCosts =
+    decode Models.Product.Cost
+        |> optional "normal" Decode.float 0.0
+        |> optional "high" Decode.float 0.0
 
 
 productEncoder : Product -> Http.Body

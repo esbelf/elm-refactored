@@ -1,5 +1,6 @@
 module Pages.Batches exposing (Model, Msg(..), addBatchesToModel, init, initialModel, update)
 
+import Debug
 import Http
 import Models.Batch exposing (Batch)
 import Port
@@ -11,11 +12,15 @@ import Task exposing (Task)
 type Msg
     = DownloadFormRequest Int
     | DownloadForm Int (Result Http.Error String)
+    | FileSelected
+    | FileRead Port.FilePortData
 
 
 type alias Model =
     { batches : List Batch
     , errorMsg : String
+    , fileId : String
+    , file : Maybe Port.FilePortData
     }
 
 
@@ -23,6 +28,8 @@ initialModel : Model
 initialModel =
     { batches = []
     , errorMsg = ""
+    , fileId = "FileInputId"
+    , file = Nothing
     }
 
 
@@ -52,3 +59,24 @@ update msg model token =
 
         DownloadForm id (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )
+
+        FileSelected ->
+            let
+                log =
+                    Debug.log "File Selected" model.fileId
+            in
+            ( model, Port.fileSelected model.fileId )
+
+        FileRead data ->
+            let
+                log =
+                    Debug.log "File Read" data
+
+                newFile =
+                    { contents = data.contents
+                    , filename = data.filename
+                    }
+            in
+            ( { model | file = Just newFile }
+            , Cmd.none
+            )
