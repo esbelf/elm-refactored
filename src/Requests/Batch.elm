@@ -1,11 +1,13 @@
-module Requests.Batch exposing (formUrl, getAll)
+module Requests.Batch exposing (create, formUrl, getAll)
 
 -- import Json.Encode as Encode
 
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import Json.Encode as Encode
 import Models.Batch exposing (Batch)
+import Port
 import Requests.Base exposing (..)
 import Task exposing (Task)
 
@@ -22,6 +24,32 @@ getAll token =
         , withCredentials = False
         }
         |> Http.toTask
+
+
+create : Port.FilePortData -> String -> Task Http.Error String
+create file token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , body = fileEncoder file
+        , expect = Http.expectString
+        , method = "POST"
+        , timeout = Nothing
+        , url = batchesUrl
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
+fileEncoder : Port.FilePortData -> Http.Body
+fileEncoder file =
+    let
+        attributes =
+            [ ( "name", Encode.string file.filename )
+            , ( "contents", Encode.string file.contents )
+            ]
+    in
+    Encode.object attributes
+        |> Http.jsonBody
 
 
 formUrl : Int -> String -> String
