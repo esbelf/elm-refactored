@@ -14,6 +14,7 @@ type Msg
     | DownloadForm Int (Result Http.Error String)
     | FileSelected
     | FileRead Port.FilePortData
+    | FileUpload (Result Http.Error String)
 
 
 type alias Model =
@@ -76,7 +77,19 @@ update msg model token =
                     { contents = data.contents
                     , filename = data.filename
                     }
+
+                newMsg =
+                    Requests.Batch.create newFile token
+                        |> Task.attempt FileUpload
             in
-            ( { model | file = Just newFile }
-            , Cmd.none
-            )
+            ( { model | file = Just newFile }, newMsg )
+
+        FileUpload (Ok message) ->
+            let
+                log =
+                    Debug.log "File Received Successful" message
+            in
+            ( model, Cmd.none )
+
+        FileUpload (Err error) ->
+            ( { model | errorMsg = toString error }, Cmd.none )
