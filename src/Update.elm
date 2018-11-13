@@ -1,6 +1,5 @@
 module Update exposing (update)
 
-import Debug
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
 import Msg exposing (..)
@@ -51,42 +50,6 @@ update msg model =
 
         ( RouteChanged route, _ ) ->
             setRoute route model
-
-        -- Route.Products
-        ( ProductsMsg subMsg, Products subModel ) ->
-            requireSessionOrError
-                (\session ->
-                    Pages.Products.update subMsg subModel session.token
-                        |> updateWith Products ProductsMsg model
-                )
-
-        ( ProductsLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (Products subModel) }, Cmd.none )
-
-        ( ProductsLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
-
-        -- Route.EditProduct
-        ( EditProductMsg subMsg, EditProduct subModel ) ->
-            requireSessionOrError
-                (\session ->
-                    Pages.EditProduct.update subMsg subModel session.token
-                        |> updateWith EditProduct EditProductMsg model
-                )
-
-        ( EditProductLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (EditProduct subModel) }, Cmd.none )
-
-        ( EditProductLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
-
-        -- Route.CreateProduct
-        ( CreateProductMsg subMsg, CreateProduct subModel ) ->
-            requireSessionOrError
-                (\session ->
-                    Pages.CreateProduct.update subMsg subModel session.token
-                        |> updateWith CreateProduct CreateProductMsg model
-                )
 
         -- Route.Groups
         ( GroupsMsg subMsg, Groups subModel ) ->
@@ -188,5 +151,5 @@ update msg model =
             ( { model | pageState = Loaded Blank }, Cmd.none )
 
         -- Catch All for now
-        ( msg, page ) ->
+        ( _, _ ) ->
             ( model, Cmd.none )

@@ -1,6 +1,5 @@
 module Pages.Batches exposing (Model, Msg(..), addBatchesToModel, init, initialModel, update)
 
-import Debug
 import Http
 import Models.Batch exposing (Batch)
 import Port
