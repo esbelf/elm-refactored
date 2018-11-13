@@ -1,6 +1,7 @@
 module Page exposing (Page(..))
 
 import Pages.Batches as Batches
+import Pages.CreateBatch as CreateBatch
 import Pages.CreateGroup as CreateGroup
 import Pages.EditGroup as EditGroup
 import Pages.Groups as Groups
@@ -16,5 +17,6 @@ type Page
     | EditGroup EditGroup.Model
     | CreateGroup CreateGroup.Model
     | Batches Batches.Model
+    | CreateBatch CreateBatch.Model
     | Login Login.Model
     | Users Users.Model

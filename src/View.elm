@@ -9,6 +9,7 @@ import Model exposing (Model, getPage)
 import Models.Session exposing (Session)
 import Msg exposing (..)
 import Page exposing (..)
+import Pages.CreateBatch
 import Route exposing (onClickRoute)
 import Routes exposing (Route)
 import Views.Batches
@@ -58,6 +59,10 @@ mainContent model =
 
         Batches pageModel ->
             Views.Batches.view pageModel
+
+        CreateBatch pageModel ->
+            Pages.CreateBatch.view pageModel
+                |> Html.map CreateBatchMsg
 
         Login pageModel ->
             Views.Login.view pageModel

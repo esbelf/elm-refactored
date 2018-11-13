@@ -1,10 +1,9 @@
 module Subscription exposing (pageSubscriptions)
 
-import Debug
 import Model exposing (Model, PageState(..), getPage)
 import Msg exposing (..)
 import Page
-import Pages.Batches
+import Pages.CreateBatch
 import Port
 
 
@@ -13,13 +12,10 @@ pageSubscriptions model =
     let
         page =
             getPage model.pageState
-
-        log =
-            Debug.log "page Subscription" page
     in
     case page of
-        Page.Batches _ ->
-            Port.fileContentRead (BatchesMsg << Pages.Batches.FileRead)
+        Page.CreateBatch _ ->
+            Port.fileContentRead (CreateBatchMsg << Pages.CreateBatch.FileRead)
 
         _ ->
             Sub.none

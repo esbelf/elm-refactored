@@ -1,4 +1,4 @@
-module Models.Batch exposing (Batch)
+module Models.Batch exposing (Batch, BatchForm)
 
 
 type alias Batch =
@@ -10,4 +10,12 @@ type alias Batch =
     , census_count : Int
     , start_date : String
     , created_at : String
+    }
+
+
+type alias BatchForm =
+    { startDate : String
+    , fileData : String
+    , fileName : String
+    , groupId : Int
     }

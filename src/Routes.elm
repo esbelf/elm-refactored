@@ -8,6 +8,7 @@ type Route
     | EditGroup Int
     | CreateGroup
     | Batches
+    | CreateBatch Int
     | Login
     | Logout
     | Users
