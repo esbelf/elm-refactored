@@ -1,7 +1,6 @@
 module Views.Group exposing (view)
 
 import Components.Group exposing (Model)
-import Components.Product
 import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)

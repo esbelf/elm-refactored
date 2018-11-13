@@ -10,7 +10,6 @@ import Pages.CreateGroup
 import Pages.EditGroup
 import Pages.Groups
 import Pages.Login
-import Pages.Products
 import Pages.Users
 import Port
 import Route exposing (parseLocation, setRoute, updateRoute)
