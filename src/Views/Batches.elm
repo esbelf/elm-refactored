@@ -1,7 +1,7 @@
 module Views.Batches exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, href, id, name, placeholder, src, title, type_, value)
+import Html.Attributes exposing (attribute, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick)
 import Models.Batch exposing (Batch)
 import Msg exposing (..)
@@ -12,11 +12,12 @@ import Routes exposing (Route)
 
 view : Model -> Html Msg
 view model =
-    div [ class "uk-margin uk-margin-top" ]
-        [ div [ class "uk-flex uk-flex-wrap uk-flex-wrap around" ]
-            [ h1 [ class "uk-width-1-2" ] [ text "Batches" ]
+    div [ class "uk-margin" ]
+        [ h1 [] [ text "Batches" ]
+        , div []
+            [ p [] [ text model.errorMsg ]
             ]
-        , div [ class "uk-child-width-1-1@s" ]
+        , div []
             [ table [ class "uk-table uk-table-striped" ]
                 [ thead []
                     [ tr []

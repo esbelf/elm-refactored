@@ -1,9 +1,12 @@
-module Views.Components.Group exposing (view)
+module Views.Group exposing (view)
 
 import Components.Group exposing (Model)
+import Components.Product
 import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Views.Helper exposing (convertMsgHtml)
+import Views.Product
 
 
 view : Components.Group.Model -> Html Components.Group.Msg
@@ -15,10 +18,11 @@ view model =
                 , groupInputs model
                 ]
             , div [ class "uk-child-width-1-1@s" ]
-                [ button
+                [ convertMsgHtml Components.Group.ProductMsg (Views.Product.view model.productPageModel)
+                , button
                     [ class "uk-button uk-button-primary uk-margin-small"
                     , type_ "button"
-                    , onClick Components.Group.GroupRequest
+                    , onClick Components.Group.UpdateGroupRequest
                     ]
                     [ text "Save" ]
                 ]

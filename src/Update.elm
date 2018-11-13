@@ -7,9 +7,7 @@ import Page exposing (..)
 import Pages.Batches
 import Pages.CreateBatch
 import Pages.CreateGroup
-import Pages.CreateProduct
 import Pages.EditGroup
-import Pages.EditProduct
 import Pages.Groups
 import Pages.Login
 import Pages.Products
@@ -86,6 +84,12 @@ update msg model =
                     Pages.CreateGroup.update subMsg subModel session.token
                         |> updateWith CreateGroup CreateGroupMsg model
                 )
+
+        ( CreateGroupLoaded (Ok subModel), _ ) ->
+            ( { model | pageState = Loaded (CreateGroup subModel) }, Cmd.none )
+
+        ( CreateGroupLoaded (Err error), _ ) ->
+            ( { model | pageState = Loaded Blank }, Cmd.none )
 
         -- Route.Batches
         ( BatchesMsg subMsg, Batches subModel ) ->
