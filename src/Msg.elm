@@ -2,6 +2,7 @@ module Msg exposing (Msg(..))
 
 import Http
 import Pages.Batches
+import Pages.CreateBatch
 import Pages.CreateGroup
 import Pages.EditGroup
 import Pages.Groups
@@ -25,6 +26,7 @@ type Msg
     | BatchesLoaded (Result Http.Error Pages.Batches.Model)
     | BatchesMsg Pages.Batches.Msg
     | BathesLoaded (Result Http.Error Pages.Batches.Model)
+    | CreateBatchMsg Pages.CreateBatch.Msg
     | LoginMsg Pages.Login.Msg
     | UsersLoaded (Result Http.Error Pages.Users.Model)
     | UsersMsg Pages.Users.Msg

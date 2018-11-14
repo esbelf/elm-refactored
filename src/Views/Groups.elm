@@ -60,6 +60,14 @@ viewGroup group =
             ]
         , td []
             [ button
+                [ class "uk-button uk-button-default uk-button-small"
+                , type_ "button"
+                , onClick (SetRoute (Routes.CreateBatch group.id))
+                ]
+                [ text "Create Batch" ]
+            ]
+        , td []
+            [ button
                 [ class "uk-button uk-button-danger uk-button-small"
                 , type_ "button"
                 ]

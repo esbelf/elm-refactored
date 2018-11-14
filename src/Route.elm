@@ -11,6 +11,7 @@ import Msg exposing (..)
 import Navigation exposing (Location)
 import Page
 import Pages.Batches
+import Pages.CreateBatch
 import Pages.CreateGroup
 import Pages.EditGroup
 import Pages.Groups
@@ -73,6 +74,13 @@ setRoute route model =
             in
             ( { model | pageState = Loaded (Page.Batches Pages.Batches.initialModel) }, msg )
 
+        ( Routes.CreateBatch groupId, Just session ) ->
+            let
+                subModel =
+                    Pages.CreateBatch.initNew session.token groupId
+            in
+            ( { model | pageState = Loaded (Page.CreateBatch subModel) }, Cmd.none )
+
         ( Routes.Users, Just session ) ->
             let
                 msg =
@@ -102,6 +110,7 @@ routeParser =
         , map Routes.EditGroup (s (routeToUrl Routes.Groups) </> int)
         , map Routes.CreateGroup (s "group") -- How to make it "groups/new"
         , map Routes.Batches (s (routeToUrl Routes.Batches))
+        , map Routes.CreateBatch (s "batches" </> s "new" </> int)
         , map Routes.Users (s (routeToUrl Routes.Users))
         , map Routes.Login (s (routeToUrl Routes.Login))
         ]
@@ -134,6 +143,9 @@ routeToUrl route =
 
         Routes.Batches ->
             "batches"
+
+        Routes.CreateBatch id ->
+            "batches/new/" ++ toString id
 
         Routes.Users ->
             "users"

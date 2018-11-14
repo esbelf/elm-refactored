@@ -1,11 +1,12 @@
-module Requests.Batch exposing (formUrl, getAll)
+module Requests.Batch exposing (create, formUrl, getAll)
 
 -- import Json.Encode as Encode
 
-import Http
+import Http exposing (Request)
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
-import Models.Batch exposing (Batch)
+import Json.Encode as Encode
+import Models.Batch exposing (Batch, BatchForm)
 import Requests.Base exposing (..)
 import Task exposing (Task)
 
@@ -22,6 +23,33 @@ getAll token =
         , withCredentials = False
         }
         |> Http.toTask
+
+
+create : BatchForm -> String -> Request String
+create batchForm token =
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , body = batchEncoder batchForm
+        , expect = Http.expectString
+        , method = "POST"
+        , timeout = Nothing
+        , url = batchesUrl
+        , withCredentials = False
+        }
+
+
+batchEncoder : BatchForm -> Http.Body
+batchEncoder batch =
+    let
+        attributes =
+            [ ( "file_name", Encode.string batch.fileName )
+            , ( "start_date", Encode.string batch.startDate )
+            , ( "census_file", Encode.string batch.fileData )
+            , ( "group_id", Encode.int batch.groupId )
+            ]
+    in
+    Encode.object attributes
+        |> Http.jsonBody
 
 
 formUrl : Int -> String -> String

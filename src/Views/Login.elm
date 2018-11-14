@@ -11,7 +11,7 @@ import Time.Iso8601 exposing (fromDateTime)
 
 view : Model -> Html Msg
 view model =
-    div []
+    Html.form [ onSubmit (LoginMsg Pages.Login.Submit) ]
         [ h1 []
             [ text "Login Page" ]
         , showErrors model

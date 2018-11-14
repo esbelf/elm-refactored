@@ -6,6 +6,7 @@ import Msg exposing (..)
 import Navigation
 import Port
 import Route exposing (parseLocation, setRoute, urlChange)
+import Subscription
 import Time exposing (minute)
 import Update
 import View
@@ -31,7 +32,10 @@ init flags location =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every minute TimeTick
+    Sub.batch
+        [ Time.every minute TimeTick
+        , Subscription.pageSubscriptions model
+        ]
 
 
 main : Program Flags Model Msg
