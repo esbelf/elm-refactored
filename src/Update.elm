@@ -2,10 +2,10 @@ module Update exposing (update)
 
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
-import Models.Session
 import Msg exposing (..)
 import Page exposing (..)
 import Pages.Batches
+import Pages.CreateBatch
 import Pages.CreateGroup
 import Pages.EditGroup
 import Pages.Groups
@@ -14,7 +14,6 @@ import Pages.Users
 import Port
 import Route exposing (parseLocation, setRoute, updateRoute)
 import Routes
-import Time exposing (Time)
 import Time.DateTime as DateTime
 
 
@@ -104,6 +103,14 @@ update msg model =
 
         ( BatchesLoaded (Err error), _ ) ->
             ( { model | pageState = Loaded Blank }, Cmd.none )
+
+        -- Route.CreateBatch
+        ( CreateBatchMsg subMsg, CreateBatch subModel ) ->
+            requireSessionOrError
+                (\session ->
+                    Pages.CreateBatch.update subMsg subModel session.token
+                        |> updateWith CreateBatch CreateBatchMsg model
+                )
 
         -- Route.Login
         ( LoginMsg subMsg, Login subModel ) ->

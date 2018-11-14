@@ -1,4 +1,4 @@
-port module Port exposing (Model, blank, getStorage, openWindow, removeStorage, setStorage)
+port module Port exposing (FilePortData, Model, blank, fileContentRead, fileSelected, getStorage, openWindow, removeStorage, setStorage)
 
 import Json.Encode as Encode
 
@@ -35,4 +35,16 @@ port openWindow : String -> Cmd msg
 
 
 
--- port expired : String -> Cmd msg
+----- FILE UPLOAD --------
+
+
+type alias FilePortData =
+    { contents : String
+    , filename : String
+    }
+
+
+port fileSelected : String -> Cmd msg
+
+
+port fileContentRead : (FilePortData -> msg) -> Sub msg

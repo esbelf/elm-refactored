@@ -1,8 +1,7 @@
-module Requests.Base exposing (baseUrl, dataDecoder, getFileToken, stringToInt)
+module Requests.Base exposing (baseUrl, dataDecoder, getFileToken, maybeErrorDesc, stringToInt)
 
-import Http
+import Http exposing (Error(BadStatus))
 import Json.Decode as Decode
-import Navigation exposing (Location)
 import Task exposing (Task)
 
 
@@ -48,6 +47,35 @@ fileTokenUrl =
 baseUrl : String
 baseUrl =
     "https://easyins-staging.herokuapp.com/api/v1"
+
+
+maybeErrorDesc : Http.Error -> Maybe String
+maybeErrorDesc error =
+    case error of
+        BadStatus response ->
+            case Decode.decodeString messageDecoder response.body of
+                Ok message ->
+                    Just message
+
+                Err _ ->
+                    Nothing
+
+        _ ->
+            Nothing
+
+
+
+-- Error decoding
+
+
+type alias Message =
+    { message : String
+    }
+
+
+messageDecoder : Decode.Decoder String
+messageDecoder =
+    Decode.field "message" Decode.string
 
 
 
