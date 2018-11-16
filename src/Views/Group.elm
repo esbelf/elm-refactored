@@ -4,7 +4,8 @@ import Components.Group exposing (Model)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Views.Helper exposing (convertMsgHtml)
+import Models.Group as Group exposing (Group)
+import Views.Helper exposing (convertMsgHtml, unionSelectOptions)
 import Views.Product
 
 
@@ -55,11 +56,7 @@ groupInputs model =
                 , name "form_type"
                 , onInput Components.Group.SetFormType
                 ]
-                [ option [ value "life" ] [ text "Life" ]
-                , option [ value "ibew" ] [ text "IBEW" ]
-                , option [ value "health_supp_only_product" ]
-                    [ text "Health Supply Only Product" ]
-                ]
+                (unionSelectOptions Group.allFormTypes Group.formTypeToString Group.formTypeToLabel group.form_type)
             ]
         , div [ class "uk-margin" ]
             [ span [ class "uk-label" ]
