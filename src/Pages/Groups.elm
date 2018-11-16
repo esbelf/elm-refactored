@@ -51,7 +51,7 @@ update msg model token =
             ( model, newMsg )
 
         DeleteGroup id (Ok message) ->
-            ( { model | groups = removeModelFromList id model.groups }, Cmd.none )
+            ( { model | groups = removeModelFromNullableIdList (Just id) model.groups }, Cmd.none )
 
         DeleteGroup id (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )
@@ -65,7 +65,7 @@ update msg model token =
             ( model, newMsg )
 
         PreviewGroup id (Ok token) ->
-            ( model, Port.openWindow (Requests.Group.previewUrl id token) )
+            ( model, Port.openWindow (Requests.Group.previewUrl (Just id) token) )
 
         PreviewGroup id (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )

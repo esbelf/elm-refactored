@@ -45,32 +45,39 @@ viewGroupList groups =
 
 viewGroup : Group -> Html Msg
 viewGroup group =
-    tr []
-        [ td []
-            [ a ([ class "uk-link-text" ] ++ onClickRoute (Routes.EditGroup group.id))
-                [ text group.name ]
-            ]
-        , td []
-            [ button
-                [ class "uk-button uk-button-default uk-button-small"
-                , type_ "button"
-                , onClick (GroupsMsg (Pages.Groups.PreviewGroupRequest group.id))
+    case group.id of
+        Nothing ->
+            tr []
+                [ td [] [ text group.name ] ]
+
+        Just groupId ->
+            tr []
+                [ td []
+                    [ a ([ class "uk-link-text" ] ++ onClickRoute (Routes.EditGroup groupId))
+                        [ text group.name ]
+                    ]
+                , td []
+                    [ button
+                        [ class "uk-button uk-button-default uk-button-small"
+                        , type_ "button"
+                        , onClick (GroupsMsg (Pages.Groups.PreviewGroupRequest groupId))
+                        ]
+                        [ text "Preview" ]
+                    ]
+                , td []
+                    [ button
+                        [ class "uk-button uk-button-default uk-button-small"
+                        , type_ "button"
+                        , onClick (SetRoute (Routes.CreateBatch groupId))
+                        ]
+                        [ text "Create Batch" ]
+                    ]
+                , td []
+                    [ button
+                        [ class "uk-button uk-button-danger uk-button-small"
+                        , type_ "button"
+                        , onClick (GroupsMsg (Pages.Groups.DeleteGroupRequest groupId))
+                        ]
+                        [ text "Delete" ]
+                    ]
                 ]
-                [ text "Preview" ]
-            ]
-        , td []
-            [ button
-                [ class "uk-button uk-button-default uk-button-small"
-                , type_ "button"
-                , onClick (SetRoute (Routes.CreateBatch group.id))
-                ]
-                [ text "Create Batch" ]
-            ]
-        , td []
-            [ button
-                [ class "uk-button uk-button-danger uk-button-small"
-                , type_ "button"
-                ]
-                [ text "Delete" ]
-            ]
-        ]

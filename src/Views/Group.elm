@@ -21,7 +21,7 @@ view model =
                 , button
                     [ class "uk-button uk-button-primary uk-margin-small"
                     , type_ "button"
-                    , onClick Components.Group.UpdateGroupRequest
+                    , onClick Components.Group.SaveGroupRequest
                     ]
                     [ text "Save" ]
                 ]
