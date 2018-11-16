@@ -104,7 +104,10 @@ newGroupEncode =
         \_ ->
             let
                 newGroup =
-                    { simpleGroup | id = Nothing }
+                    { simpleGroup
+                        | id = Nothing
+                        , form_type = HealthSuppOnlyProduct
+                    }
 
                 jsonOutput =
                     Requests.Group.groupEncoder newGroup
@@ -114,7 +117,7 @@ newGroupEncode =
                     """{
   "name": "IBEW 47 - Class 2",
   "disclosure": "",
-  "form_type": "ibew",
+  "form_type": "health_supp_only_product",
   "employee_contribution": "",
   "payment_mode": 12,
   "product_pricing": {
