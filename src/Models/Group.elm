@@ -1,4 +1,4 @@
-module Models.Group exposing (FormType(..), Group, formTypeToString, init, stringToFormType)
+module Models.Group exposing (FormType(..), Group, allFormTypes, formTypeToLabel, formTypeToString, init, stringToFormType)
 
 import Models.Product exposing (Product)
 
@@ -32,6 +32,17 @@ type FormType
     | HealthSuppOnlyProduct
 
 
+{-| Annoying that Elm can't provide us all possible values for a union type.
+Keep this in sync with all possible values of FormType.
+-}
+allFormTypes : List FormType
+allFormTypes =
+    [ Life
+    , Ibew
+    , HealthSuppOnlyProduct
+    ]
+
+
 stringToFormType : String -> Result String FormType
 stringToFormType str =
     case str of
@@ -59,3 +70,16 @@ formTypeToString formType =
 
         HealthSuppOnlyProduct ->
             "health_supp_only_product"
+
+
+formTypeToLabel : FormType -> String
+formTypeToLabel formType =
+    case formType of
+        Life ->
+            "Life"
+
+        Ibew ->
+            "Ibew"
+
+        HealthSuppOnlyProduct ->
+            "Health Supply Only Product"
