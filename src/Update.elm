@@ -155,4 +155,11 @@ update msg model =
 
         -- Catch All for now
         ( _, _ ) ->
+            let
+                _ =
+                    Debug.log "Fell through update. Msg" msg
+
+                _ =
+                    Debug.log "Fell through update. Page" page
+            in
             ( model, Cmd.none )
