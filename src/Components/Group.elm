@@ -2,7 +2,8 @@ module Components.Group exposing (Model, Msg(..), addGroupToModel, init, initial
 
 import Components.Product
 import Http
-import Models.Group exposing (Group)
+import Models.Group exposing (FormType, Group)
+import Navigation
 import Requests.Group
 import Task exposing (Task)
 
@@ -14,7 +15,7 @@ type Msg
     | SetDisclosure String
     | SetEmployeeContribution String
     | ToggleEmployeeContribution
-    | UpdateGroupRequest
+    | SaveGroupRequest
     | UpdateGroup (Result Http.Error Group)
     | ProductMsg Components.Product.Msg
 
@@ -22,7 +23,7 @@ type Msg
 type alias Model =
     { group : Group
     , errorMsg : String
-    , id : Int
+    , id : Maybe Int
     , productPageModel : Components.Product.Model
     , showEmployeeContribution : Bool
     }
@@ -32,7 +33,7 @@ initialModel : Model
 initialModel =
     { group = Models.Group.init
     , errorMsg = ""
-    , id = 0
+    , id = Nothing
     , productPageModel = Components.Product.init
     , showEmployeeContribution = False
     }
@@ -79,18 +80,23 @@ update msg model token =
                     model.group
 
                 newPaymentMode =
-                    String.toInt paymentMode
-                        |> Result.toMaybe
-                        |> Maybe.withDefault oldGroup.payment_mode
+                    paymentMode
+                        |> String.toInt
+                        |> Result.withDefault oldGroup.payment_mode
             in
             ( { model | group = { oldGroup | payment_mode = newPaymentMode } }, Cmd.none )
 
-        SetFormType formType ->
+        SetFormType formTypeStr ->
             let
                 oldGroup =
                     model.group
+
+                newFormType =
+                    formTypeStr
+                        |> Models.Group.stringToFormType
+                        |> Result.withDefault oldGroup.form_type
             in
-            ( { model | group = { oldGroup | form_type = formType } }, Cmd.none )
+            ( { model | group = { oldGroup | form_type = newFormType } }, Cmd.none )
 
         SetDisclosure disclosure ->
             let
@@ -122,16 +128,19 @@ update msg model token =
                 , Cmd.none
                 )
 
-        UpdateGroupRequest ->
+        SaveGroupRequest ->
             let
                 newMsg =
-                    Requests.Group.update model.group token
-                        |> Task.attempt UpdateGroup
+                    save model.group token
             in
             ( model, newMsg )
 
         UpdateGroup (Ok updatedGroup) ->
-            ( { model | group = updatedGroup }, Cmd.none )
+            let
+                cmd =
+                    Navigation.newUrl "/groups"
+            in
+            ( { model | group = updatedGroup }, cmd )
 
         UpdateGroup (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )
@@ -153,3 +162,15 @@ update msg model token =
               }
             , msg
             )
+
+
+save : Group -> String -> Cmd Msg
+save group token =
+    case group.id of
+        Just groupId ->
+            Requests.Group.update group token
+                |> Task.attempt UpdateGroup
+
+        Nothing ->
+            Requests.Group.create group token
+                |> Task.attempt UpdateGroup

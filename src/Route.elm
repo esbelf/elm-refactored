@@ -108,7 +108,7 @@ routeParser =
         [ map Routes.Home top
         , map Routes.Groups (s (routeToUrl Routes.Groups))
         , map Routes.EditGroup (s (routeToUrl Routes.Groups) </> int)
-        , map Routes.CreateGroup (s "group") -- How to make it "groups/new"
+        , map Routes.CreateGroup (s "groups" </> s "new")
         , map Routes.Batches (s (routeToUrl Routes.Batches))
         , map Routes.CreateBatch (s "batches" </> s "new" </> int)
         , map Routes.Users (s (routeToUrl Routes.Users))
