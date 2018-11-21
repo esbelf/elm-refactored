@@ -48,28 +48,30 @@ renderProduct index product =
         , explicitDeductionToggle index product
         , riskLevelToggle index product
         , benefitTabs index product
-        , div []
-            [ textarea
-                [ class "uk-input uk-width-4-5"
-                , style [ ( "line-height", "1.5rem" ) ]
-                , onInput (Components.Product.SetBenefitDisplay index benefitTier.key)
-                , rows 3
-                , value benefitTier.display
-                ]
-                []
-            , div [ class "uk-align-right" ]
-                [ span
-                    [ attribute "uk-icon" "close"
-                    , onClick (Components.Product.ConfirmRemoveTier index BenefitTier benefitTier.key)
-                    , title "Remove Benefit Tier"
+        , div [ class "uk-margin" ]
+            [ div [ class "uk-flex uk-flex-wrap around" ]
+                [ textarea
+                    [ class "uk-input uk-width-3-5"
+                    , style [ ( "line-height", "1.5rem" ) ]
+                    , onInput (Components.Product.SetBenefitDisplay index benefitTier.key)
+                    , rows 3
+                    , value benefitTier.display
                     ]
                     []
-                , span
-                    [ attribute "uk-icon" "plus-circle"
-                    , onClick (Components.Product.AddBenefitTier index)
-                    , title "Add Benefit Tier"
+                , div [ class "uk-width-2-5" ]
+                    [ button
+                        [ class "uk-button uk-button-secondary uk-button-small"
+                        , type_ "button"
+                        , onClick (Components.Product.ConfirmRemoveTier index BenefitTier benefitTier.key)
+                        ]
+                        [ text "Remove" ]
+                    , button
+                        [ class "uk-button uk-button-secondary uk-button-small"
+                        , type_ "button"
+                        , onClick (Components.Product.AddBenefitTier index)
+                        ]
+                        [ text "Add" ]
                     ]
-                    []
                 ]
             ]
         , table [ class "uk-table uk-table-divider uk-table-hover" ]
@@ -77,6 +79,16 @@ renderProduct index product =
                 ([ headerRow index product ]
                     ++ tableBody index product
                 )
+            ]
+        , div [ class "uk-margin" ]
+            [ div [ class "uk-width-1-2" ]
+                [ button
+                    [ class "uk-button uk-button-secondary uk-button-small"
+                    , type_ "button"
+                    , onClick (Components.Product.AddAgeTier index)
+                    ]
+                    [ text "Add Age Tier" ]
+                ]
             ]
         ]
 
@@ -365,20 +377,12 @@ explicitDeductionPriceRow ( productIndex, ageIndex, coverage, risk ) product ded
 tableBody : Int -> Product -> List (Html Components.Product.Msg)
 tableBody index product =
     List.map (renderBenefitRow index product) product.ages
-        ++ [ tr []
-                ([ th []
-                    [ span
-                        [ attribute "uk-icon" "plus-circle"
-                        , onClick (Components.Product.AddAgeTier index)
-                        , title "Add Age Tier"
-                        ]
-                        []
-                    ]
-                 ]
-                    ++ List.map (\_ -> td [] []) product.benefits
-                    ++ [ td [] [] ]
-                )
-           ]
+
+
+
+--++ [ tr []
+--        (List.map (\_ -> td [] []) product.benefits)
+--   ]
 
 
 renderBenefitRow : Int -> Product -> Tier -> Html Components.Product.Msg
@@ -396,12 +400,12 @@ renderBenefitRow index product ageTier =
             ++ List.map (renderCell index ageTier product.focusedBenefit product.pricing product.riskLevels)
                 [ Employee, PlusKids, PlusSpouse, PlusFamily ]
             ++ [ td []
-                    [ span
-                        [ attribute "uk-icon" "close"
+                    [ button
+                        [ class "uk-button uk-button-secondary uk-button-small"
+                        , type_ "button"
                         , onClick (Components.Product.ConfirmRemoveTier index AgeTier ageTier.key)
-                        , title "Remove Age Tier"
                         ]
-                        []
+                        [ text "Remove" ]
                     ]
                ]
         )
