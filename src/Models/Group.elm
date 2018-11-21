@@ -28,8 +28,7 @@ init =
 
 type FormType
     = Life
-    | Ibew
-    | HealthSuppOnlyProduct
+    | HealthSupp
 
 
 {-| Annoying that Elm can't provide us all possible values for a union type.
@@ -38,8 +37,7 @@ Keep this in sync with all possible values of FormType.
 allFormTypes : List FormType
 allFormTypes =
     [ Life
-    , Ibew
-    , HealthSuppOnlyProduct
+    , HealthSupp
     ]
 
 
@@ -49,11 +47,8 @@ stringToFormType str =
         "life" ->
             Ok Life
 
-        "ibew" ->
-            Ok Ibew
-
-        "health_supp_only_product" ->
-            Ok HealthSuppOnlyProduct
+        "health_supp" ->
+            Ok HealthSupp
 
         _ ->
             Err <| "Unknown formtype" ++ str
@@ -65,11 +60,8 @@ formTypeToString formType =
         Life ->
             "life"
 
-        Ibew ->
-            "ibew"
-
-        HealthSuppOnlyProduct ->
-            "health_supp_only_product"
+        HealthSupp ->
+            "health_supp"
 
 
 formTypeToLabel : FormType -> String
@@ -78,8 +70,5 @@ formTypeToLabel formType =
         Life ->
             "Life"
 
-        Ibew ->
-            "Ibew"
-
-        HealthSuppOnlyProduct ->
+        HealthSupp ->
             "Health Supply Only Product"

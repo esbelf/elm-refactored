@@ -49,6 +49,10 @@ baseUrl =
     "https://easyins-staging.herokuapp.com/api/v1"
 
 
+
+-- "http://localhost:3000/api/v1"
+
+
 maybeErrorDesc : Http.Error -> Maybe String
 maybeErrorDesc error =
     case error of
