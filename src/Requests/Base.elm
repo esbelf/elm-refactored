@@ -46,10 +46,11 @@ fileTokenUrl =
 
 baseUrl : String
 baseUrl =
-    "https://easyins-staging.herokuapp.com/api/v1"
+    "http://localhost:3000/api/v1"
 
 
 
+--"https://easyins-staging.herokuapp.com/api/v1"
 -- "http://localhost:3000/api/v1"
 
 
