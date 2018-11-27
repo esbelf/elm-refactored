@@ -49,6 +49,10 @@ app.ports.fileSelected.subscribe(function(id) {
   // If your file upload field allows multiple files, you might
   // want to consider turning this into a `for` loop.
   var file = node.files[0];
+  if (file == null) {
+    // reached when a file is selected, then file select dialog opened a second time and cancelled
+    return;
+  }
   var reader = new FileReader();
 
   // FileReader API is event based. Once a file is selected
