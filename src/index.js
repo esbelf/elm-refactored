@@ -57,7 +57,7 @@ app.ports.fileSelected.subscribe(function(id) {
     // The event carries the `target`. The `target` is the file
     // that was selected. The result is base64 encoded contents of the file.
     var base64encoded = event.target.result;
-    // We build up the `FilePortData` object here that will be passed to our Elm
+    // We build up the `FileData` object here that will be passed to our Elm
     // runtime through the `fileContentRead` subscription.
     var portData = {
       contents: base64encoded,

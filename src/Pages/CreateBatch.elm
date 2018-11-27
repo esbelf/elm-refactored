@@ -6,6 +6,7 @@ import Html.Events exposing (onInput, onSubmit)
 import Http
 import Json.Decode as JD
 import Models.Batch exposing (BatchForm)
+import Models.FileData exposing (FileData)
 import Navigation
 import Port
 import Requests.Base
@@ -87,7 +88,7 @@ type Msg
     = ClickedSave
     | EnteredStartDate String
     | FileSelected
-    | FileRead Port.FilePortData
+    | FileRead FileData
     | CompletedCreate (Result Http.Error String)
 
 
