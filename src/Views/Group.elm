@@ -1,10 +1,11 @@
 module Views.Group exposing (view)
 
-import Components.Group exposing (Model)
+import Components.Group exposing (Model, Msg(..))
 import Html exposing (..)
-import Html.Attributes exposing (attribute, checked, class, href, name, placeholder, type_, value)
+import Html.Attributes exposing (attribute, checked, class, height, href, name, placeholder, src, tabindex, type_, value, width)
 import Html.Events exposing (onClick, onInput)
-import Models.Group as Group exposing (Group)
+import Json.Decode as JD
+import Models.Group as Group exposing (Group, Logo(..))
 import Views.Helper exposing (convertMsgHtml, unionSelectOptions)
 import Views.Product
 
@@ -46,15 +47,17 @@ groupInputs model =
                 , type_ "input"
                 , value group.name
                 , placeholder "Name"
-                , onInput Components.Group.SetName
+                , onInput SetName
                 ]
                 []
             ]
         , div [ class "uk-margin" ]
+            (viewLogoUploadControl model.group.logo)
+        , div [ class "uk-margin" ]
             [ select
                 [ class "uk-select"
                 , name "form_type"
-                , onInput Components.Group.SetFormType
+                , onInput SetFormType
                 ]
                 (unionSelectOptions Group.allFormTypes Group.formTypeToString Group.formTypeToLabel group.form_type)
             ]
@@ -66,7 +69,7 @@ groupInputs model =
                 , name "payment_mode"
                 , type_ "number"
                 , value (toString group.payment_mode)
-                , onInput Components.Group.SetPaymentMode
+                , onInput SetPaymentMode
                 ]
                 []
             ]
@@ -78,11 +81,62 @@ groupInputs model =
                 [ class "uk-textarea"
                 , name "disclosure"
                 , value group.disclosure
-                , onInput Components.Group.SetDisclosure
+                , onInput SetDisclosure
                 ]
                 []
             ]
         ]
+
+
+viewLogoUploadControl : Logo -> List (Html Components.Group.Msg)
+viewLogoUploadControl logo =
+    [ span [ class "uk-label" ]
+        [ text "Logo Image" ]
+    , div [ class " uk-grid-small uk-child-width-auto uk-grid" ]
+        [ div [ class "uk-form-custom" ]
+            [ input
+                [ type_ "file"
+                , Html.Attributes.id Components.Group.formUploadId
+                , Html.Events.on "change"
+                    (JD.succeed FileSelected)
+                ]
+                []
+            , button
+                [ class "uk-button uk-button-default"
+                , type_ "button"
+                , tabindex -1
+                ]
+                [ fileButtonText logo ]
+            , logoDisplay logo
+            ]
+        ]
+    ]
+
+
+logoDisplay : Logo -> Html msg
+logoDisplay logo =
+    case logo of
+        EmptyLogo ->
+            text ""
+
+        AttachedLogo url ->
+            Html.img [ src url, height 100, width 100 ] []
+
+        UploadingLogo data fileName maybeOldUrl ->
+            Html.img [ src data, height 100, width 100 ] []
+
+
+fileButtonText : Logo -> Html msg
+fileButtonText logo =
+    case logo of
+        EmptyLogo ->
+            text "Select Logo"
+
+        AttachedLogo _ ->
+            text "Upload New Logo"
+
+        UploadingLogo _ _ _ ->
+            text "Change Selected Logo"
 
 
 toggleEmployeeContribution : Components.Group.Model -> Html Components.Group.Msg
@@ -98,7 +152,7 @@ toggleEmployeeContribution model =
                         [ class "uk-textarea"
                         , name "employee_contribution"
                         , value group.employee_contribution
-                        , onInput Components.Group.SetEmployeeContribution
+                        , onInput SetEmployeeContribution
                         ]
                         []
                     ]
@@ -116,7 +170,7 @@ toggleEmployeeContribution model =
                     , type_ "radio"
                     , name "employee-contribution"
                     , checked (not model.showEmployeeContribution)
-                    , onClick Components.Group.ToggleEmployeeContribution
+                    , onClick ToggleEmployeeContribution
                     ]
                     []
                 , text "Employee Contribution"
@@ -127,7 +181,7 @@ toggleEmployeeContribution model =
                     , type_ "radio"
                     , name "employee-contribution"
                     , checked model.showEmployeeContribution
-                    , onClick Components.Group.ToggleEmployeeContribution
+                    , onClick ToggleEmployeeContribution
                     ]
                     []
                 , text "100% Employer Paid"
