@@ -69,4 +69,4 @@ urlSlug userId =
 
 userUrl : String
 userUrl =
-    baseUrl ++ "/users"
+    apiUrl ++ "/users"

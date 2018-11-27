@@ -156,7 +156,7 @@ groupUrl maybeGroupId =
 
 groupsUrl : String
 groupsUrl =
-    baseUrl ++ "/groups"
+    apiUrl ++ "/groups"
 
 
 

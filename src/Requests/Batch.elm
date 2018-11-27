@@ -77,4 +77,4 @@ batchDecoder =
 
 batchesUrl : String
 batchesUrl =
-    baseUrl ++ "/batches"
+    apiUrl ++ "/batches"
