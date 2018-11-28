@@ -74,6 +74,12 @@ viewGroup group =
                     ]
                 , td []
                     [ button
+                        [ class "uk-button uk-button-default uk-button-small"
+                        , type_ "button"
+                        , onClick (GroupsMsg (Pages.Groups.DuplicateGroupRequest groupId))
+                        ]
+                        [ text "Copy" ]
+                    , button
                         [ class "uk-button uk-button-danger uk-button-small"
                         , type_ "button"
                         , onClick (GroupsMsg (Pages.Groups.DeleteGroupRequest groupId))

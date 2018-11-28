@@ -2,6 +2,7 @@ module Pages.Groups exposing (Model, Msg(..), addGroupsToModel, init, initialMod
 
 import Http
 import Models.Group exposing (Group)
+import Navigation
 import Pages.Helper exposing (..)
 import Port
 import Requests.Base
@@ -14,6 +15,8 @@ type Msg
     | DeleteGroup Int (Result Http.Error String)
     | PreviewGroupRequest Int
     | PreviewGroup Int (Result Http.Error String)
+    | DuplicateGroupRequest Int
+    | DuplicateGroup Int (Result Http.Error Group)
 
 
 type alias Model =
@@ -68,4 +71,27 @@ update msg model token =
             ( model, Port.openWindow (Requests.Group.previewUrl (Just id) token) )
 
         PreviewGroup id (Err error) ->
+            ( { model | errorMsg = toString error }, Cmd.none )
+
+        DuplicateGroupRequest groupId ->
+            let
+                newMsg =
+                    Requests.Group.duplicate groupId token
+                        |> Task.attempt (DuplicateGroup groupId)
+            in
+            ( model, newMsg )
+
+        DuplicateGroup id (Ok newGroup) ->
+            let
+                newId =
+                    newGroup.id
+                        |> Maybe.map toString
+                        |> Maybe.withDefault ""
+
+                newLoc =
+                    "groups/" ++ newId
+            in
+            ( model, Navigation.newUrl newLoc )
+
+        DuplicateGroup id (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )

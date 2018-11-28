@@ -1,4 +1,4 @@
-module Requests.Group exposing (create, delete, get, getAll, groupDecoder, groupEncoder, groupsDecoder, groupsUrl, previewUrl, update)
+module Requests.Group exposing (create, delete, duplicate, get, getAll, groupDecoder, groupEncoder, groupsDecoder, groupsUrl, previewUrl, update)
 
 -- import Date exposing (Date)
 
@@ -78,6 +78,24 @@ delete groupId token =
         , method = "DELETE"
         , timeout = Nothing
         , url = groupUrl (Just groupId)
+        , withCredentials = False
+        }
+        |> Http.toTask
+
+
+duplicate : Int -> String -> Task Http.Error Group
+duplicate groupId token =
+    let
+        duplicateUrl =
+            groupUrl (Just groupId) ++ "/duplicate"
+    in
+    Http.request
+        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+        , expect = Http.expectJson (dataDecoder groupDecoder)
+        , body = Http.emptyBody
+        , method = "POST"
+        , timeout = Nothing
+        , url = duplicateUrl
         , withCredentials = False
         }
         |> Http.toTask
