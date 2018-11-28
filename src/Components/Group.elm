@@ -1,9 +1,11 @@
-module Components.Group exposing (Model, Msg(..), addGroupToModel, init, initialModel, update)
+module Components.Group exposing (Model, Msg(..), addGroupToModel, formUploadId, init, initialModel, update)
 
 import Components.Product
 import Http
-import Models.Group exposing (FormType, Group)
+import Models.FileData exposing (FileData)
+import Models.Group as Group exposing (FormType, Group, Logo(..))
 import Navigation
+import Port
 import Requests.Group
 import Task exposing (Task)
 
@@ -18,6 +20,8 @@ type Msg
     | SaveGroupRequest
     | UpdateGroup (Result Http.Error Group)
     | ProductMsg Components.Product.Msg
+    | FileSelected
+    | FileRead FileData
 
 
 type alias Model =
@@ -31,7 +35,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { group = Models.Group.init
+    { group = Group.init
     , errorMsg = ""
     , id = Nothing
     , productPageModel = Components.Product.init
@@ -66,19 +70,16 @@ addGroupToModel group =
 
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
+    let
+        oldGroup =
+            model.group
+    in
     case msg of
         SetName name ->
-            let
-                oldGroup =
-                    model.group
-            in
             ( { model | group = { oldGroup | name = name } }, Cmd.none )
 
         SetPaymentMode paymentMode ->
             let
-                oldGroup =
-                    model.group
-
                 newPaymentMode =
                     paymentMode
                         |> String.toInt
@@ -88,28 +89,17 @@ update msg model token =
 
         SetFormType formTypeStr ->
             let
-                oldGroup =
-                    model.group
-
                 newFormType =
                     formTypeStr
-                        |> Models.Group.stringToFormType
+                        |> Group.stringToFormType
                         |> Result.withDefault oldGroup.form_type
             in
             ( { model | group = { oldGroup | form_type = newFormType } }, Cmd.none )
 
         SetDisclosure disclosure ->
-            let
-                oldGroup =
-                    model.group
-            in
             ( { model | group = { oldGroup | disclosure = disclosure } }, Cmd.none )
 
         SetEmployeeContribution contributionText ->
-            let
-                oldGroup =
-                    model.group
-            in
             ( { model | group = { oldGroup | employee_contribution = contributionText } }, Cmd.none )
 
         ToggleEmployeeContribution ->
@@ -117,10 +107,6 @@ update msg model token =
                 ( { model | showEmployeeContribution = not model.showEmployeeContribution }, Cmd.none )
 
             else
-                let
-                    oldGroup =
-                        model.group
-                in
                 ( { model
                     | showEmployeeContribution = not model.showEmployeeContribution
                     , group = { oldGroup | employee_contribution = "" }
@@ -152,9 +138,6 @@ update msg model token =
 
                 msg =
                     Cmd.map ProductMsg newSubMsg
-
-                oldGroup =
-                    model.group
             in
             ( { model
                 | productPageModel = newProductPageModel
@@ -162,6 +145,23 @@ update msg model token =
               }
             , msg
             )
+
+        FileSelected ->
+            let
+                newLogo =
+                    Group.revertLogoState model.group.logo
+            in
+            ( updateGroupLogo model newLogo, Port.fileSelected formUploadId )
+
+        FileRead fileData ->
+            let
+                newModel =
+                    model.group.logo
+                        |> Group.extractOldLogoUrl
+                        |> UploadingLogo fileData.contents fileData.filename
+                        |> updateGroupLogo model
+            in
+            ( newModel, Cmd.none )
 
 
 save : Group -> String -> Cmd Msg
@@ -174,3 +174,20 @@ save group token =
         Nothing ->
             Requests.Group.create group token
                 |> Task.attempt UpdateGroup
+
+
+updateGroupLogo : Model -> Logo -> Model
+updateGroupLogo model newLogo =
+    let
+        oldGroup =
+            model.group
+
+        newGroup =
+            { oldGroup | logo = newLogo }
+    in
+    { model | group = newGroup }
+
+
+formUploadId : String
+formUploadId =
+    "logo_upload_file_input"

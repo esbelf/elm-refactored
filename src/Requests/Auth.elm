@@ -60,4 +60,4 @@ encode model =
 
 authUrl : String
 authUrl =
-    baseUrl ++ "/authenticate"
+    apiUrl ++ "/authenticate"

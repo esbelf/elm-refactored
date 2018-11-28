@@ -1,8 +1,19 @@
-module Requests.Base exposing (baseUrl, dataDecoder, getFileToken, maybeErrorDesc, stringToInt)
+module Requests.Base exposing (RequestConfig, apiUrl, baseUrl, dataDecoder, getFileToken, maybeErrorDesc, stringToInt)
 
 import Http exposing (Error(BadStatus))
 import Json.Decode as Decode
 import Task exposing (Task)
+
+
+type alias RequestConfig model =
+    { body : Http.Body
+    , expect : Http.Expect model
+    , headers : List Http.Header
+    , method : String
+    , timeout : Maybe Float
+    , url : String
+    , withCredentials : Bool
+    }
 
 
 getFileToken : String -> Task Http.Error String
@@ -41,17 +52,22 @@ stringToInt strNum =
 
 fileTokenUrl : String
 fileTokenUrl =
-    baseUrl ++ "/file_authenticate"
+    apiUrl ++ "/file_authenticate"
+
+
+apiUrl : String
+apiUrl =
+    baseUrl ++ "/api/v1"
 
 
 baseUrl : String
 baseUrl =
-    "http://localhost:3000/api/v1"
+    "http://localhost:3000"
 
 
 
---"https://easyins-staging.herokuapp.com/api/v1"
--- "http://localhost:3000/api/v1"
+--"https://easyins-staging.herokuapp.com"
+-- "http://localhost:3000"
 
 
 maybeErrorDesc : Http.Error -> Maybe String

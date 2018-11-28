@@ -1,9 +1,9 @@
-module GroupDecodersTests exposing (newGroupEncode, noIdDecoder, normalDecoder, simpleEncode)
+module GroupDecodersTests exposing (logoUploadEncode, newGroupEncode, noIdDecoder, normalDecoder, simpleEncode)
 
 import Expect exposing (Expectation)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Models.Group as Group exposing (FormType(..), Group)
+import Models.Group as Group exposing (FormType(..), Group, Logo(..))
 import Requests.Group
 import Test exposing (..)
 
@@ -13,11 +13,17 @@ simpleGroup =
     { id = Just 1
     , name = "IBEW 47 - Class 2"
     , disclosure = ""
-    , form_type = Ibew
+    , form_type = Life
     , employee_contribution = ""
     , payment_mode = 12
     , products = []
+    , logo = EmptyLogo
     }
+
+
+normalGroup : Group
+normalGroup =
+    { simpleGroup | logo = AttachedLogo "http://localhost:3000/rails/active_storage/blobs/logo2.png" }
 
 
 normalDecoder : Test
@@ -33,9 +39,10 @@ normalDecoder =
                       "attributes": {
                         "name": "IBEW 47 - Class 2",
                         "disclosure": null,
-                        "form_type": "ibew",
+                        "form_type": "life",
                         "payment_mode": 12,
-                        "created_at": "2018-11-14T12:52:49.778Z"
+                        "created_at": "2018-11-14T12:52:49.778Z",
+                        "logo_url": "http://localhost:3000/rails/active_storage/blobs/logo2.png"
                       }
                     }
                     """
@@ -44,7 +51,7 @@ normalDecoder =
                     Decode.decodeString Requests.Group.groupDecoder input
             in
             Expect.equal decodedOutput
-                (Ok simpleGroup)
+                (Ok normalGroup)
 
 
 noIdDecoder : Test
@@ -60,7 +67,7 @@ noIdDecoder =
                       "attributes": {
                         "name": "IBEW 47 - Class 2",
                         "disclosure": null,
-                        "form_type": "ibew",
+                        "form_type": "life",
                         "payment_mode": 12,
                         "created_at": "2018-11-14T12:52:49.778Z"
                       }
@@ -87,7 +94,7 @@ simpleEncode =
   "id": 1,
   "name": "IBEW 47 - Class 2",
   "disclosure": "",
-  "form_type": "ibew",
+  "form_type": "life",
   "employee_contribution": "",
   "payment_mode": 12,
   "product_pricing": {
@@ -106,7 +113,7 @@ newGroupEncode =
                 newGroup =
                     { simpleGroup
                         | id = Nothing
-                        , form_type = HealthSuppOnlyProduct
+                        , form_type = HealthSupp
                     }
 
                 jsonOutput =
@@ -117,12 +124,48 @@ newGroupEncode =
                     """{
   "name": "IBEW 47 - Class 2",
   "disclosure": "",
-  "form_type": "health_supp_only_product",
+  "form_type": "health_supp",
   "employee_contribution": "",
   "payment_mode": 12,
   "product_pricing": {
     "products": []
   }
+}"""
+            in
+            Expect.equal jsonOutput expected
+
+
+logoUploadEncode : Test
+logoUploadEncode =
+    test "can encode new group with attached logo" <|
+        \_ ->
+            let
+                imageData =
+                    "data:image/png;base64,IA=="
+
+                newGroup =
+                    { simpleGroup
+                        | id = Nothing
+                        , form_type = HealthSupp
+                        , logo = UploadingLogo imageData "test_logo.png" Nothing
+                    }
+
+                jsonOutput =
+                    Requests.Group.groupEncoder newGroup
+                        |> Encode.encode 2
+
+                expected =
+                    """{
+  "name": "IBEW 47 - Class 2",
+  "disclosure": "",
+  "form_type": "health_supp",
+  "employee_contribution": "",
+  "payment_mode": 12,
+  "product_pricing": {
+    "products": []
+  },
+  "logo_data": "data:image/png;base64,IA==",
+  "logo_filename": "test_logo.png"
 }"""
             in
             Expect.equal jsonOutput expected

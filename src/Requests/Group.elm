@@ -6,7 +6,7 @@ import Http
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
 import Json.Encode as Encode
-import Models.Group exposing (FormType(..), Group, formTypeToString, stringToFormType)
+import Models.Group exposing (FormType(..), Group, Logo(..), formTypeToString, stringToFormType)
 import Requests.Base exposing (..)
 import Requests.Product
 import Task exposing (Task)
@@ -57,6 +57,7 @@ createOrUpdate group token =
         |> Http.toTask
 
 
+saveConfig : Group -> String -> RequestConfig Group
 saveConfig group token =
     { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = groupJsonBody group
@@ -98,6 +99,16 @@ groupEncoder group =
                 Nothing ->
                     []
 
+        logoAttrs =
+            case group.logo of
+                UploadingLogo data fileName _ ->
+                    [ ( "logo_data", Encode.string data )
+                    , ( "logo_filename", Encode.string fileName )
+                    ]
+
+                _ ->
+                    []
+
         attributes =
             idAttr
                 ++ [ ( "name", Encode.string group.name )
@@ -107,6 +118,7 @@ groupEncoder group =
                    , ( "payment_mode", Encode.int group.payment_mode )
                    , ( "product_pricing", Requests.Product.encode group.products )
                    ]
+                ++ logoAttrs
     in
     Encode.object attributes
 
@@ -132,6 +144,7 @@ groupDecoder =
         |> optionalAt [ "attributes", "employee_contribution" ] Decode.string ""
         |> optionalAt [ "attributes", "payment_mode" ] Decode.int 12
         |> optionalAt [ "attributes", "product_pricing", "products" ] Requests.Product.productsDecoder []
+        |> optionalAt [ "attributes", "logo_url" ] logoUrlDecoder EmptyLogo
 
 
 groupMethod : Maybe Int -> String
@@ -156,11 +169,21 @@ groupUrl maybeGroupId =
 
 groupsUrl : String
 groupsUrl =
-    baseUrl ++ "/groups"
+    apiUrl ++ "/groups"
 
 
 
 -- HELPERS
+
+
+logoUrlDecoder : Decode.Decoder Logo
+logoUrlDecoder =
+    Decode.string |> Decode.andThen logoHelp
+
+
+logoHelp : String -> Decoder Logo
+logoHelp path =
+    succeed <| AttachedLogo path
 
 
 {-| Extract an int using [`String.toInt`](http://package.elm-lang.org/packages/elm-lang/core/latest/String#toInt)
