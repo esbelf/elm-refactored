@@ -10,7 +10,9 @@ import Task exposing (Task)
 
 
 type Msg
-    = DeleteGroupRequest Int
+    = ClickedDeleteGroup Int
+    | CancelDeleteGroup
+    | DeleteGroupRequest Int
     | DeleteGroup Int (Result Http.Error String)
     | PreviewGroupRequest Int
     | PreviewGroup Int (Result Http.Error String)
@@ -19,6 +21,7 @@ type Msg
 type alias Model =
     { groups : List Group
     , errorMsg : String
+    , deletingGroup : Maybe Int
     }
 
 
@@ -26,6 +29,7 @@ initialModel : Model
 initialModel =
     { groups = []
     , errorMsg = ""
+    , deletingGroup = Nothing
     }
 
 
@@ -42,6 +46,12 @@ addGroupsToModel groups =
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
     case msg of
+        ClickedDeleteGroup id ->
+            ( { model | deletingGroup = Just id }, Cmd.none )
+
+        CancelDeleteGroup ->
+            ( { model | deletingGroup = Nothing }, Cmd.none )
+
         DeleteGroupRequest groupId ->
             let
                 newMsg =
@@ -51,7 +61,12 @@ update msg model token =
             ( model, newMsg )
 
         DeleteGroup id (Ok message) ->
-            ( { model | groups = removeModelFromNullableIdList (Just id) model.groups }, Cmd.none )
+            ( { model
+                | groups = removeModelFromNullableIdList (Just id) model.groups
+                , deletingGroup = Nothing
+              }
+            , Cmd.none
+            )
 
         DeleteGroup id (Err error) ->
             ( { model | errorMsg = toString error }, Cmd.none )

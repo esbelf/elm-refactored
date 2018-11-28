@@ -8,6 +8,7 @@ import Msg exposing (..)
 import Pages.Groups exposing (Model)
 import Route exposing (onClickRoute)
 import Routes exposing (Route)
+import Views.Modal as Modal exposing (ModalButtonStyle(..), modalButton)
 
 
 view : Model -> Html Msg
@@ -35,6 +36,7 @@ view model =
                     (viewGroupList model.groups)
                 ]
             ]
+        , viewDeletingModalIfNeeded model
         ]
 
 
@@ -76,8 +78,49 @@ viewGroup group =
                     [ button
                         [ class "uk-button uk-button-danger uk-button-small"
                         , type_ "button"
-                        , onClick (GroupsMsg (Pages.Groups.DeleteGroupRequest groupId))
+                        , onClick (GroupsMsg (Pages.Groups.ClickedDeleteGroup groupId))
                         ]
                         [ text "Delete" ]
                     ]
                 ]
+
+
+viewDeletingModalIfNeeded : Model -> Html Msg
+viewDeletingModalIfNeeded model =
+    case model.deletingGroup of
+        Just groupId ->
+            viewDeletingModal model groupId
+
+        Nothing ->
+            text ""
+
+
+viewDeletingModal : Model -> Int -> Html Msg
+viewDeletingModal model groupId =
+    let
+        maybeGroup =
+            model.groups
+                |> List.filter (\g -> g.id == model.deletingGroup)
+                |> List.head
+    in
+    case maybeGroup of
+        Just group ->
+            let
+                content =
+                    p []
+                        [ text
+                            ("Remove group '"
+                                ++ group.name
+                                ++ "' ? This cannot be undone. Are you sure?"
+                            )
+                        ]
+
+                buttons =
+                    [ modalButton "Cancel" (GroupsMsg Pages.Groups.CancelDeleteGroup) ModalDefault
+                    , modalButton "Delete" (GroupsMsg <| Pages.Groups.DeleteGroupRequest groupId) ModalDanger
+                    ]
+            in
+            Modal.displayModal "Delete Group" content buttons
+
+        Nothing ->
+            text ""

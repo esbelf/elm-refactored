@@ -11,6 +11,7 @@ import Json.Encode
 import List.Extra
 import Models.Product exposing (..)
 import Requests.Product exposing (encode)
+import Views.Modal as Modal exposing (ModalButtonStyle(..), modalButton)
 
 
 view : Components.Product.Model -> Html Components.Product.Msg
@@ -513,16 +514,9 @@ renderModal model =
 
                         BenefitTier ->
                             ""
-            in
-            div
-                [ class "uk-modal uk-open"
-                , attribute "uk-modal" ""
-                , style [ ( "display", "block" ) ]
-                ]
-                [ div [ class "uk-modal-dialog uk-modal-body" ]
-                    [ h2 [ class "uk-modal-title" ]
-                        [ text "Remove Tier" ]
-                    , p []
+
+                content =
+                    p []
                         [ text
                             ("You are removing the "
                                 ++ tierTypeDisplay
@@ -533,19 +527,10 @@ renderModal model =
                                 ++ " and deleting all associated pricing.  This cannot be undone.  Are you sure you want to continue?"
                             )
                         ]
-                    , p [ class "uk-text-right" ]
-                        [ button
-                            [ class "uk-button uk-button-default uk-modal-close"
-                            , type_ "button"
-                            , onClick Components.Product.CancelRemoveTier
-                            ]
-                            [ text "Cancel" ]
-                        , button
-                            [ class "uk-button uk-button-primary"
-                            , type_ "button"
-                            , onClick Components.Product.RemoveTier
-                            ]
-                            [ text "Delete" ]
-                        ]
+
+                buttons =
+                    [ modalButton "Cancel" Components.Product.CancelRemoveTier ModalDefault
+                    , modalButton "Delete" Components.Product.RemoveTier ModalPrimary
                     ]
-                ]
+            in
+            Modal.displayModal "Remove Tier" content buttons
