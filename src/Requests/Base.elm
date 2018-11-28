@@ -62,11 +62,10 @@ apiUrl =
 
 baseUrl : String
 baseUrl =
-    "http://localhost:3000"
+    "https://easyins-staging.herokuapp.com"
 
 
 
---"https://easyins-staging.herokuapp.com"
 -- "http://localhost:3000"
 
 
