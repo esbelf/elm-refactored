@@ -4,7 +4,7 @@ module Requests.Group exposing (create, delete, duplicate, get, getAll, groupDec
 
 import Http
 import Json.Decode as Decode exposing (..)
-import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import Json.Decode.Pipeline exposing (custom, optional, optionalAt, required, requiredAt)
 import Json.Encode as Encode
 import Models.Group exposing (FormType(..), Group, Logo(..), formTypeToString, stringToFormType)
 import Requests.Base exposing (..)
@@ -153,7 +153,7 @@ groupsDecoder =
 
 groupDecoder : Decode.Decoder Group
 groupDecoder =
-    decode Group
+    Decode.succeed Group
         -- require groups coming from JSON to have ids defined.
         |> required "id" (Decode.map Just flexibleInt)
         |> requiredAt [ "attributes", "name" ] Decode.string

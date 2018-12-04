@@ -4,7 +4,7 @@ module Requests.Batch exposing (create, formUrl, getAll)
 
 import Http exposing (Request)
 import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import Json.Decode.Pipeline exposing (custom, optional, optionalAt, required, requiredAt)
 import Json.Encode as Encode
 import Models.Batch exposing (Batch, BatchForm)
 import Requests.Base exposing (..)
@@ -64,7 +64,7 @@ batchesDecoder =
 
 batchDecoder : Decode.Decoder Batch
 batchDecoder =
-    decode Batch
+    Decode.succeed Batch
         |> custom (Decode.at [ "id" ] Decode.string |> Decode.andThen stringToInt)
         |> requiredAt [ "attributes", "group_id" ] Decode.int
         |> optionalAt [ "attributes", "group_name" ] Decode.string ""

@@ -1,6 +1,6 @@
 module Requests.Base exposing (RequestConfig, apiUrl, baseUrl, dataDecoder, getFileToken, maybeErrorDesc, stringToInt)
 
-import Http exposing (Error(BadStatus))
+import Http exposing (Error(..))
 import Json.Decode as Decode
 import Task exposing (Task)
 
