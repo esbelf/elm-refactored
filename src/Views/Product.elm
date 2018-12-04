@@ -22,7 +22,7 @@ view model =
                     [ text "Add Product" ]
                , textarea
                     [ name "group[product_pricing]"
-                    , style [ ( "display", "none" ) ]
+                    , style "display" "none"
                     ]
                     [ text (Json.Encode.encode 0 <| encode model.products) ]
                , renderModal model
@@ -53,7 +53,7 @@ renderProduct index product =
             [ div [ class "uk-flex uk-flex-wrap around" ]
                 [ textarea
                     [ class "uk-input uk-width-3-5"
-                    , style [ ( "line-height", "1.5rem" ) ]
+                    , style "line-height" "1.5rem"
                     , onInput (Components.Product.SetBenefitDisplay index benefitTier.key)
                     , rows 3
                     , value benefitTier.display
@@ -202,10 +202,8 @@ headerRow index product =
             []
         , th
             [ rowspan (List.length product.ages + 2)
-            , style
-                [ ( "vertical-align", "top" )
-                , ( "width", "180px" )
-                ]
+            , style "vertical-align" "top"
+            , style "width" "180px"
             ]
             [ deductionPriceTable index product
             ]
@@ -460,7 +458,7 @@ renderInput productIndex ageIndex coverage deductMode getPrice multiRisk risk =
     in
     div
         [ class className
-        , style [ ( "float", "left" ) ]
+        , style "float" "left"
         ]
         [ input
             [ class "uk-input"

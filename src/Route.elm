@@ -171,7 +171,7 @@ updateRoute route =
 
 onClickRoute : Routes.Route -> List (Html.Attribute Msg)
 onClickRoute route =
-    [ style [ ( "pointer", "cursor" ) ]
+    [ style "pointer" "cursor"
     , href (baseUrl ++ routeToUrl route)
     , onPreventDefaultClick (SetRoute route)
     ]

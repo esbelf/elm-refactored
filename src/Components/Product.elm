@@ -383,7 +383,7 @@ removeBenefitPricing__ index pricing =
         benefits =
             Dict.keys pricing
                 |> List.Extra.remove index
-                |> List.indexedMap (,)
+                |> List.indexedMap (\a b -> ( a, b ))
     in
     benefits
         |> List.map (\( is, was ) -> ( is, Dict.get was pricing |> Maybe.withDefault EveryDict.empty ))
@@ -404,7 +404,7 @@ removeAgePricing_ index priceGrid =
         ages =
             Dict.keys priceGrid
                 |> List.Extra.remove index
-                |> List.indexedMap (,)
+                |> List.indexedMap (\a b -> ( a, b ))
     in
     ages
         |> List.map (\( is, was ) -> ( is, Dict.get was priceGrid |> Maybe.withDefault Dict.empty ))
