@@ -4,7 +4,7 @@ import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
 import Json.Decode as Dec exposing (Decoder, andThen, at, bool, dict, float, list, string, succeed)
-import Json.Decode.Pipeline exposing (custom, decode, hardcoded, optional, optionalAt, required, requiredAt)
+import Json.Decode.Pipeline exposing (custom, hardcoded, optional, optionalAt, required, requiredAt)
 import Json.Encode as Enc exposing (Value)
 import Models.Product exposing (..)
 
@@ -155,7 +155,7 @@ productsDecoder =
 
 productDecoder : Decoder Product
 productDecoder =
-    decode Product
+    Decode.succeed Product
         |> required "name" string
         |> required "pricing" decodePricing
         |> required "benefits" decodeTierList

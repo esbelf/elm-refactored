@@ -4,7 +4,7 @@ module Requests.User exposing (delete, fetch, urlSlug, userDecoder, userUrl, use
 
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import Json.Decode.Pipeline exposing (custom, optional, optionalAt, required, requiredAt)
 import Models.User exposing (User)
 import Requests.Base exposing (..)
 import Task exposing (Task)
@@ -45,7 +45,7 @@ usersDecoder =
 
 userDecoder : Decode.Decoder User
 userDecoder =
-    decode User
+    Decode.succeed User
         |> custom (Decode.at [ "id" ] Decode.string |> Decode.andThen stringToInt)
         |> requiredAt [ "attributes", "email" ] Decode.string
 

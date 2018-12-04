@@ -2,7 +2,7 @@ module Requests.Auth exposing (AuthObj, authUrl, authenticate, encode, sessionDe
 
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (required)
 import Json.Encode as Encode
 import Models.Session exposing (Session)
 import Requests.Base exposing (..)
@@ -29,7 +29,7 @@ authenticate authObj =
 
 sessionDecoder : Decode.Decoder Session
 sessionDecoder =
-    decode Session
+    Decode.succeed Session
         |> required "token" Decode.string
         |> required "exp" dateTimeFromIsoString
 
