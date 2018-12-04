@@ -29,7 +29,7 @@ displayModal title content buttonList =
     div
         [ class "uk-modal uk-open"
         , attribute "uk-modal" ""
-        , style [ ( "display", "block" ) ]
+        , style "display" "block"
         ]
         [ div [ class "uk-modal-dialog uk-modal-body" ]
             [ h2 [ class "uk-modal-title" ]

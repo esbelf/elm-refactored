@@ -124,7 +124,7 @@ viewAuth maybeSession =
 debugFooter : Model -> Html Msg
 debugFooter model =
     code
-        [ style [ ( "white-space", "normal" ) ] ]
+        [ style "white-space" "normal" ]
         [ text (toString model)
         ]
 
