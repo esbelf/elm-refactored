@@ -14,7 +14,6 @@ import Pages.Users
 import Port
 import Route exposing (parseLocation, setRoute, updateRoute)
 import Routes
-import Time.DateTime as DateTime
 
 
 updateWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
@@ -40,7 +39,7 @@ update msg model =
     in
     case ( msg, page ) of
         ( TimeTick now, _ ) ->
-            ( { model | currentTime = DateTime.fromTimestamp now }, Cmd.none )
+            ( { model | currentTime = now }, Cmd.none )
 
         ( SetRoute route, _ ) ->
             ( model, updateRoute route )

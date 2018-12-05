@@ -2,7 +2,7 @@ module Model exposing (Model, PageState(..), getPage, init)
 
 import Models.Session exposing (Session)
 import Page exposing (Page)
-import Time.DateTime as DateTime exposing (DateTime)
+import Time exposing (Posix)
 
 
 type PageState
@@ -13,7 +13,7 @@ type PageState
 type alias Model =
     { session : Maybe Session
     , pageState : PageState
-    , currentTime : DateTime
+    , currentTime : Posix
     }
 
 
@@ -22,11 +22,11 @@ initialPage =
     Page.Blank
 
 
-init : Maybe Session -> Float -> Model
+init : Maybe Session -> Int -> Model
 init session now =
     { pageState = Loaded initialPage
     , session = session
-    , currentTime = DateTime.fromTimestamp now
+    , currentTime = Time.millisToPosix now
     }
 
 
