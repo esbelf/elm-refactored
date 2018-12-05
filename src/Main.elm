@@ -1,5 +1,7 @@
 module Main exposing (main)
 
+import Browser
+import Browser.Navigation as Navigation
 import Model exposing (..)
 import Models.Session
 import Models.Storage exposing (StorageModel)
@@ -9,6 +11,7 @@ import Route exposing (parseLocation, setRoute, urlChange)
 import Subscription
 import Time
 import Update
+import Url exposing (Url)
 import View
 
 
@@ -18,16 +21,16 @@ type alias Flags =
     }
 
 
-init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
-init flags location =
+init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
+init flags url navKey =
     let
         currentRoute =
-            Route.parseLocation location
+            Route.parseLocation url
 
         session =
             Models.Session.initWithRecord flags.state
     in
-    Route.setRoute currentRoute (Model.init session flags.now)
+    Route.setRoute currentRoute (Model.init session flags.now navKey)
 
 
 subscriptions : Model -> Sub Msg
@@ -44,9 +47,12 @@ subscriptions model =
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags Route.urlChange
+    Browser.application Route.urlChange
         { init = init
         , view = View.view
         , update = Update.update
         , subscriptions = subscriptions
+        , onUrlRequest = ClickedLink
+        , onUrlChange = RouteChanged << Route.fromUrl
+        , onUrlChange = Route.onUrlChange
         }

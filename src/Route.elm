@@ -1,14 +1,14 @@
-module Route exposing (onClickRoute, parseLocation, routeToUrl, setRoute, updateRoute, urlChange)
+module Route exposing (fromUrl, onClickRoute, parseUrl, setRoute, updateRoute, urlChange)
 
+import Browser.Navigation as Nav
 import Helper exposing (pageErrored)
-import Html exposing (Html)
-import Html.Attributes exposing (attribute, href, style)
+import Html exposing (Attribute)
+import Html.Attributes as Attr
 import Html.Events exposing (defaultOptions, onWithOptions)
 import Json.Decode exposing (Decoder)
 import Model exposing (Model, PageState(..))
 import Models.Session
 import Msg exposing (..)
-import Navigation exposing (Location)
 import Page
 import Pages.Batches
 import Pages.CreateBatch
@@ -20,10 +20,11 @@ import Pages.Users
 import Port
 import Routes exposing (Route)
 import Task exposing (Task)
-import UrlParser exposing (..)
+import Url exposing (Url)
+import Url.Parser as Parser exposing ((<=/>), Parser, int, oneOf, s, string)
 
 
-setRoute : Routes.Route -> Model -> ( Model, Cmd Msg )
+setRoute : Route -> Model -> ( Model, Cmd Msg )
 setRoute route model =
     let
         checkedSession =
@@ -93,11 +94,11 @@ setRoute route model =
             pageErrored model
 
 
-urlChange : Location -> Msg
-urlChange location =
+onUrlChange : Url -> Msg
+onUrlChange url =
     let
         route =
-            parseLocation location
+            parseLocation url
     in
     RouteChanged route
 
@@ -105,20 +106,20 @@ urlChange location =
 routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
-        [ map Routes.Home top
-        , map Routes.Groups (s (routeToUrl Routes.Groups))
-        , map Routes.EditGroup (s (routeToUrl Routes.Groups) </> int)
-        , map Routes.CreateGroup (s "groups" </> s "new")
-        , map Routes.Batches (s (routeToUrl Routes.Batches))
-        , map Routes.CreateBatch (s "batches" </> s "new" </> int)
-        , map Routes.Users (s (routeToUrl Routes.Users))
-        , map Routes.Login (s (routeToUrl Routes.Login))
+        [ Parser.map Routes.Home Parser.top
+        , Parser.map Routes.Groups (s (routeToString Routes.Groups))
+        , Parser.map Routes.EditGroup (s (routeToString Routes.Groups) </> int)
+        , Parser.map Routes.CreateGroup (s "groups" </> s "new")
+        , Parser.map Routes.Batches (s (routeToString Routes.Batches))
+        , Parser.map Routes.CreateBatch (s "batches" </> s "new" </> int)
+        , Parser.map Routes.Users (s (routeToString Routes.Users))
+        , Parser.map Routes.Login (s (routeToString Routes.Login))
         ]
 
 
-parseLocation : Location -> Routes.Route
-parseLocation location =
-    case parsePath routeParser location of
+fromUrl : Url -> Route
+fromUrl url =
+    case parseUrl url of
         Just route ->
             route
 
@@ -126,8 +127,37 @@ parseLocation location =
             Routes.NotFound
 
 
-routeToUrl : Routes.Route -> String
-routeToUrl route =
+parseUrl : Url -> Maybe Route
+parseUrl url =
+    Parser.parse routeParser
+
+
+replaceUrl : Nav.Key -> Route -> Cmd Msg
+replaceUrl key route =
+    -- TODO: make leading slash part of routeToString
+    Nav.replaceUrl key ("/" ++ routeToString route)
+
+
+
+-- VIEW HELPERS ---
+
+
+href : Route -> Attribute Msg
+href targetRoute =
+    Attr.href (routeToString targetRoute)
+
+
+baseUrl : String
+baseUrl =
+    "http://easyins.s3-website-us-east-1.amazonaws.com"
+
+
+
+-- INTERNAL
+
+
+routeToString : Route -> String
+routeToString route =
     case route of
         Routes.Home ->
             ""
@@ -158,57 +188,3 @@ routeToUrl route =
 
         Routes.NotFound ->
             "not-found"
-
-
-updateRoute : Routes.Route -> Cmd Msg
-updateRoute route =
-    Navigation.newUrl ("/" ++ routeToUrl route)
-
-
-
--- VIEW HELPERS ---
-
-
-onClickRoute : Routes.Route -> List (Html.Attribute Msg)
-onClickRoute route =
-    [ style "pointer" "cursor"
-    , href (baseUrl ++ routeToUrl route)
-    , onPreventDefaultClick (SetRoute route)
-    ]
-
-
-onPreventDefaultClick : msg -> Html.Attribute msg
-onPreventDefaultClick message =
-    onWithOptions "click"
-        { defaultOptions | preventDefault = True }
-        (preventDefault2
-            |> Json.Decode.andThen (maybePreventDefault message)
-        )
-
-
-preventDefault2 : Decoder Bool
-preventDefault2 =
-    Json.Decode.map2
-        invertedOr
-        (Json.Decode.field "ctrlKey" Json.Decode.bool)
-        (Json.Decode.field "metaKey" Json.Decode.bool)
-
-
-maybePreventDefault : msg -> Bool -> Decoder msg
-maybePreventDefault msg preventDefault =
-    case preventDefault of
-        True ->
-            Json.Decode.succeed msg
-
-        False ->
-            Json.Decode.fail "Normal link"
-
-
-baseUrl : String
-baseUrl =
-    "http://easyins.s3-website-us-east-1.amazonaws.com"
-
-
-invertedOr : Bool -> Bool -> Bool
-invertedOr x y =
-    not (x || y)

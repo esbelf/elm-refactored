@@ -1,5 +1,6 @@
 module Model exposing (Model, PageState(..), getPage, init)
 
+import Browser.Navigation as Navigation
 import Models.Session exposing (Session)
 import Page exposing (Page)
 import Time exposing (Posix)
@@ -14,6 +15,7 @@ type alias Model =
     { session : Maybe Session
     , pageState : PageState
     , currentTime : Posix
+    , navKey : Navigation.Key
     }
 
 
@@ -22,11 +24,12 @@ initialPage =
     Page.Blank
 
 
-init : Maybe Session -> Int -> Model
-init session now =
+init : Maybe Session -> Int -> Navigation.Key -> Model
+init session now navKey =
     { pageState = Loaded initialPage
     , session = session
     , currentTime = Time.millisToPosix now
+    , navKey = navKey
     }
 
 

@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import Browser
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
 import Msg exposing (..)
@@ -46,6 +47,20 @@ update msg model =
 
         ( RouteChanged route, _ ) ->
             setRoute route model
+
+        ( ClickedLink urlRequest, _ ) ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model
+                      -- may need to add more logic here??
+                    , Nav.pushUrl model.navKey (Url.toString url)
+                    )
+
+                Browser.External href ->
+                    ( model
+                      -- probably want to send this to "open in new tab port" - does this simplify the preview links/commands?
+                    , Nav.load href
+                    )
 
         -- Route.Groups
         ( GroupsMsg subMsg, Groups subModel ) ->
