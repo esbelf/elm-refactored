@@ -136,7 +136,7 @@ routeToUrl route =
             "groups"
 
         Routes.EditGroup id ->
-            "groups/" ++ toString id
+            "groups/" ++ String.fromInt id
 
         Routes.CreateGroup ->
             "groups/new"
@@ -145,7 +145,7 @@ routeToUrl route =
             "batches"
 
         Routes.CreateBatch id ->
-            "batches/new/" ++ toString id
+            "batches/new/" ++ String.fromInt id
 
         Routes.Users ->
             "users"

@@ -276,7 +276,7 @@ addTier tiers =
 
         tier =
             Tier
-                ("Tier " ++ toString (index + 1))
+                ("Tier " ++ String.fromInt (index + 1))
                 index
     in
     renameBaseTier tiers ++ [ tier ]

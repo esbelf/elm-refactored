@@ -1,6 +1,7 @@
 module Components.Group exposing (Model, Msg(..), addGroupToModel, formUploadId, init, initialModel, update)
 
 import Components.Product
+import Helpers.StringConversions exposing (fromHttpError)
 import Http
 import Models.FileData exposing (FileData)
 import Models.Group as Group exposing (FormType, Group, Logo(..))
@@ -129,7 +130,7 @@ update msg model token =
             ( { model | group = updatedGroup }, cmd )
 
         UpdateGroup (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model | errorMsg = fromHttpError error }, Cmd.none )
 
         ProductMsg subMsg ->
             let

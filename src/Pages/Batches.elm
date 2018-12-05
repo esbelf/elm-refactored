@@ -1,5 +1,6 @@
 module Pages.Batches exposing (Model, Msg(..), addBatchesToModel, init, initialModel, update)
 
+import Helpers.StringConversions as StringConversions
 import Http
 import Models.Batch exposing (Batch)
 import Port
@@ -51,4 +52,4 @@ update msg model token =
             ( model, Port.openWindow (Requests.Batch.formUrl id token) )
 
         DownloadForm id (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )

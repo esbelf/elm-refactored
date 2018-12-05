@@ -35,12 +35,12 @@ fromString val fallback =
 
 display : DecimalField -> String
 display field =
-    toString field.value
+    String.fromFloat field.value
 
 
 inputValue : DecimalField -> String
 inputValue d =
-    toString d.value ++ d.suffix
+    String.fromFloat d.value ++ d.suffix
 
 
 toFixed : Float -> Int -> String
@@ -50,7 +50,7 @@ toFixed f decimals =
             f
                 * toFloat (10 ^ decimals)
                 |> round
-                |> toString
+                |> String.fromInt
                 |> String.padLeft decimals '0'
 
         frac =
