@@ -1,5 +1,6 @@
 module Msg exposing (Msg(..))
 
+import Browser
 import Http
 import Pages.Batches
 import Pages.CreateBatch
@@ -15,6 +16,7 @@ import Time exposing (Posix)
 type Msg
     = SetRoute Route
     | RouteChanged Route
+    | ClickedLink Browser.UrlRequest
     | LogoutRequest
     | HomeMsg
     | GroupsLoaded (Result Http.Error Pages.Groups.Model)
@@ -25,7 +27,7 @@ type Msg
     | CreateGroupLoaded (Result Http.Error Pages.CreateGroup.Model)
     | BatchesLoaded (Result Http.Error Pages.Batches.Model)
     | BatchesMsg Pages.Batches.Msg
-    | BathesLoaded (Result Http.Error Pages.Batches.Model)
+    | BatchesLoaded (Result Http.Error Pages.Batches.Model)
     | CreateBatchMsg Pages.CreateBatch.Msg
     | LoginMsg Pages.Login.Msg
     | UsersLoaded (Result Http.Error Pages.Users.Model)
