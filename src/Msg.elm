@@ -9,7 +9,7 @@ import Pages.Groups
 import Pages.Login
 import Pages.Users
 import Routes exposing (Route)
-import Time exposing (Time)
+import Time exposing (Posix)
 
 
 type Msg
@@ -31,4 +31,4 @@ type Msg
     | UsersLoaded (Result Http.Error Pages.Users.Model)
     | UsersMsg Pages.Users.Msg
     | BatchFormRequest Int (Result Http.Error String)
-    | TimeTick Time
+    | TimeTick Posix

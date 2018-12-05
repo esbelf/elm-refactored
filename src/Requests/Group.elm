@@ -1,7 +1,5 @@
 module Requests.Group exposing (create, delete, duplicate, get, getAll, groupDecoder, groupEncoder, groupsDecoder, groupsUrl, previewUrl, update)
 
--- import Date exposing (Date)
-
 import Http
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline exposing (custom, optional, optionalAt, required, requiredAt)

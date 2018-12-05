@@ -1,15 +1,13 @@
 module Requests.Auth exposing (AuthObj, authUrl, authenticate, encode, sessionDecoder)
 
 import Http
+import Iso8601
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (required)
 import Json.Encode as Encode
 import Models.Session exposing (Session)
 import Requests.Base exposing (..)
 import Task exposing (Task)
-import Time.DateTime exposing (DateTime)
-import Time.Iso8601 exposing (toDateTime)
-import Time.Iso8601ErrorMsg as ParseError
 
 
 type alias AuthObj =
@@ -31,23 +29,7 @@ sessionDecoder : Decode.Decoder Session
 sessionDecoder =
     Decode.succeed Session
         |> required "token" Decode.string
-        |> required "exp" dateTimeFromIsoString
-
-
-dateTimeFromIsoString : Decode.Decoder DateTime
-dateTimeFromIsoString =
-    let
-        isoToDateTime dateString =
-            case toDateTime dateString of
-                Ok dateTime ->
-                    Decode.succeed dateTime
-
-                Err error ->
-                    ParseError.renderText error
-                        |> Decode.fail
-    in
-    Decode.string
-        |> Decode.andThen isoToDateTime
+        |> required "exp" Iso8601.decoder
 
 
 encode : AuthObj -> Encode.Value

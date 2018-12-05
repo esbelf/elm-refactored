@@ -1,4 +1,4 @@
-module Pages.Login exposing (Model, Msg(..), initialModel, setStorageHelper, update)
+module Pages.Login exposing (Model, Msg(..), initialModel, update)
 
 import Helpers.StringConversions as StringConversions
 import Http
@@ -55,11 +55,7 @@ update msg model =
             ( model, newMsg )
 
         Authenticated (Ok session) ->
-            setStorageHelper
-                { model
-                    | session = Just session
-                    , errorMsg = ""
-                }
+            storeSession session model
 
         Authenticated (Err error) ->
             ( { model
@@ -70,10 +66,16 @@ update msg model =
             )
 
 
-setStorageHelper : Model -> ( Model, Cmd Msg )
-setStorageHelper model =
+storeSession : Session -> Model -> ( Model, Cmd Msg )
+storeSession newSession model =
     let
-        portModel =
-            Models.Session.toPortModel model.session
+        newModel =
+            { model
+                | session = Just newSession
+                , errorMsg = ""
+            }
+
+        storageModel =
+            Models.Session.toStorageModel newSession
     in
-    ( model, Port.setStorage portModel )
+    ( newModel, Port.setStorage storageModel )

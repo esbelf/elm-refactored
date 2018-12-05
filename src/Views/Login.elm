@@ -3,10 +3,10 @@ module Views.Login exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, href, name, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Iso8601
 import Models.Session exposing (Session)
 import Msg exposing (..)
 import Pages.Login exposing (Model)
-import Time.Iso8601 exposing (fromDateTime)
 
 
 view : Model -> Html Msg
@@ -74,7 +74,7 @@ sessionDebug session =
         ]
     , div []
         [ text "Session Exp: "
-        , text (fromDateTime session.exp)
+        , text (Iso8601.fromTime session.exp)
         ]
     ]
 

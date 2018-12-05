@@ -2,19 +2,19 @@ module Main exposing (main)
 
 import Model exposing (..)
 import Models.Session
+import Models.Storage exposing (StorageModel)
 import Msg exposing (..)
 import Navigation
-import Port
 import Route exposing (parseLocation, setRoute, urlChange)
 import Subscription
-import Time exposing (minute)
+import Time
 import Update
 import View
 
 
 type alias Flags =
-    { state : Maybe Port.Model
-    , now : Float
+    { state : Maybe StorageModel
+    , now : Int
     }
 
 
@@ -32,6 +32,10 @@ init flags location =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
+    let
+        minute =
+            1000 * 60
+    in
     Sub.batch
         [ Time.every minute TimeTick
         , Subscription.pageSubscriptions model
