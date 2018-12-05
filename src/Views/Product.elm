@@ -38,7 +38,7 @@ renderProduct index product =
                 |> List.Extra.getAt product.focusedBenefit
                 |> Maybe.withDefault (Tier "ERROR" -1)
     in
-    div []
+    div [ class "product-border" ]
         [ input
             [ class "uk-input"
             , onInput (Components.Product.SetProductName index)
