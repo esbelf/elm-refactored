@@ -64,7 +64,7 @@ userDecoder =
 
 urlSlug : Int -> String
 urlSlug userId =
-    userUrl ++ "/" ++ toString userId
+    userUrl ++ "/" ++ String.fromInt userId
 
 
 userUrl : String

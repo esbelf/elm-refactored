@@ -125,7 +125,7 @@ debugFooter : Model -> Html Msg
 debugFooter model =
     code
         [ style "white-space" "normal" ]
-        [ text (toString model)
+        [ text (Debug.toString model)
         ]
 
 

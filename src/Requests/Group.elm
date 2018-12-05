@@ -179,7 +179,7 @@ groupUrl : Maybe Int -> String
 groupUrl maybeGroupId =
     case maybeGroupId of
         Just id ->
-            groupsUrl ++ "/" ++ toString id
+            groupsUrl ++ "/" ++ String.fromInt id
 
         Nothing ->
             groupsUrl

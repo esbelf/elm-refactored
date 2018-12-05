@@ -54,7 +54,7 @@ batchEncoder batch =
 
 formUrl : Int -> String -> String
 formUrl batchId fileToken =
-    batchesUrl ++ "/" ++ toString batchId ++ "/download?file_token=" ++ fileToken
+    batchesUrl ++ "/" ++ String.fromInt batchId ++ "/download?file_token=" ++ fileToken
 
 
 batchesDecoder : Decode.Decoder (List Batch)

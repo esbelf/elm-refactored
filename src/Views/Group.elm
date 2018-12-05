@@ -68,7 +68,7 @@ groupInputs model =
                 [ class "uk-select"
                 , name "payment_mode"
                 , type_ "number"
-                , value (toString group.payment_mode)
+                , value (String.fromInt group.payment_mode)
                 , onInput SetPaymentMode
                 ]
                 []

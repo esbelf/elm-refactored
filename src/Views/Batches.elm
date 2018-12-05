@@ -50,7 +50,7 @@ viewBatch batch =
                 [ text batch.group_name ]
             ]
         , th [] [ text batch.start_date ]
-        , th [] [ text (toString batch.census_count) ]
+        , th [] [ text (String.fromInt batch.census_count) ]
         , th []
             [ a [ onClick (BatchesMsg (Pages.Batches.DownloadFormRequest batch.id)) ]
                 [ text "Download" ]

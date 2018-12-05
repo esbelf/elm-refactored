@@ -1,5 +1,6 @@
 module Pages.Groups exposing (Model, Msg(..), addGroupsToModel, init, initialModel, update)
 
+import Helpers.StringConversions as StringConversions
 import Http
 import Models.Group exposing (Group)
 import Navigation
@@ -72,7 +73,7 @@ update msg model token =
             )
 
         DeleteGroup id (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
 
         PreviewGroupRequest id ->
             let
@@ -86,7 +87,7 @@ update msg model token =
             ( model, Port.openWindow (Requests.Group.previewUrl (Just id) token) )
 
         PreviewGroup id (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
 
         DuplicateGroupRequest groupId ->
             let
@@ -100,7 +101,7 @@ update msg model token =
             let
                 newId =
                     newGroup.id
-                        |> Maybe.map toString
+                        |> Maybe.map String.fromInt
                         |> Maybe.withDefault ""
 
                 newLoc =
@@ -109,4 +110,4 @@ update msg model token =
             ( model, Navigation.newUrl newLoc )
 
         DuplicateGroup id (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )

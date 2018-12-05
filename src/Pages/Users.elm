@@ -1,5 +1,6 @@
 module Pages.Users exposing (Model, Msg(..), addUsersToModel, init, initialModel, update)
 
+import Helpers.StringConversions as StringConversions
 import Http
 import Models.User exposing (User)
 import Pages.Helper exposing (..)
@@ -42,7 +43,7 @@ update msg model token =
             ( { model | users = removeModelFromList id model.users }, Cmd.none )
 
         DeleteUser id (Err error) ->
-            ( { model | errorMsg = toString error }, Cmd.none )
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
 
         DeleteUserRequest userId ->
             let

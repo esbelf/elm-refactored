@@ -1,5 +1,6 @@
 module Pages.Login exposing (Model, Msg(..), initialModel, setStorageHelper, update)
 
+import Helpers.StringConversions as StringConversions
 import Http
 import Models.Session exposing (Session)
 import Port
@@ -63,7 +64,7 @@ update msg model =
         Authenticated (Err error) ->
             ( { model
                 | session = Nothing
-                , errorMsg = toString error
+                , errorMsg = StringConversions.fromHttpError error
               }
             , Cmd.none
             )
