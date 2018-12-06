@@ -9,7 +9,8 @@
     "build": "webpack --output=dist/app.js",
     "client": "webpack-dev-server --port 8080",
     "other-client": "elm-live src/Main.elm --pushstate",
-    "deploy": "aws s3 sync dist/ s3://easyins"
+    "deploy:staging": "aws s3 sync dist/ s3://easyins-staging",
+    "deploy:production": "aws s3 sync dist/ s3://easyins"
   },
   "devDependencies": {
     "css-loader": "^1.0.0",
