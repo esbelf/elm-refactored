@@ -40,7 +40,7 @@ groupInputs model =
     div []
         [ div [ class "uk-margin" ]
             [ span [ class "uk-label" ]
-                [ text "Name" ]
+                [ text "Group Name" ]
             , input
                 [ class "uk-input"
                 , name "name"
@@ -63,7 +63,7 @@ groupInputs model =
             ]
         , div [ class "uk-margin" ]
             [ span [ class "uk-label" ]
-                [ text "Payment Modes" ]
+                [ text "Payroll Deduction Mode" ]
             , input
                 [ class "uk-select"
                 , name "payment_mode"
@@ -79,7 +79,7 @@ groupInputs model =
             [ span [ class "uk-label" ] [ text "Disclosure" ]
             , textarea
                 [ class "uk-textarea"
-                , name "disclosure"
+                , name "Signiture Disclosure"
                 , value group.disclosure
                 , onInput SetDisclosure
                 ]

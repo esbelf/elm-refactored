@@ -6,6 +6,7 @@ require('uikit/dist/css/uikit.css');
 require('uikit/dist/js/uikit.js');
 require('uikit/dist/js/uikit-icons.js');
 require('./css/uikit-theme.css');
+require('./css/custom.css');
 // Require index.html so it gets copied to dist
 require('./index.html');
 

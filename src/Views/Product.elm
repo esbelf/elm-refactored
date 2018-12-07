@@ -4,8 +4,8 @@ import Components.Product
 import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
-import Html exposing (Html, a, b, button, div, h2, hr, input, label, li, p, pre, span, table, tbody, td, text, textarea, th, thead, tr, ul)
-import Html.Attributes exposing (attribute, checked, class, disabled, name, placeholder, rows, rowspan, style, title, type_, value)
+import Html exposing (Html, a, b, button, div, h2, hr, input, label, li, option, p, pre, select, span, table, tbody, td, text, textarea, th, thead, tr, ul)
+import Html.Attributes exposing (attribute, checked, class, disabled, name, placeholder, rows, rowspan, selected, style, title, type_, value)
 import Html.Events exposing (onClick, onFocus, onInput)
 import Json.Encode
 import List.Extra
@@ -38,7 +38,7 @@ renderProduct index product =
                 |> List.Extra.getAt product.focusedBenefit
                 |> Maybe.withDefault (Tier "ERROR" -1)
     in
-    div []
+    div [ class "product-border" ]
         [ input
             [ class "uk-input"
             , onInput (Components.Product.SetProductName index)
@@ -46,7 +46,6 @@ renderProduct index product =
             , value product.name
             ]
             []
-        , explicitDeductionToggle index product
         , riskLevelToggle index product
         , benefitTabs index product
         , div [ class "uk-margin" ]
@@ -94,71 +93,43 @@ renderProduct index product =
         ]
 
 
-explicitDeductionToggle : Int -> Product -> Html Components.Product.Msg
-explicitDeductionToggle index product =
-    div [ class "uk-margin uk-grid-small uk-child-width-auto uk-grid" ]
-        [ label []
-            [ input
-                [ class "uk-radio"
-                , type_ "radio"
-                , name "exp-deduction"
-                , checked (not product.explicitDeductions)
-                , onClick (Components.Product.ToggleExplicitDeductions index)
-                ]
-                []
-            , text "Auto-calculate deductions from monthly"
-            ]
-        , label []
-            [ input
-                [ class "uk-radio"
-                , type_ "radio"
-                , name "exp-deduction"
-                , checked product.explicitDeductions
-                , onClick (Components.Product.ToggleExplicitDeductions index)
-                ]
-                []
-            , text "Enter explicit deduction amounts"
-            ]
-        ]
-
-
 riskLevelToggle : Int -> Product -> Html Components.Product.Msg
 riskLevelToggle index product =
     let
         hasRiskLevels =
             List.length product.riskLevels > 1
     in
-    div [ class "uk-margin uk-grid-small uk-child-width-auto uk-grid" ]
-        [ label []
-            [ input
-                [ class "uk-radio"
-                , type_ "radio"
-                , name "risk-levels-toggle"
-                , checked (not hasRiskLevels)
-                , onClick (Components.Product.ToggleRiskLevel index)
+    div [ class "uk-margin" ]
+        [ div [ class "uk-flex uk-flex-wrap around" ]
+            [ div [ class "uk-child-width-1-1@s" ]
+                [ select
+                    [ class "uk-select"
+                    , name "risk-levels-toggle"
+                    , onInput (Components.Product.SetRiskLevel index)
+                    ]
+                    [ option
+                        [ value (riskLevelToValue NormalRisk)
+                        , selected (not hasRiskLevels)
+                        ]
+                        [ text (riskLevelToLabel NormalRisk) ]
+                    , option
+                        [ value (riskLevelToValue HighRisk)
+                        , selected hasRiskLevels
+                        ]
+                        [ text (riskLevelToLabel HighRisk) ]
+                    ]
                 ]
-                []
-            , text "Normal risk level only"
-            ]
-        , label []
-            [ input
-                [ class "uk-radio"
-                , type_ "radio"
-                , name "risk-levels-toggle"
-                , checked hasRiskLevels
-                , onClick (Components.Product.ToggleRiskLevel index)
+            , div [ class "uk-child-width-1-1@s" ]
+                [ input
+                    [ class "uk-input"
+                    , value product.riskLabel
+                    , placeholder "Label"
+                    , disabled (not hasRiskLevels)
+                    , onInput (Components.Product.SetRiskLabel index)
+                    ]
+                    []
                 ]
-                []
-            , text "Normal and High risk levels"
             ]
-        , input
-            [ class "uk-input"
-            , value product.riskLabel
-            , placeholder "Label"
-            , disabled (not hasRiskLevels)
-            , onInput (Components.Product.SetRiskLabel index)
-            ]
-            []
         ]
 
 
@@ -376,12 +347,6 @@ explicitDeductionPriceRow ( productIndex, ageIndex, coverage, risk ) product ded
 tableBody : Int -> Product -> List (Html Components.Product.Msg)
 tableBody index product =
     List.map (renderBenefitRow index product) product.ages
-
-
-
---++ [ tr []
---        (List.map (\_ -> td [] []) product.benefits)
---   ]
 
 
 renderBenefitRow : Int -> Product -> Tier -> Html Components.Product.Msg
