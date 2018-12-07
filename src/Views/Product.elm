@@ -2,7 +2,7 @@ module Views.Product exposing (view)
 
 import Components.Product
 import Dict exposing (Dict)
-import EveryDict exposing (EveryDict)
+import Dict.Any as AnyDict exposing (AnyDict)
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
 import Html exposing (Html, a, b, button, div, h2, hr, input, label, li, option, p, pre, select, span, table, tbody, td, text, textarea, th, thead, tr, ul)
 import Html.Attributes exposing (attribute, checked, class, disabled, name, placeholder, rows, rowspan, selected, style, title, type_, value)
@@ -261,7 +261,7 @@ getDeduction : ( Int, Coverage, RiskLevel ) -> Product -> DeductionMode -> Decim
 getDeduction ( ageIndex, coverage, riskLevel ) product deductMode =
     let
         agePricing =
-            EveryDict.get coverage product.pricing
+            AnyDict.get coverage product.pricing
                 |> Maybe.withDefault Dict.empty
 
         benefitPricing =
@@ -270,13 +270,13 @@ getDeduction ( ageIndex, coverage, riskLevel ) product deductMode =
 
         coveragePricing =
             Dict.get product.focusedBenefit benefitPricing
-                |> Maybe.withDefault EveryDict.empty
+                |> Maybe.withDefault emptyDeductionDict
 
         deductPricing =
-            EveryDict.get deductMode coveragePricing
-                |> Maybe.withDefault EveryDict.empty
+            AnyDict.get deductMode coveragePricing
+                |> Maybe.withDefault emptyRiskDict
     in
-    EveryDict.get riskLevel deductPricing
+    AnyDict.get riskLevel deductPricing
         |> Maybe.withDefault (DecimalField.fromFloat 0.0)
 
 
@@ -375,14 +375,14 @@ renderBenefitRow index product ageTier =
         )
 
 
-renderCell : Int -> Tier -> Int -> EveryDict Coverage PriceGrid -> List RiskLevel -> Coverage -> Html Components.Product.Msg
+renderCell : Int -> Tier -> Int -> PricingDict -> List RiskLevel -> Coverage -> Html Components.Product.Msg
 renderCell productIndex ageTier benefitIndex pricing riskLevels coverage =
     let
         multiRisk =
             List.length riskLevels > 1
 
         prices =
-            EveryDict.get coverage pricing
+            AnyDict.get coverage pricing
                 |> Maybe.withDefault Dict.empty
 
         agePrices =
@@ -391,7 +391,7 @@ renderCell productIndex ageTier benefitIndex pricing riskLevels coverage =
 
         benefitPrices =
             Dict.get benefitIndex agePrices
-                |> Maybe.withDefault EveryDict.empty
+                |> Maybe.withDefault emptyDeductionDict
 
         deductMode =
             Monthly
@@ -399,10 +399,10 @@ renderCell productIndex ageTier benefitIndex pricing riskLevels coverage =
         price risk =
             let
                 prices =
-                    EveryDict.get deductMode benefitPrices
-                        |> Maybe.withDefault EveryDict.empty
+                    AnyDict.get deductMode benefitPrices
+                        |> Maybe.withDefault emptyRiskDict
             in
-            EveryDict.get risk prices
+            AnyDict.get risk prices
                 |> Maybe.withDefault (DecimalField.fromFloat 0.0)
     in
     td []

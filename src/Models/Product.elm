@@ -1,13 +1,13 @@
-module Models.Product exposing (AgePricing, Coverage(..), DeductionMode(..), PriceGrid, PriceMethod(..), Pricing, Product, RiskLevel(..), Tier, TierType(..), init, initPricingDict, initTier, riskLevelToLabel, riskLevelToValue, stringToRiskLevel)
+module Models.Product exposing (AgePricing, Coverage(..), DeductionDict, DeductionMode(..), PriceMethod(..), Pricing, PricingDict, Product, RiskDict, RiskLevel(..), Tier, TierType(..), coverageToKey, deductionModeToKey, emptyDeductionDict, emptyRiskDict, init, initPricingDict, initTier, riskLevelToKey, riskLevelToLabel, riskLevelToValue, stringToRiskLevel)
 
 import Dict exposing (Dict)
-import EveryDict exposing (EveryDict)
+import Dict.Any as AnyDict exposing (AnyDict)
 import Helpers.DecimalField exposing (DecimalField)
 
 
 type alias Product =
     { name : String
-    , pricing : EveryDict Coverage PriceGrid
+    , pricing : PricingDict
     , benefits : List Tier
     , ages : List Tier
     , riskLabel : String
@@ -32,9 +32,9 @@ init =
     }
 
 
-initPricingDict : EveryDict Coverage PriceGrid
+initPricingDict : PricingDict
 initPricingDict =
-    EveryDict.fromList
+    AnyDict.fromList coverageToKey
         [ ( Employee, Dict.empty )
         , ( PlusSpouse, Dict.empty )
         , ( PlusKids, Dict.empty )
@@ -54,19 +54,24 @@ type alias Pricing =
     }
 
 
+type alias PricingDict =
+    AnyDict String Coverage PriceGrid
+
+
 type alias PriceGrid =
     Dict Int AgePricing
 
 
-
--- age tier
-
-
 type alias AgePricing =
-    Dict Int
-        (-- benefit tier
-         EveryDict DeductionMode (EveryDict RiskLevel DecimalField)
-        )
+    Dict Int DeductionDict
+
+
+type alias DeductionDict =
+    AnyDict String DeductionMode RiskDict
+
+
+type alias RiskDict =
+    AnyDict String RiskLevel DecimalField
 
 
 type TierType
@@ -135,3 +140,74 @@ type DeductionMode
     | BiWeekly
     | SemiMonthly
     | Monthly
+
+
+{-| The \*toKey functions should not be exported -- internal implementation only.
+these functions should only be needed to create new AnyDicts, and we provide wrapper
+methods for `empty` and `fromList`. Could add `singleton` if needed.
+-}
+coverageToKey : Coverage -> String
+coverageToKey coverage =
+    case coverage of
+        Employee ->
+            "EE"
+
+        PlusKids ->
+            "CH"
+
+        PlusSpouse ->
+            "SP"
+
+        PlusFamily ->
+            "FM"
+
+
+deductionModeToKey : DeductionMode -> String
+deductionModeToKey deductionMode =
+    case deductionMode of
+        Weekly ->
+            "W"
+
+        BiWeekly ->
+            "B"
+
+        SemiMonthly ->
+            "S"
+
+        Monthly ->
+            "M"
+
+
+riskLevelToKey : RiskLevel -> String
+riskLevelToKey riskLevel =
+    case riskLevel of
+        NormalRisk ->
+            "N"
+
+        HighRisk ->
+            "H"
+
+
+emptyDeductionDict : DeductionDict
+emptyDeductionDict =
+    AnyDict.empty deductionModeToKey
+
+
+emptyRiskDict : RiskDict
+emptyRiskDict =
+    AnyDict.empty riskLevelToKey
+
+
+pricingDictFromList : List ( Coverage, PriceGrid ) -> PricingDict
+pricingDictFromList =
+    AnyDict.fromList coverageToKey
+
+
+deductionDictFromList : List ( DeductionMode, RiskDict ) -> DeductionDict
+deductionDictFromList =
+    AnyDict.fromList deductionModeToKey
+
+
+riskDictFromList : List ( RiskLevel, DecimalField ) -> RiskDict
+riskDictFromList =
+    AnyDict.fromList riskLevelToKey

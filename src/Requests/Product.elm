@@ -1,7 +1,7 @@
 module Requests.Product exposing (coveragePricing, decodePriceGrid, decodePricing, decodeRiskLevels, decodeTierList, encode, encodeAgePricing, encodeBenefitPricing, encodePricing, encodeProduct, encodeProductList, encodeTier, labeledDeductionMode, labeledRiskLevel, productDecoder, productsDecoder, setExplicitDeduction, toCoverage, toDeductionMode, toRisk, transformDeductionMode, transformPriceGrid, transformPriceGrid_, transformPricing, transformRisk)
 
 import Dict exposing (Dict)
-import EveryDict exposing (EveryDict)
+import Dict.Any as AnyDict exposing (AnyDict)
 import Helpers.DecimalField as DecimalField exposing (DecimalField)
 import Json.Decode as Dec exposing (Decoder, andThen, at, bool, dict, float, list, string, succeed)
 import Json.Decode.Pipeline exposing (custom, hardcoded, optional, optionalAt, required, requiredAt)
@@ -26,7 +26,7 @@ encodeProductList products =
 
 coveragePricing : Coverage -> Product -> PriceGrid
 coveragePricing coverage product =
-    EveryDict.get coverage product.pricing
+    AnyDict.get coverage product.pricing
         |> Maybe.withDefault Dict.empty
 
 
@@ -97,15 +97,15 @@ encodePricing ( deductModes, riskLevels ) pricing ageIndex benefitTier =
 
         benePrices =
             Dict.get benefitTier.key agePrices
-                |> Maybe.withDefault EveryDict.empty
+                |> Maybe.withDefault emptyDeductionDict
 
         riskPrice deductMode riskLevel =
             let
                 dmPrices =
-                    EveryDict.get deductMode benePrices
-                        |> Maybe.withDefault EveryDict.empty
+                    AnyDict.get deductMode benePrices
+                        |> Maybe.withDefault emptyRiskDict
             in
-            EveryDict.get riskLevel dmPrices
+            AnyDict.get riskLevel dmPrices
                 |> Maybe.withDefault (DecimalField.fromFloat 0.0)
                 |> .value
 
@@ -173,7 +173,7 @@ productDecoder =
         |> hardcoded Nothing
 
 
-decodePricing : Decoder (EveryDict Coverage PriceGrid)
+decodePricing : Decoder PricingDict
 decodePricing =
     dict decodePriceGrid
         |> andThen
@@ -184,12 +184,12 @@ decodePricing =
             )
 
 
-transformPricing : Dict String PriceGrid -> EveryDict Coverage PriceGrid
+transformPricing : Dict String PriceGrid -> PricingDict
 transformPricing d =
     d
         |> Dict.toList
         |> List.map (\( c, a ) -> ( toCoverage c, a ))
-        |> EveryDict.fromList
+        |> pricingDictFromList
 
 
 decodePriceGrid : Decoder PriceGrid
@@ -203,7 +203,7 @@ decodePriceGrid =
             )
 
 
-transformPriceGrid_ : List (Dict String (Dict String Float)) -> Dict Int (EveryDict DeductionMode (EveryDict RiskLevel DecimalField))
+transformPriceGrid_ : List (Dict String (Dict String Float)) -> AgePricing
 transformPriceGrid_ l =
     l
         |> List.indexedMap (\index -> \d -> ( index, transformDeductionMode d ))
@@ -217,12 +217,12 @@ transformPriceGrid l =
         |> Dict.fromList
 
 
-transformDeductionMode : Dict String (Dict String Float) -> EveryDict DeductionMode (EveryDict RiskLevel DecimalField)
+transformDeductionMode : Dict String (Dict String Float) -> DeductionDict
 transformDeductionMode d =
     d
         |> Dict.toList
         |> List.map (\( m, r ) -> ( toDeductionMode m, transformRisk r ))
-        |> EveryDict.fromList
+        |> deductionDictFromList
 
 
 decodeTierList : Decoder (List Tier)
@@ -251,17 +251,17 @@ decodeRiskLevels flag =
         succeed [ NormalRisk ]
 
 
-setExplicitDeduction : EveryDict Coverage PriceGrid -> Decoder Bool
+setExplicitDeduction : PricingDict -> Decoder Bool
 setExplicitDeduction d =
     let
         deductionModes =
-            EveryDict.get Employee d
+            AnyDict.get Employee d
                 |> Maybe.withDefault Dict.empty
                 |> Dict.get 0
                 |> Maybe.withDefault Dict.empty
                 |> Dict.get 0
-                |> Maybe.withDefault EveryDict.empty
-                |> EveryDict.keys
+                |> Maybe.withDefault emptyDeductionDict
+                |> AllDict.keys
     in
     succeed (List.length deductionModes > 1)
 
@@ -308,9 +308,9 @@ toRisk r =
             NormalRisk
 
 
-transformRisk : Dict String Float -> EveryDict RiskLevel DecimalField
+transformRisk : Dict String Float -> RiskDict
 transformRisk r =
     r
         |> Dict.toList
         |> List.map (\( l, f ) -> ( toRisk l, DecimalField.fromFloat f ))
-        |> EveryDict.fromList
+        |> riskDictFromList

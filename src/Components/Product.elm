@@ -1,7 +1,7 @@
 module Components.Product exposing (Model, Msg(..), addAgeTier, addBenefitTier, addProduct, addTier, cancelRemoveTier, confirmRemoveTier, focusBenefit, init, rekey, removeAgePricing, removeAgePricing_, removeBenefitPricing, removeBenefitPricing_, removeBenefitPricing__, removeTier, renameBaseTier, setBenefitDisplay, setFocus, setName, setPrice, setRiskLabel, setTierDisplay, update)
 
 import Dict exposing (Dict)
-import EveryDict exposing (EveryDict)
+import Dict.Any as AnyDict exposing (AnyDict)
 import Helpers.DecimalField
 import List.Extra exposing (removeAt, updateAt)
 import Models.Product exposing (AgePricing, Coverage(..), DeductionMode, PriceGrid, Product, RiskLevel(..), Tier, TierType(..), init, stringToRiskLevel)
@@ -157,12 +157,13 @@ setPrice model productIndex ageIndex coverage deductMode riskLevel value =
                 -- deduct mode prices -> risk level price
                 setRiskLevelPrice prices =
                     let
-                        existing =
-                            EveryDict.get riskLevel prices
+                        update _ =
+                            AnyDict.get riskLevel prices
                                 |> Maybe.withDefault (Helpers.DecimalField.fromFloat 0.0)
                                 |> .value
+                                |> Just Helpers.DecimalField.fromString value
                     in
-                    EveryDict.update riskLevel (\_ -> Just (Helpers.DecimalField.fromString value existing)) prices
+                    AnyDict.update riskLevel update prices
 
                 -- benefit prices -> deduct mode prices
                 setDeductModePrices prices =
@@ -171,12 +172,12 @@ setPrice model productIndex ageIndex coverage deductMode riskLevel value =
                             \prices ->
                                 case prices of
                                     Nothing ->
-                                        Just (setRiskLevelPrice EveryDict.empty)
+                                        Just (setRiskLevelPrice Models.Product.emptyRiskDict)
 
                                     Just p ->
                                         Just (setRiskLevelPrice p)
                     in
-                    EveryDict.update deductMode update prices
+                    AllDict.update deductMode update prices
 
                 -- age prices -> benefit prices
                 setBenefitPrices benefitPrices =
@@ -185,7 +186,7 @@ setPrice model productIndex ageIndex coverage deductMode riskLevel value =
                             \prices ->
                                 case prices of
                                     Nothing ->
-                                        Just (setDeductModePrices EveryDict.empty)
+                                        Just (setDeductModePrices Models.Product.emptyDeductionDict)
 
                                     Just d ->
                                         Just (setDeductModePrices d)
@@ -218,7 +219,7 @@ setPrice model productIndex ageIndex coverage deductMode riskLevel value =
                                     Just d ->
                                         Just (setAgePrices d)
                     in
-                    EveryDict.update coverage update pricegrid
+                    AllDict.update coverage update pricegrid
             in
             { p | pricing = setCoveragePrices p.pricing }
     in
@@ -353,12 +354,12 @@ rekey tiers =
     List.indexedMap (\index -> \tier -> { tier | key = index }) tiers
 
 
-removeBenefitPricing : Int -> EveryDict Coverage PriceGrid -> EveryDict Coverage PriceGrid
+removeBenefitPricing : Int -> PricingDict -> PricingDict
 removeBenefitPricing index pricing =
     pricing
-        |> EveryDict.toList
+        |> AnyDict.toList
         |> List.map (\( coverage, priceGrid ) -> ( coverage, removeBenefitPricing_ index priceGrid ))
-        |> EveryDict.fromList
+        |> Models.Product.pricingDictFromList
 
 
 removeBenefitPricing_ : Int -> PriceGrid -> PriceGrid
@@ -378,16 +379,16 @@ removeBenefitPricing__ index pricing =
                 |> List.indexedMap (\a b -> ( a, b ))
     in
     benefits
-        |> List.map (\( is, was ) -> ( is, Dict.get was pricing |> Maybe.withDefault EveryDict.empty ))
+        |> List.map (\( is, was ) -> ( is, Dict.get was pricing |> Maybe.withDefault Models.Product.emptyDeductionDict ))
         |> Dict.fromList
 
 
-removeAgePricing : Int -> EveryDict Coverage PriceGrid -> EveryDict Coverage PriceGrid
+removeAgePricing : Int -> PricingDict -> PricingDict
 removeAgePricing index pricing =
     pricing
-        |> EveryDict.toList
+        |> AnyDict.toList
         |> List.map (\( coverage, priceGrid ) -> ( coverage, removeAgePricing_ index priceGrid ))
-        |> EveryDict.fromList
+        |> Models.Product.pricingDictFromList
 
 
 removeAgePricing_ : Int -> PriceGrid -> PriceGrid
