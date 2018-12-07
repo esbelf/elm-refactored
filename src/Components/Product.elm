@@ -1,10 +1,10 @@
-module Components.Product exposing (Model, Msg(..), addAgeTier, addBenefitTier, addProduct, addTier, cancelRemoveTier, confirmRemoveTier, focusBenefit, init, rekey, removeAgePricing, removeAgePricing_, removeBenefitPricing, removeBenefitPricing_, removeBenefitPricing__, removeTier, renameBaseTier, setBenefitDisplay, setFocus, setName, setPrice, setRiskLabel, setTierDisplay, toggleExplicitDeductions, toggleRiskLevel, update)
+module Components.Product exposing (Model, Msg(..), addAgeTier, addBenefitTier, addProduct, addTier, cancelRemoveTier, confirmRemoveTier, focusBenefit, init, rekey, removeAgePricing, removeAgePricing_, removeBenefitPricing, removeBenefitPricing_, removeBenefitPricing__, removeTier, renameBaseTier, setBenefitDisplay, setFocus, setName, setPrice, setRiskLabel, setTierDisplay, update)
 
 import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)
 import Helpers.DecimalField
 import List.Extra exposing (removeAt, updateAt)
-import Models.Product exposing (AgePricing, Coverage(..), DeductionMode, PriceGrid, Product, RiskLevel(..), Tier, TierType(..), init)
+import Models.Product exposing (AgePricing, Coverage(..), DeductionMode, PriceGrid, Product, RiskLevel(..), Tier, TierType(..), init, stringToRiskLevel)
 
 
 type alias Model =
@@ -23,8 +23,7 @@ init =
 type Msg
     = None
     | AddProduct
-    | ToggleExplicitDeductions Int
-    | ToggleRiskLevel Int
+    | SetRiskLevel Int String
     | SetRiskLabel Int String
     | FocusBenefit Int Int
     | SetProductName Int String
@@ -48,11 +47,8 @@ update msg model token =
         AddProduct ->
             ( addProduct model, Cmd.none )
 
-        ToggleExplicitDeductions index ->
-            ( toggleExplicitDeductions model index, Cmd.none )
-
-        ToggleRiskLevel index ->
-            ( toggleRiskLevel model index, Cmd.none )
+        SetRiskLevel index riskLevel ->
+            ( setRiskLevel model index riskLevel, Cmd.none )
 
         SetRiskLabel index label ->
             ( setRiskLabel model index label, Cmd.none )
@@ -96,22 +92,18 @@ addProduct model =
     { model | products = model.products ++ [ Models.Product.init ] }
 
 
-toggleExplicitDeductions : Model -> Int -> Model
-toggleExplicitDeductions model index =
-    let
-        setProduct p =
-            { p | explicitDeductions = not p.explicitDeductions }
-    in
-    { model | products = updateAt index setProduct model.products }
-
-
-toggleRiskLevel : Model -> Int -> Model
-toggleRiskLevel model index =
+setRiskLevel : Model -> Int -> String -> Model
+setRiskLevel model index riskLevelStr =
     let
         setProduct p =
             let
+                riskLevel =
+                    riskLevelStr
+                        |> Models.Product.stringToRiskLevel
+                        |> Result.withDefault NormalRisk
+
                 ( riskLevels, riskLabel ) =
-                    if List.length p.riskLevels > 1 then
+                    if riskLevel == NormalRisk then
                         ( [ NormalRisk ], "" )
 
                     else

@@ -1,4 +1,4 @@
-module Models.Product exposing (AgePricing, Coverage(..), DeductionMode(..), PriceGrid, PriceMethod(..), Pricing, Product, RiskLevel(..), Tier, TierType(..), init, initPricingDict, initTier)
+module Models.Product exposing (AgePricing, Coverage(..), DeductionMode(..), PriceGrid, PriceMethod(..), Pricing, Product, RiskLevel(..), Tier, TierType(..), init, initPricingDict, initTier, riskLevelToLabel, riskLevelToValue, stringToRiskLevel)
 
 import Dict exposing (Dict)
 import EveryDict exposing (EveryDict)
@@ -78,6 +78,39 @@ type alias Tier =
     { display : String
     , key : Int
     }
+
+
+riskLevelToValue : RiskLevel -> String
+riskLevelToValue riskLevel =
+    case riskLevel of
+        NormalRisk ->
+            "normalrisk"
+
+        HighRisk ->
+            "highrisk"
+
+
+riskLevelToLabel : RiskLevel -> String
+riskLevelToLabel riskLevel =
+    case riskLevel of
+        NormalRisk ->
+            "Normal Risk"
+
+        HighRisk ->
+            "High Risk"
+
+
+stringToRiskLevel : String -> Result String RiskLevel
+stringToRiskLevel str =
+    case str of
+        "normalrisk" ->
+            Ok NormalRisk
+
+        "highrisk" ->
+            Ok HighRisk
+
+        _ ->
+            Err <| "Unknown risklevel" ++ str
 
 
 type RiskLevel

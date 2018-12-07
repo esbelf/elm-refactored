@@ -14,7 +14,7 @@ import Views.Modal as Modal exposing (ModalButtonStyle(..), modalButton)
 view : Model -> Html Msg
 view model =
     div [ class "uk-margin uk-margin-top" ]
-        [ div [ class "uk-flex uk-flex-wrap uk-flex-wrap around" ]
+        [ div [ class "uk-flex uk-flex-wrap around" ]
             [ h1 [ class "uk-width-1-2" ] [ text "Groups" ]
             , div [ class "uk-width-1-2" ]
                 [ a ([ class "uk-button-primary uk-button uk-align-right" ] ++ onClickRoute Routes.CreateGroup)

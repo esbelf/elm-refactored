@@ -66,6 +66,7 @@ baseUrl =
 
 
 
+-- "https://easyins-staging.herokuapp.com"
 -- "http://localhost:3000"
 
 
