@@ -10,7 +10,7 @@ require('./css/custom.css');
 // Require index.html so it gets copied to dist
 require('./index.html');
 
-var Elm = require('./Main.elm');
+var Elm = require('./Main.elm').Elm;
 var mountNode = document.getElementById('main');
 
 var storedState = localStorage.getItem('session');
@@ -30,12 +30,6 @@ var app = Elm.Main.init({
 
 app.ports.setStorage.subscribe(function(state) {
   localStorage.setItem('session', JSON.stringify(state));
-});
-
-app.ports.getStorage.subscribe(function() {
-  var storedState = localStorage.getItem('session');
-  var startingState = storedState ? JSON.parse(storedState) : null;
-  localStorage.setItem('session', JSON.stringify(startingState));
 });
 
 app.ports.removeStorage.subscribe(function() {

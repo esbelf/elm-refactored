@@ -29,7 +29,7 @@ module.exports = {
       {
         test:    /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        loader:  'elm-webpack-loader?verbose=true&warn=true',
+        loader:  'elm-webpack-loader?verbose=true',
       },
       {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -52,5 +52,3 @@ module.exports = {
 
 
 };
-
-

@@ -84,7 +84,7 @@ onUrlChange : Url -> Msg
 onUrlChange url =
     let
         route =
-            parseUrl url
+            fromUrl url
     in
     RouteChanged route
 
