@@ -1,9 +1,9 @@
-module Pages.Groups exposing (Model, Msg(..), addGroupsToModel, init, initialModel, update)
+module Pages.Groups exposing (Model, Msg(..), init, initialModel, update)
 
+import Browser.Navigation as Nav
 import Helpers.StringConversions as StringConversions
 import Http
 import Models.Group exposing (Group)
-import Navigation
 import Pages.Helper exposing (..)
 import Port
 import Requests.Base
@@ -12,7 +12,8 @@ import Task exposing (Task)
 
 
 type Msg
-    = ClickedDeleteGroup Int
+    = GroupsLoaded (Result Http.Error (List Group))
+    | ClickedDeleteGroup Int
     | CancelDeleteGroup
     | DeleteGroupRequest Int
     | DeleteGroup Int (Result Http.Error String)
@@ -26,30 +27,40 @@ type alias Model =
     { groups : List Group
     , errorMsg : String
     , deletingGroup : Maybe Int
+    , navKey : Nav.Key
     }
 
 
-initialModel : Model
-initialModel =
+initialModel : Nav.Key -> Model
+initialModel navKey =
     { groups = []
     , errorMsg = ""
     , deletingGroup = Nothing
+    , navKey = navKey
     }
 
 
-init : String -> Task Http.Error Model
-init token =
-    Task.map addGroupsToModel (Requests.Group.getAll token)
+loadCmd : String -> Cmd Msg
+loadCmd token =
+    Requests.Group.getAll token GroupsLoaded
 
 
-addGroupsToModel : List Group -> Model
-addGroupsToModel groups =
-    { initialModel | groups = groups }
+init : String -> Nav.Key -> ( Model, Cmd Msg )
+init token navKey =
+    ( initialModel navKey
+    , loadCmd token
+    )
 
 
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
     case msg of
+        GroupsLoaded (Ok groups) ->
+            ( { model | groups = groups }, Cmd.none )
+
+        GroupsLoaded (Err error) ->
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
+
         ClickedDeleteGroup id ->
             ( { model | deletingGroup = Just id }, Cmd.none )
 
@@ -59,8 +70,7 @@ update msg model token =
         DeleteGroupRequest groupId ->
             let
                 newMsg =
-                    Requests.Group.delete groupId token
-                        |> Task.attempt (DeleteGroup groupId)
+                    Requests.Group.delete groupId token (DeleteGroup groupId)
             in
             ( model, newMsg )
 
@@ -78,13 +88,12 @@ update msg model token =
         PreviewGroupRequest id ->
             let
                 newMsg =
-                    Requests.Base.getFileToken token
-                        |> Task.attempt (PreviewGroup id)
+                    Requests.Base.getFileToken token (PreviewGroup id)
             in
             ( model, newMsg )
 
-        PreviewGroup id (Ok token) ->
-            ( model, Port.openWindow (Requests.Group.previewUrl (Just id) token) )
+        PreviewGroup id (Ok fileToken) ->
+            ( model, Port.openWindow (Requests.Group.previewUrl (Just id) fileToken) )
 
         PreviewGroup id (Err error) ->
             ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
@@ -92,8 +101,7 @@ update msg model token =
         DuplicateGroupRequest groupId ->
             let
                 newMsg =
-                    Requests.Group.duplicate groupId token
-                        |> Task.attempt (DuplicateGroup groupId)
+                    Requests.Group.duplicate groupId token (DuplicateGroup groupId)
             in
             ( model, newMsg )
 
@@ -107,7 +115,7 @@ update msg model token =
                 newLoc =
                     "groups/" ++ newId
             in
-            ( model, Navigation.newUrl newLoc )
+            ( model, Nav.replaceUrl model.navKey newLoc )
 
         DuplicateGroup id (Err error) ->
             ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )

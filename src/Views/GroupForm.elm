@@ -1,16 +1,19 @@
-module Views.Group exposing (view)
+module Views.GroupForm exposing (view)
 
-import Components.Group exposing (Model, Msg(..))
 import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, height, href, name, placeholder, src, tabindex, type_, value, width)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as JD
 import Models.Group as Group exposing (Group, Logo(..))
+import Pages.GroupForm as GroupForm exposing (Model, Msg(..))
 import Views.Helper exposing (convertMsgHtml, unionSelectOptions)
-import Views.Product
 
 
-view : Components.Group.Model -> Html Components.Group.Msg
+
+-- import Views.Product
+
+
+view : GroupForm.Model -> Html GroupForm.Msg
 view model =
     div []
         [ fieldset [ class "uk-fieldset" ]
@@ -19,11 +22,12 @@ view model =
                 , groupInputs model
                 ]
             , div [ class "uk-child-width-1-1@s" ]
-                [ convertMsgHtml Components.Group.ProductMsg (Views.Product.view model.productPageModel)
+                -- [ convertMsgHtml GroupForm.ProductMsg (Views.Product.view model.productPageModel)
+                [ text "--Product display would go here--"
                 , button
                     [ class "uk-button uk-button-primary uk-margin-small"
                     , type_ "button"
-                    , onClick Components.Group.SaveGroupRequest
+                    , onClick GroupForm.SaveGroupRequest
                     ]
                     [ text "Save" ]
                 ]
@@ -31,7 +35,7 @@ view model =
         ]
 
 
-groupInputs : Components.Group.Model -> Html Components.Group.Msg
+groupInputs : GroupForm.Model -> Html GroupForm.Msg
 groupInputs model =
     let
         group =
@@ -88,7 +92,7 @@ groupInputs model =
         ]
 
 
-viewLogoUploadControl : Logo -> List (Html Components.Group.Msg)
+viewLogoUploadControl : Logo -> List (Html GroupForm.Msg)
 viewLogoUploadControl logo =
     [ span [ class "uk-label" ]
         [ text "Logo Image" ]
@@ -96,7 +100,7 @@ viewLogoUploadControl logo =
         [ div [ class "uk-form-custom" ]
             [ input
                 [ type_ "file"
-                , Html.Attributes.id Components.Group.formUploadId
+                , Html.Attributes.id GroupForm.formUploadId
                 , Html.Events.on "change"
                     (JD.succeed FileSelected)
                 ]
@@ -139,7 +143,7 @@ fileButtonText logo =
             text "Change Selected Logo"
 
 
-toggleEmployeeContribution : Components.Group.Model -> Html Components.Group.Msg
+toggleEmployeeContribution : GroupForm.Model -> Html GroupForm.Msg
 toggleEmployeeContribution model =
     let
         group =

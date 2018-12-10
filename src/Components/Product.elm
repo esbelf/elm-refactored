@@ -4,7 +4,7 @@ import Dict exposing (Dict)
 import Dict.Any as AnyDict exposing (AnyDict)
 import Helpers.DecimalField
 import List.Extra exposing (removeAt, updateAt)
-import Models.Product exposing (AgePricing, Coverage(..), DeductionMode, PriceGrid, Product, RiskLevel(..), Tier, TierType(..), init, stringToRiskLevel)
+import Models.Product exposing (AgePricing, Coverage(..), DeductionMode, PriceGrid, PricingDict, Product, RiskLevel(..), Tier, TierType(..), init, stringToRiskLevel)
 
 
 type alias Model =

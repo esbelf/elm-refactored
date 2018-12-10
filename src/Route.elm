@@ -1,10 +1,9 @@
-module Route exposing (fromUrl, onClickRoute, parseUrl, setRoute, updateRoute, urlChange)
+module Route exposing (fromUrl, onUrlChange, parseUrl, setRoute, updateRoute)
 
 import Browser.Navigation as Nav
 import Helper exposing (pageErrored)
 import Html exposing (Attribute)
 import Html.Attributes as Attr
-import Html.Events exposing (defaultOptions, onWithOptions)
 import Json.Decode exposing (Decoder)
 import Model exposing (Model, PageState(..))
 import Models.Session
@@ -12,8 +11,7 @@ import Msg exposing (..)
 import Page
 import Pages.Batches
 import Pages.CreateBatch
-import Pages.CreateGroup
-import Pages.EditGroup
+import Pages.GroupForm
 import Pages.Groups
 import Pages.Login
 import Pages.Users
@@ -21,16 +19,19 @@ import Port
 import Routes exposing (Route)
 import Task exposing (Task)
 import Url exposing (Url)
-import Url.Parser as Parser exposing ((<=/>), Parser, int, oneOf, s, string)
+import Url.Parser as Parser exposing ((</>), Parser, int, oneOf, s, string)
 
 
 setRoute : Route -> Model -> ( Model, Cmd Msg )
-setRoute route model =
+setRoute newRoute model =
     let
         checkedSession =
             Models.Session.checkSessionValidity model.session model.currentTime
+
+        initializeSubcomponent toSubmodel toSubmsg ( submodel, submsg ) =
+            ( { model | pageState = Loaded (toSubmodel submodel) }, Cmd.map toSubmsg submsg )
     in
-    case ( route, checkedSession ) of
+    case ( newRoute, checkedSession ) of
         ( Routes.NotFound, _ ) ->
             ( model, Cmd.none )
 
@@ -44,51 +45,36 @@ setRoute route model =
             ( { model | session = Nothing }
             , Cmd.batch
                 [ Port.removeStorage ()
-                , updateRoute Routes.Login
+                , updateRoute model.navKey Routes.Login
                 ]
             )
 
         ( Routes.Groups, Just session ) ->
-            let
-                msg =
-                    Pages.Groups.init session.token
-                        |> Task.attempt GroupsLoaded
-            in
-            ( { model | pageState = Loaded (Page.Groups Pages.Groups.initialModel) }, msg )
+            Pages.Groups.init session.token model.navKey
+                |> initializeSubcomponent Page.Groups GroupsMsg
 
         ( Routes.EditGroup groupId, Just session ) ->
-            let
-                msg =
-                    Pages.EditGroup.init groupId session.token
-                        |> Task.attempt EditGroupLoaded
-            in
-            ( { model | pageState = Loaded (Page.EditGroup Pages.EditGroup.initialModel) }, msg )
+            Pages.GroupForm.init (Just groupId) session.token model.navKey
+                |> initializeSubcomponent Page.EditGroup EditGroupMsg
 
-        ( Routes.CreateGroup, _ ) ->
-            ( { model | pageState = Loaded (Page.CreateGroup Pages.CreateGroup.initialModel) }, Cmd.none )
+        ( Routes.CreateGroup, Just session ) ->
+            Pages.GroupForm.init Nothing session.token model.navKey
+                |> initializeSubcomponent Page.CreateGroup CreateGroupMsg
 
         ( Routes.Batches, Just session ) ->
-            let
-                msg =
-                    Pages.Batches.init session.token
-                        |> Task.attempt BatchesLoaded
-            in
-            ( { model | pageState = Loaded (Page.Batches Pages.Batches.initialModel) }, msg )
+            Pages.Batches.init session.token
+                |> initializeSubcomponent Page.Batches BatchesMsg
 
         ( Routes.CreateBatch groupId, Just session ) ->
             let
                 subModel =
-                    Pages.CreateBatch.initNew session.token groupId
+                    Pages.CreateBatch.initNew session.token groupId model.navKey
             in
             ( { model | pageState = Loaded (Page.CreateBatch subModel) }, Cmd.none )
 
         ( Routes.Users, Just session ) ->
-            let
-                msg =
-                    Pages.Users.init session.token
-                        |> Task.attempt UsersLoaded
-            in
-            ( { model | pageState = Loaded (Page.Users Pages.Users.initialModel) }, msg )
+            Pages.Users.init session.token
+                |> initializeSubcomponent Page.Users UsersMsg
 
         ( _, _ ) ->
             pageErrored model
@@ -98,7 +84,7 @@ onUrlChange : Url -> Msg
 onUrlChange url =
     let
         route =
-            parseLocation url
+            parseUrl url
     in
     RouteChanged route
 
@@ -128,23 +114,18 @@ fromUrl url =
 
 
 parseUrl : Url -> Maybe Route
-parseUrl url =
+parseUrl =
     Parser.parse routeParser
 
 
-replaceUrl : Nav.Key -> Route -> Cmd Msg
-replaceUrl key route =
+updateRoute : Nav.Key -> Route -> Cmd Msg
+updateRoute key route =
     -- TODO: make leading slash part of routeToString
-    Nav.replaceUrl key ("/" ++ routeToString route)
+    Nav.replaceUrl key ("/" ++ Routes.routeToString route)
 
 
 
--- VIEW HELPERS ---
-
-
-href : Route -> Attribute Msg
-href targetRoute =
-    Attr.href (routeToString targetRoute)
+-- VIEW HELPERS (that don't help being in this file, but eventually...) ---
 
 
 baseUrl : String

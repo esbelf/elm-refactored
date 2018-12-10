@@ -1,13 +1,11 @@
 module Views.Groups exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, href, name, placeholder, type_, value)
+import Html.Attributes exposing (attribute, class, name, placeholder, type_, value)
 import Html.Events exposing (onClick)
 import Models.Group exposing (Group)
-import Msg exposing (..)
-import Pages.Groups exposing (Model)
-import Route exposing (onClickRoute)
-import Routes exposing (Route)
+import Pages.Groups exposing (Model, Msg(..))
+import Routes exposing (Route, href)
 import Views.Modal as Modal exposing (ModalButtonStyle(..), modalButton)
 
 
@@ -17,7 +15,10 @@ view model =
         [ div [ class "uk-flex uk-flex-wrap around" ]
             [ h1 [ class "uk-width-1-2" ] [ text "Groups" ]
             , div [ class "uk-width-1-2" ]
-                [ a ([ class "uk-button-primary uk-button uk-align-right" ] ++ onClickRoute Routes.CreateGroup)
+                [ a
+                    [ class "uk-button-primary uk-button uk-align-right"
+                    , href Routes.CreateGroup
+                    ]
                     [ text "Create Group" ]
                 ]
             ]
@@ -55,14 +56,17 @@ viewGroup group =
         Just groupId ->
             tr []
                 [ td []
-                    [ a ([ class "uk-link-text" ] ++ onClickRoute (Routes.EditGroup groupId))
+                    [ a
+                        [ class "uk-link-text"
+                        , href (Routes.EditGroup groupId)
+                        ]
                         [ text group.name ]
                     ]
                 , td []
                     [ button
                         [ class "uk-button uk-button-default uk-button-small"
                         , type_ "button"
-                        , onClick (GroupsMsg (Pages.Groups.PreviewGroupRequest groupId))
+                        , onClick (PreviewGroupRequest groupId)
                         ]
                         [ text "Preview" ]
                     ]
@@ -70,7 +74,7 @@ viewGroup group =
                     [ button
                         [ class "uk-button uk-button-default uk-button-small"
                         , type_ "button"
-                        , onClick (SetRoute (Routes.CreateBatch groupId))
+                        , href (Routes.CreateBatch groupId)
                         ]
                         [ text "Create Batch" ]
                     ]
@@ -78,13 +82,13 @@ viewGroup group =
                     [ button
                         [ class "uk-button uk-button-default uk-button-small"
                         , type_ "button"
-                        , onClick (GroupsMsg (Pages.Groups.DuplicateGroupRequest groupId))
+                        , onClick (DuplicateGroupRequest groupId)
                         ]
                         [ text "Copy" ]
                     , button
                         [ class "uk-button uk-button-danger uk-button-small"
                         , type_ "button"
-                        , onClick (GroupsMsg (Pages.Groups.ClickedDeleteGroup groupId))
+                        , onClick (ClickedDeleteGroup groupId)
                         ]
                         [ text "Delete" ]
                     ]
@@ -122,8 +126,8 @@ viewDeletingModal model groupId =
                         ]
 
                 buttons =
-                    [ modalButton "Cancel" (GroupsMsg Pages.Groups.CancelDeleteGroup) ModalDefault
-                    , modalButton "Delete" (GroupsMsg <| Pages.Groups.DeleteGroupRequest groupId) ModalDanger
+                    [ modalButton "Cancel" CancelDeleteGroup ModalDefault
+                    , modalButton "Delete" (DeleteGroupRequest groupId) ModalDanger
                     ]
             in
             Modal.displayModal "Delete Group" content buttons

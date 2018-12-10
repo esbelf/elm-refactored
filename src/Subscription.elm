@@ -1,12 +1,10 @@
 module Subscription exposing (pageSubscriptions)
 
-import Components.Group
 import Model exposing (Model, PageState(..), getPage)
 import Msg exposing (..)
 import Page
 import Pages.CreateBatch
-import Pages.CreateGroup
-import Pages.EditGroup
+import Pages.GroupForm
 import Port
 
 
@@ -21,10 +19,10 @@ pageSubscriptions model =
             Port.fileContentRead (CreateBatchMsg << Pages.CreateBatch.FileRead)
 
         Page.CreateGroup _ ->
-            Port.fileContentRead (CreateGroupMsg << Pages.CreateGroup.GroupMsg << Components.Group.FileRead)
+            Sub.map CreateGroupMsg Pages.GroupForm.subscriptions
 
         Page.EditGroup _ ->
-            Port.fileContentRead (EditGroupMsg << Pages.EditGroup.GroupMsg << Components.Group.FileRead)
+            Sub.map EditGroupMsg Pages.GroupForm.subscriptions
 
         _ ->
             Sub.none

@@ -16,20 +16,24 @@ type alias AuthObj =
     }
 
 
-authenticate : AuthObj -> Task Http.Error Session
-authenticate authObj =
+authenticate : AuthObj -> (Result Http.Error Session -> msg) -> Cmd msg
+authenticate authObj callback =
     let
         body =
             authObj |> encode |> Http.jsonBody
     in
-    Http.post authUrl body sessionDecoder |> Http.toTask
+    Http.post
+        { url = authUrl
+        , body = body
+        , expect = Http.expectJson callback sessionDecoder
+        }
 
 
 sessionDecoder : Decode.Decoder Session
 sessionDecoder =
     Decode.succeed Session
-        |> required "token" Decode.string
         |> required "exp" Iso8601.decoder
+        |> required "token" Decode.string
 
 
 encode : AuthObj -> Encode.Value

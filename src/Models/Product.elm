@@ -1,4 +1,4 @@
-module Models.Product exposing (AgePricing, Coverage(..), DeductionDict, DeductionMode(..), PriceMethod(..), Pricing, PricingDict, Product, RiskDict, RiskLevel(..), Tier, TierType(..), coverageToKey, deductionModeToKey, emptyDeductionDict, emptyRiskDict, init, initPricingDict, initTier, riskLevelToKey, riskLevelToLabel, riskLevelToValue, stringToRiskLevel)
+module Models.Product exposing (AgePricing, Coverage(..), DeductionDict, DeductionMode(..), PriceGrid, PriceMethod(..), Pricing, PricingDict, Product, RiskDict, RiskLevel(..), Tier, TierType(..), coverageToKey, deductionDictFromList, deductionModeToKey, emptyDeductionDict, emptyRiskDict, init, initPricingDict, initTier, pricingDictFromList, riskDictFromList, riskLevelToKey, riskLevelToLabel, riskLevelToValue, stringToRiskLevel)
 
 import Dict exposing (Dict)
 import Dict.Any as AnyDict exposing (AnyDict)

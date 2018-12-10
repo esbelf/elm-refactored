@@ -2,7 +2,7 @@ module Requests.Batch exposing (create, formUrl, getAll)
 
 -- import Json.Encode as Encode
 
-import Http exposing (Request)
+import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (custom, optional, optionalAt, required, requiredAt)
 import Json.Encode as Encode
@@ -11,30 +11,29 @@ import Requests.Base exposing (..)
 import Task exposing (Task)
 
 
-getAll : String -> Task Http.Error (List Batch)
-getAll token =
+getAll : String -> (Result Http.Error (List Batch) -> msg) -> Cmd msg
+getAll token callback =
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
         , body = Http.emptyBody
-        , expect = Http.expectJson (dataDecoder batchesDecoder)
+        , expect = Http.expectJson callback (dataDecoder batchesDecoder)
         , method = "GET"
         , timeout = Nothing
         , url = batchesUrl
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
-create : BatchForm -> String -> Request String
-create batchForm token =
+create : BatchForm -> String -> (Result Http.Error () -> msg) -> Cmd msg
+create batchForm token callback =
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
         , body = batchEncoder batchForm
-        , expect = Http.expectString
+        , expect = Http.expectWhatever callback
         , method = "POST"
         , timeout = Nothing
         , url = batchesUrl
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 

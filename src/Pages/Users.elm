@@ -1,4 +1,4 @@
-module Pages.Users exposing (Model, Msg(..), addUsersToModel, init, initialModel, update)
+module Pages.Users exposing (Model, Msg(..), init, update)
 
 import Helpers.StringConversions as StringConversions
 import Http
@@ -9,8 +9,9 @@ import Task exposing (Task)
 
 
 type Msg
-    = DeleteUserRequest Int
-    | DeleteUser Int (Result Http.Error String)
+    = UsersLoaded (Result Http.Error (List User))
+    | DeleteUserRequest Int
+    | UserDeleted Int (Result Http.Error ())
 
 
 type alias Model =
@@ -26,29 +27,31 @@ initialModel =
     }
 
 
-init : String -> Task Http.Error Model
+init : String -> ( Model, Cmd Msg )
 init token =
-    Task.map addUsersToModel (Requests.User.fetch token)
-
-
-addUsersToModel : List User -> Model
-addUsersToModel users =
-    { initialModel | users = users }
+    ( initialModel
+    , Requests.User.fetch token UsersLoaded
+    )
 
 
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
     case msg of
-        DeleteUser id (Ok message) ->
+        UsersLoaded (Ok users) ->
+            ( { model | users = users }, Cmd.none )
+
+        UsersLoaded (Err error) ->
+            ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
+
+        UserDeleted id (Ok _) ->
             ( { model | users = removeModelFromList id model.users }, Cmd.none )
 
-        DeleteUser id (Err error) ->
+        UserDeleted id (Err error) ->
             ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )
 
         DeleteUserRequest userId ->
             let
                 newMsg =
-                    Requests.User.delete userId token
-                        |> Task.attempt (DeleteUser userId)
+                    Requests.User.delete userId token (UserDeleted userId)
             in
             ( model, newMsg )

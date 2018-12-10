@@ -1,18 +1,20 @@
-module Components.Group exposing (Model, Msg(..), addGroupToModel, formUploadId, init, initialModel, update)
+module Pages.GroupForm exposing (Model, Msg(..), formUploadId, init, subscriptions, update)
 
-import Components.Product
+-- import Components.Product
+
+import Browser.Navigation as Nav
 import Helpers.StringConversions exposing (fromHttpError)
 import Http
 import Models.FileData exposing (FileData)
 import Models.Group as Group exposing (FormType, Group, Logo(..))
-import Navigation
 import Port
 import Requests.Group
 import Task exposing (Task)
 
 
 type Msg
-    = SetName String
+    = GroupLoaded (Result Http.Error Group)
+    | SetName String
     | SetPaymentMode String
     | SetFormType String
     | SetDisclosure String
@@ -20,7 +22,7 @@ type Msg
     | ToggleEmployeeContribution
     | SaveGroupRequest
     | UpdateGroup (Result Http.Error Group)
-    | ProductMsg Components.Product.Msg
+      -- | ProductMsg Components.Product.Msg
     | FileSelected
     | FileRead FileData
 
@@ -29,42 +31,64 @@ type alias Model =
     { group : Group
     , errorMsg : String
     , id : Maybe Int
-    , productPageModel : Components.Product.Model
+
+    -- , productPageModel : Components.Product.Model
     , showEmployeeContribution : Bool
+    , navKey : Nav.Key
     }
 
 
-initialModel : Model
-initialModel =
+initialModel : Maybe Int -> Nav.Key -> Model
+initialModel possibleId navKey =
     { group = Group.init
     , errorMsg = ""
-    , id = Nothing
-    , productPageModel = Components.Product.init
+    , id = possibleId
+
+    -- , productPageModel = Components.Product.init
     , showEmployeeContribution = False
+    , navKey = navKey
     }
 
 
-init : Int -> String -> Task Http.Error Model
-init groupId token =
-    Task.map addGroupToModel (Requests.Group.get groupId token)
+loadCmd : String -> Maybe Int -> Cmd Msg
+loadCmd token possibleId =
+    case possibleId of
+        Just id ->
+            Requests.Group.get id token GroupLoaded
+
+        Nothing ->
+            Cmd.none
 
 
-addGroupToModel : Group -> Model
-addGroupToModel group =
+init : Maybe Int -> String -> Nav.Key -> ( Model, Cmd Msg )
+init possibleId token navKey =
+    ( initialModel possibleId navKey
+    , loadCmd token possibleId
+    )
+
+
+
+-- init : Int -> String -> Nav.Key -> Task Http.Error Model
+-- init groupId token =
+--     Task.map addGroupToModel (Requests.Group.get groupId token)
+
+
+addGroupToModel : Model -> Group -> Model
+addGroupToModel model group =
     let
-        pageProductModel =
-            Components.Product.init
-
-        productPageModel =
-            { pageProductModel | products = group.products }
-
+        -- pageProductModel =
+        --     Components.Product.init
+        --
+        -- productPageModel =
+        --     { pageProductModel | products = group.products }
         showEmployeeContribution =
             not (String.isEmpty group.employee_contribution)
     in
-    { initialModel
+    { model
         | id = group.id
         , group = group
-        , productPageModel = productPageModel
+
+        -- , productPageModel = productPageModel
         , showEmployeeContribution = showEmployeeContribution
     }
 
@@ -76,6 +100,12 @@ update msg model token =
             model.group
     in
     case msg of
+        GroupLoaded (Ok group) ->
+            ( addGroupToModel model group, Cmd.none )
+
+        GroupLoaded (Err error) ->
+            ( { model | errorMsg = fromHttpError error }, Cmd.none )
+
         SetName name ->
             ( { model | group = { oldGroup | name = name } }, Cmd.none )
 
@@ -84,7 +114,7 @@ update msg model token =
                 newPaymentMode =
                     paymentMode
                         |> String.toInt
-                        |> Result.withDefault oldGroup.payment_mode
+                        |> Maybe.withDefault oldGroup.payment_mode
             in
             ( { model | group = { oldGroup | payment_mode = newPaymentMode } }, Cmd.none )
 
@@ -125,28 +155,27 @@ update msg model token =
         UpdateGroup (Ok updatedGroup) ->
             let
                 cmd =
-                    Navigation.newUrl "/groups"
+                    Nav.replaceUrl model.navKey "/groups"
             in
             ( { model | group = updatedGroup }, cmd )
 
         UpdateGroup (Err error) ->
             ( { model | errorMsg = fromHttpError error }, Cmd.none )
 
-        ProductMsg subMsg ->
-            let
-                ( newProductPageModel, newSubMsg ) =
-                    Components.Product.update subMsg model.productPageModel token
-
-                msg =
-                    Cmd.map ProductMsg newSubMsg
-            in
-            ( { model
-                | productPageModel = newProductPageModel
-                , group = { oldGroup | products = newProductPageModel.products }
-              }
-            , msg
-            )
-
+        -- ProductMsg subMsg ->
+        --     let
+        --         ( newProductPageModel, newSubMsg ) =
+        --             Components.Product.update subMsg model.productPageModel token
+        --
+        --         msg =
+        --             Cmd.map ProductMsg newSubMsg
+        --     in
+        --     ( { model
+        --         | productPageModel = newProductPageModel
+        --         , group = { oldGroup | products = newProductPageModel.products }
+        --       }
+        --     , msg
+        --     )
         FileSelected ->
             let
                 newLogo =
@@ -169,12 +198,10 @@ save : Group -> String -> Cmd Msg
 save group token =
     case group.id of
         Just groupId ->
-            Requests.Group.update group token
-                |> Task.attempt UpdateGroup
+            Requests.Group.update group token UpdateGroup
 
         Nothing ->
-            Requests.Group.create group token
-                |> Task.attempt UpdateGroup
+            Requests.Group.create group token UpdateGroup
 
 
 updateGroupLogo : Model -> Logo -> Model
@@ -192,3 +219,8 @@ updateGroupLogo model newLogo =
 formUploadId : String
 formUploadId =
     "logo_upload_file_input"
+
+
+subscriptions : Sub Msg
+subscriptions =
+    Port.fileContentRead FileRead

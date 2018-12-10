@@ -1,13 +1,11 @@
 module Views.Batches exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, href, name, placeholder, type_, value)
+import Html.Attributes exposing (attribute, class, name, placeholder, type_, value)
 import Html.Events exposing (onClick)
 import Models.Batch exposing (Batch)
-import Msg exposing (..)
-import Pages.Batches exposing (Model)
-import Route exposing (onClickRoute)
-import Routes exposing (Route)
+import Pages.Batches exposing (Model, Msg(..))
+import Routes exposing (Route, href)
 
 
 view : Model -> Html Msg
@@ -46,13 +44,14 @@ viewBatch : Batch -> Html Msg
 viewBatch batch =
     tr []
         [ th []
-            [ a ([] ++ onClickRoute (Routes.EditGroup batch.group_id))
+            [ a
+                [ href (Routes.EditGroup batch.group_id) ]
                 [ text batch.group_name ]
             ]
         , th [] [ text batch.start_date ]
         , th [] [ text (String.fromInt batch.census_count) ]
         , th []
-            [ a [ onClick (BatchesMsg (Pages.Batches.DownloadFormRequest batch.id)) ]
+            [ a [ onClick (DownloadFormRequest batch.id) ]
                 [ text "Download" ]
             ]
         , th [] [ text batch.created_at ]

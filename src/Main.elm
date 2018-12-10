@@ -6,8 +6,7 @@ import Model exposing (..)
 import Models.Session
 import Models.Storage exposing (StorageModel)
 import Msg exposing (..)
-import Navigation
-import Route exposing (parseLocation, setRoute, urlChange)
+import Route
 import Subscription
 import Time
 import Update
@@ -25,7 +24,7 @@ init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
         currentRoute =
-            Route.parseLocation url
+            Route.fromUrl url
 
         session =
             Models.Session.initWithRecord flags.state
@@ -47,12 +46,11 @@ subscriptions model =
 
 main : Program Flags Model Msg
 main =
-    Browser.application Route.urlChange
+    Browser.application
         { init = init
         , view = View.view
         , update = Update.update
         , subscriptions = subscriptions
         , onUrlRequest = ClickedLink
         , onUrlChange = RouteChanged << Route.fromUrl
-        , onUrlChange = Route.onUrlChange
         }

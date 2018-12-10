@@ -49,8 +49,7 @@ update msg model =
                     }
 
                 newMsg =
-                    Request.authenticate authObj
-                        |> Task.attempt Authenticated
+                    Request.authenticate authObj Authenticated
             in
             ( model, newMsg )
 

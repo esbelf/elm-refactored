@@ -1,4 +1,4 @@
-module Pages.Batches exposing (Model, Msg(..), addBatchesToModel, init, initialModel, update)
+module Pages.Batches exposing (Model, Msg(..), init, update)
 
 import Helpers.StringConversions as StringConversions
 import Http
@@ -10,7 +10,8 @@ import Task exposing (Task)
 
 
 type Msg
-    = DownloadFormRequest Int
+    = BatchesLoaded (Result Http.Error (List Batch))
+    | DownloadFormRequest Int
     | DownloadForm Int (Result Http.Error String)
 
 
@@ -27,9 +28,14 @@ initialModel =
     }
 
 
-init : String -> Task Http.Error Model
+loadCmd : String -> Cmd Msg
+loadCmd token =
+    Requests.Batch.getAll token BatchesLoaded
+
+
+init : String -> ( Model, Cmd Msg )
 init token =
-    Task.map addBatchesToModel (Requests.Batch.getAll token)
+    ( initialModel, loadCmd token )
 
 
 addBatchesToModel : List Batch -> Model
@@ -40,16 +46,23 @@ addBatchesToModel batches =
 update : Msg -> Model -> String -> ( Model, Cmd Msg )
 update msg model token =
     case msg of
+        BatchesLoaded (Ok batches) ->
+            ( { model | batches = batches }, Cmd.none )
+
+        BatchesLoaded (Err error) ->
+            ( { model | errorMsg = StringConversions.fromHttpError error }
+            , Cmd.none
+            )
+
         DownloadFormRequest id ->
             let
                 newMsg =
-                    Requests.Base.getFileToken token
-                        |> Task.attempt (DownloadForm id)
+                    Requests.Base.getFileToken token (DownloadForm id)
             in
             ( model, newMsg )
 
-        DownloadForm id (Ok token) ->
-            ( model, Port.openWindow (Requests.Batch.formUrl id token) )
+        DownloadForm id (Ok fileToken) ->
+            ( model, Port.openWindow (Requests.Batch.formUrl id fileToken) )
 
         DownloadForm id (Err error) ->
             ( { model | errorMsg = StringConversions.fromHttpError error }, Cmd.none )

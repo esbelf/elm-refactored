@@ -10,32 +10,30 @@ import Requests.Base exposing (..)
 import Task exposing (Task)
 
 
-fetch : String -> Task Http.Error (List User)
-fetch token =
+fetch : String -> (Result Http.Error (List User) -> msg) -> Cmd msg
+fetch token callback =
     Http.request
         { body = Http.emptyBody
         , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-        , expect = Http.expectJson (dataDecoder usersDecoder)
+        , expect = Http.expectJson callback (dataDecoder usersDecoder)
         , method = "GET"
         , timeout = Nothing
         , url = userUrl
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
-delete : Int -> String -> Task Http.Error String
-delete userId token =
+delete : Int -> String -> (Result Http.Error () -> msg) -> Cmd msg
+delete userId token callback =
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-        , expect = Http.expectString
+        , expect = Http.expectWhatever callback
         , body = Http.emptyBody
         , method = "DELETE"
         , timeout = Nothing
         , url = urlSlug userId
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
 usersDecoder : Decode.Decoder (List User)

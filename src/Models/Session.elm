@@ -1,17 +1,17 @@
-module Models.Session exposing (Session, checkSessionValidity, init, initWithRecord, toPortModel)
+module Models.Session exposing (Session, checkSessionValidity, init, initWithRecord, toStorageModel)
 
 import Models.Storage as StorageModel exposing (StorageModel)
-import String.Extra exposing (nonEmpty)
+import String.Extra
 import Time exposing (Posix)
 
 
 type alias Session =
-    { token : String
-    , exp : Posix
+    { exp : Posix
+    , token : String
     }
 
 
-{-| Take a token and expiry string, returning Nothing if either:
+{-| Take a token and expiry in milliseconds, returning Nothing if either:
 
   - token string is empty
   - exp string is empty or unable to be parsed from ISO8601 format
@@ -20,11 +20,13 @@ type alias Session =
 init : String -> Int -> Maybe Session
 init token expMillis =
     let
-        parsedExp =
+        expPosix =
             Time.millisToPosix expMillis
-                |> Result.toMaybe
+
+        maybeToken =
+            String.Extra.nonBlank token
     in
-    Maybe.map2 Session (nonEmpty token) parsedExp
+    Maybe.map (Session expPosix) maybeToken
 
 
 initWithRecord : Maybe StorageModel -> Maybe Session

@@ -2,6 +2,7 @@ module View exposing (view)
 
 -- import Debug
 
+import Browser
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, href, style)
 import Html.Events exposing (onClick)
@@ -10,23 +11,23 @@ import Models.Session exposing (Session)
 import Msg exposing (..)
 import Page exposing (..)
 import Pages.CreateBatch
-import Route exposing (onClickRoute)
-import Routes exposing (Route)
+import Routes exposing (Route, href)
 import Views.Batches
-import Views.CreateGroup
-import Views.EditGroup
+import Views.GroupForm
 import Views.Groups
 import Views.Login
 import Views.Users
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div []
+    { title = "EasyINS"
+    , body =
         [ header model
         , div [ class "uk-container" ]
             [ mainContent model ]
         ]
+    }
 
 
 mainContent : Model -> Html Msg
@@ -50,15 +51,19 @@ mainContent model =
 
         Groups pageModel ->
             Views.Groups.view pageModel
+                |> Html.map GroupsMsg
 
         EditGroup pageModel ->
-            Views.EditGroup.view pageModel
+            Views.GroupForm.view pageModel
+                |> Html.map EditGroupMsg
 
         CreateGroup pageModel ->
-            Views.CreateGroup.view pageModel
+            Views.GroupForm.view pageModel
+                |> Html.map CreateGroupMsg
 
         Batches pageModel ->
             Views.Batches.view pageModel
+                |> Html.map BatchesMsg
 
         CreateBatch pageModel ->
             Pages.CreateBatch.view pageModel
@@ -76,7 +81,10 @@ header model =
     div [ class "tm-navbar-container" ]
         [ nav [ class "uk-navbar-container tm-navbar-container uk-container", attribute "uk-navbar" "" ]
             [ div [ class "uk-navbar-left" ]
-                [ a ([ class "uk-logo uk-navbar-item" ] ++ onClickRoute Routes.Home)
+                [ a
+                    [ class "uk-logo uk-navbar-item"
+                    , href Routes.Home
+                    ]
                     [ text "EasyINS" ]
                 , viewLinks model.session
                 ]
@@ -94,11 +102,20 @@ viewLinks maybeSession =
     case maybeSession of
         Just session ->
             ul [ class "uk-navbar-nav" ]
-                [ a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Groups)
+                [ a
+                    [ class "uk-navbar-item"
+                    , href Routes.Groups
+                    ]
                     [ text "Groups" ]
-                , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Batches)
+                , a
+                    [ class "uk-navbar-item"
+                    , href Routes.Batches
+                    ]
                     [ text "Batches" ]
-                , a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Users)
+                , a
+                    [ class "uk-navbar-item"
+                    , href Routes.Users
+                    ]
                     [ text "Users" ]
                 ]
 
@@ -117,7 +134,10 @@ viewAuth maybeSession =
                 [ text "Logout" ]
 
         Nothing ->
-            a ([ class "uk-navbar-item" ] ++ onClickRoute Routes.Login)
+            a
+                [ class "uk-navbar-item"
+                , href Routes.Login
+                ]
                 [ text "Login" ]
 
 

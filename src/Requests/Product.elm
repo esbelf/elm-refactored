@@ -155,7 +155,7 @@ productsDecoder =
 
 productDecoder : Decoder Product
 productDecoder =
-    Decode.succeed Product
+    Dec.succeed Product
         |> required "name" string
         |> required "pricing" decodePricing
         |> required "benefits" decodeTierList
@@ -261,7 +261,7 @@ setExplicitDeduction d =
                 |> Maybe.withDefault Dict.empty
                 |> Dict.get 0
                 |> Maybe.withDefault emptyDeductionDict
-                |> AllDict.keys
+                |> AnyDict.keys
     in
     succeed (List.length deductionModes > 1)
 

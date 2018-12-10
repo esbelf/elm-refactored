@@ -1,20 +1,21 @@
 module Update exposing (update)
 
 import Browser
+import Browser.Navigation as Nav
 import Helper exposing (..)
 import Model exposing (Model, PageState(..), getPage)
 import Msg exposing (..)
 import Page exposing (..)
 import Pages.Batches
 import Pages.CreateBatch
-import Pages.CreateGroup
-import Pages.EditGroup
+import Pages.GroupForm
 import Pages.Groups
 import Pages.Login
 import Pages.Users
 import Port
-import Route exposing (parseLocation, setRoute, updateRoute)
+import Route exposing (setRoute, updateRoute)
 import Routes
+import Url
 
 
 updateWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
@@ -43,7 +44,7 @@ update msg model =
             ( { model | currentTime = now }, Cmd.none )
 
         ( SetRoute route, _ ) ->
-            ( model, updateRoute route )
+            ( model, updateRoute model.navKey route )
 
         ( RouteChanged route, _ ) ->
             setRoute route model
@@ -62,7 +63,6 @@ update msg model =
                     , Nav.load href
                     )
 
-        -- Route.Groups
         ( GroupsMsg subMsg, Groups subModel ) ->
             requireSessionOrError
                 (\session ->
@@ -70,41 +70,20 @@ update msg model =
                         |> updateWith Groups GroupsMsg model
                 )
 
-        ( GroupsLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (Groups subModel) }, Cmd.none )
-
-        ( GroupsLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
-
-        -- Route.EditGroup
         ( EditGroupMsg subMsg, EditGroup subModel ) ->
             requireSessionOrError
                 (\session ->
-                    Pages.EditGroup.update subMsg subModel session.token
+                    Pages.GroupForm.update subMsg subModel session.token
                         |> updateWith EditGroup EditGroupMsg model
                 )
 
-        ( EditGroupLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (EditGroup subModel) }, Cmd.none )
-
-        ( EditGroupLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
-
-        -- Routes.CreateGroup
         ( CreateGroupMsg subMsg, CreateGroup subModel ) ->
             requireSessionOrError
                 (\session ->
-                    Pages.CreateGroup.update subMsg subModel session.token
+                    Pages.GroupForm.update subMsg subModel session.token
                         |> updateWith CreateGroup CreateGroupMsg model
                 )
 
-        ( CreateGroupLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (CreateGroup subModel) }, Cmd.none )
-
-        ( CreateGroupLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
-
-        -- Route.Batches
         ( BatchesMsg subMsg, Batches subModel ) ->
             requireSessionOrError
                 (\session ->
@@ -112,13 +91,6 @@ update msg model =
                         |> updateWith Batches BatchesMsg model
                 )
 
-        ( BatchesLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (Batches subModel) }, Cmd.none )
-
-        ( BatchesLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
-
-        -- Route.CreateBatch
         ( CreateBatchMsg subMsg, CreateBatch subModel ) ->
             requireSessionOrError
                 (\session ->
@@ -132,7 +104,7 @@ update msg model =
                 ( newSubModel, newSubMsg ) =
                     Pages.Login.update subMsg subModel
 
-                msg =
+                mappedMsg =
                     Cmd.map LoginMsg newSubMsg
 
                 session =
@@ -142,14 +114,14 @@ update msg model =
                 | pageState = Loaded (Login newSubModel)
                 , session = session
               }
-            , msg
+            , mappedMsg
             )
 
         ( LogoutRequest, _ ) ->
             ( { model | session = Nothing }
             , Cmd.batch
                 [ Port.removeStorage ()
-                , updateRoute Routes.Login
+                , updateRoute model.navKey Routes.Login
                 ]
             )
 
@@ -160,12 +132,6 @@ update msg model =
                     Pages.Users.update subMsg subModel session.token
                         |> updateWith Users UsersMsg model
                 )
-
-        ( UsersLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (Users subModel) }, Cmd.none )
-
-        ( UsersLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded Blank }, Cmd.none )
 
         -- Catch All for now
         ( _, _ ) ->

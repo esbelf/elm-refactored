@@ -18,7 +18,7 @@ fromString : String -> Float -> DecimalField
 fromString val fallback =
     let
         f =
-            Result.withDefault fallback (String.toFloat val)
+            Maybe.withDefault fallback (String.toFloat val)
 
         suffix =
             if String.endsWith "." val then

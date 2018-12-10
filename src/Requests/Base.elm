@@ -5,29 +5,28 @@ import Json.Decode as Decode
 import Task exposing (Task)
 
 
-type alias RequestConfig model =
-    { body : Http.Body
-    , expect : Http.Expect model
+type alias RequestConfig msg =
+    { method : String
     , headers : List Http.Header
-    , method : String
-    , timeout : Maybe Float
     , url : String
-    , withCredentials : Bool
+    , body : Http.Body
+    , expect : Http.Expect msg
+    , timeout : Maybe Float
+    , tracker : Maybe String
     }
 
 
-getFileToken : String -> Task Http.Error String
-getFileToken token =
+getFileToken : String -> (Result Http.Error String -> msg) -> Cmd msg
+getFileToken token callback =
     Http.request
-        { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-        , body = Http.emptyBody
-        , expect = Http.expectJson fileTokenDecoder
-        , method = "POST"
-        , timeout = Nothing
+        { method = "POST"
+        , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
         , url = fileTokenUrl
-        , withCredentials = False
+        , body = Http.emptyBody
+        , expect = Http.expectJson callback fileTokenDecoder
+        , timeout = Nothing
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
 fileTokenDecoder : Decode.Decoder String
@@ -43,11 +42,11 @@ dataDecoder innerDecoder =
 stringToInt : String -> Decode.Decoder Int
 stringToInt strNum =
     case String.toInt strNum of
-        Ok num ->
+        Just num ->
             Decode.succeed num
 
-        Err msg ->
-            Decode.fail msg
+        Nothing ->
+            Decode.fail ("Could not parse '" ++ strNum ++ "' into Integer.")
 
 
 fileTokenUrl : String
@@ -73,30 +72,14 @@ baseUrl =
 maybeErrorDesc : Http.Error -> Maybe String
 maybeErrorDesc error =
     case error of
-        BadStatus response ->
-            case Decode.decodeString messageDecoder response.body of
-                Ok message ->
-                    Just message
+        BadStatus code ->
+            Just <| "Got an Error response code: " ++ String.fromInt code
 
-                Err _ ->
-                    Nothing
+        BadBody body ->
+            Just ("Error parsing body: " ++ body)
 
         _ ->
             Nothing
-
-
-
--- Error decoding
-
-
-type alias Message =
-    { message : String
-    }
-
-
-messageDecoder : Decode.Decoder String
-messageDecoder =
-    Decode.field "message" Decode.string
 
 
 

@@ -1,5 +1,6 @@
 module Pages.CreateBatch exposing (Model, Msg(..), initNew, update, view)
 
+import Browser.Navigation as Nav
 import Html exposing (Attribute, Html, button, div, fieldset, input, li, span, text, ul)
 import Html.Attributes exposing (class, disabled, id, name, placeholder, tabindex, type_, value)
 import Html.Events exposing (onInput, onSubmit)
@@ -7,7 +8,6 @@ import Http
 import Json.Decode as JD
 import Models.Batch exposing (BatchForm)
 import Models.FileData exposing (FileData)
-import Navigation
 import Port
 import Requests.Base
 import Requests.Batch
@@ -26,6 +26,7 @@ type alias Form =
 type alias Model =
     { token : Token
     , status : Status
+    , navKey : Nav.Key
     }
 
 
@@ -72,10 +73,11 @@ emptyForm groupId =
     }
 
 
-initNew : Token -> Int -> Model
-initNew token groupId =
+initNew : Token -> Int -> Nav.Key -> Model
+initNew token groupId navKey =
     { token = token
     , status = EditingNew [] (emptyForm groupId)
+    , navKey = navKey
     }
 
 
@@ -89,7 +91,7 @@ type Msg
     | EnteredStartDate String
     | FileSelected
     | FileRead FileData
-    | CompletedCreate (Result Http.Error String)
+    | CompletedCreate (Result Http.Error ())
 
 
 update : Msg -> Model -> Token -> ( Model, Cmd Msg )
@@ -116,9 +118,9 @@ update msg model token =
                 )
                 model
 
-        CompletedCreate (Ok batch) ->
+        CompletedCreate (Ok ()) ->
             ( model
-            , Navigation.newUrl "/batches"
+            , Nav.replaceUrl model.navKey "/batches"
               -- Hack for now, pending routing upgrade
             )
 
@@ -154,7 +156,6 @@ save model =
                 Ok validForm ->
                     ( Creating form
                     , create validForm model.token
-                        |> Http.send CompletedCreate
                     )
 
                 Err problems ->
@@ -238,9 +239,9 @@ trimFields form =
 -- HTTP
 
 
-create : TrimmedForm -> Token -> Http.Request String
+create : TrimmedForm -> Token -> Cmd Msg
 create (Trimmed form) token =
-    Requests.Batch.create form token
+    Requests.Batch.create form token CompletedCreate
 
 
 

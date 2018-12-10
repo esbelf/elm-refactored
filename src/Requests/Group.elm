@@ -1,102 +1,99 @@
 module Requests.Group exposing (create, delete, duplicate, get, getAll, groupDecoder, groupEncoder, groupsDecoder, groupsUrl, previewUrl, update)
 
+-- import Requests.Product
+
+import Html.Attributes exposing (for)
 import Http
 import Json.Decode as Decode exposing (..)
-import Json.Decode.Pipeline exposing (custom, optional, optionalAt, required, requiredAt)
+import Json.Decode.Pipeline exposing (custom, hardcoded, optional, optionalAt, required, requiredAt)
 import Json.Encode as Encode
 import Models.Group exposing (FormType(..), Group, Logo(..), formTypeToString, stringToFormType)
 import Requests.Base exposing (..)
-import Requests.Product
 import Task exposing (Task)
 
 
-getAll : String -> Task Http.Error (List Group)
-getAll token =
+getAll : String -> (Result Http.Error (List Group) -> msg) -> Cmd msg
+getAll token callback =
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
         , body = Http.emptyBody
-        , expect = Http.expectJson (dataDecoder groupsDecoder)
+        , expect = Http.expectJson callback (dataDecoder groupsDecoder)
+        , url = groupsUrl
         , method = "GET"
         , timeout = Nothing
-        , url = groupsUrl
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
-get : Int -> String -> Task Http.Error Group
-get groupId token =
+get : Int -> String -> (Result Http.Error Group -> msg) -> Cmd msg
+get groupId token callback =
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
         , body = Http.emptyBody
-        , expect = Http.expectJson (dataDecoder groupDecoder)
+        , expect = Http.expectJson callback (dataDecoder groupDecoder)
         , method = "GET"
         , timeout = Nothing
         , url = groupUrl (Just groupId)
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
-update : Group -> String -> Task Http.Error Group
+update : Group -> String -> (Result Http.Error Group -> msg) -> Cmd msg
 update =
     createOrUpdate
 
 
-create : Group -> String -> Task Http.Error Group
+create : Group -> String -> (Result Http.Error Group -> msg) -> Cmd msg
 create =
     createOrUpdate
 
 
-createOrUpdate : Group -> String -> Task Http.Error Group
-createOrUpdate group token =
-    saveConfig group token
+createOrUpdate : Group -> String -> (Result Http.Error Group -> msg) -> Cmd msg
+createOrUpdate group token callback =
+    saveConfig group token callback
         |> Http.request
-        |> Http.toTask
 
 
-saveConfig : Group -> String -> RequestConfig Group
-saveConfig group token =
+saveConfig : Group -> String -> (Result Http.Error Group -> msg) -> RequestConfig msg
+saveConfig group token callback =
     { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
     , body = groupJsonBody group
-    , expect = Http.expectJson (dataDecoder groupDecoder)
+    , expect = Http.expectJson callback (dataDecoder groupDecoder)
     , method = groupMethod group.id
     , timeout = Nothing
     , url = groupUrl group.id
-    , withCredentials = False
+    , tracker = Nothing
     }
 
 
-delete : Int -> String -> Task Http.Error String
-delete groupId token =
+delete : Int -> String -> (Result Http.Error String -> msg) -> Cmd msg
+delete groupId token callback =
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-        , expect = Http.expectString
+        , expect = Http.expectString callback
         , body = Http.emptyBody
         , method = "DELETE"
         , timeout = Nothing
         , url = groupUrl (Just groupId)
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
-duplicate : Int -> String -> Task Http.Error Group
-duplicate groupId token =
+duplicate : Int -> String -> (Result Http.Error Group -> msg) -> Cmd msg
+duplicate groupId token callback =
     let
         duplicateUrl =
             groupUrl (Just groupId) ++ "/duplicate"
     in
     Http.request
         { headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-        , expect = Http.expectJson (dataDecoder groupDecoder)
+        , expect = Http.expectJson callback (dataDecoder groupDecoder)
         , body = Http.emptyBody
         , method = "POST"
         , timeout = Nothing
         , url = duplicateUrl
-        , withCredentials = False
+        , tracker = Nothing
         }
-        |> Http.toTask
 
 
 previewUrl : Maybe Int -> String -> String
@@ -132,7 +129,8 @@ groupEncoder group =
                    , ( "form_type", (formTypeToString >> Encode.string) group.form_type )
                    , ( "employee_contribution", Encode.string group.employee_contribution )
                    , ( "payment_mode", Encode.int group.payment_mode )
-                   , ( "product_pricing", Requests.Product.encode group.products )
+
+                   -- , ( "product_pricing", Requests.Product.encode group.products )
                    ]
                 ++ logoAttrs
     in
@@ -144,12 +142,12 @@ groupJsonBody =
     groupEncoder >> Http.jsonBody
 
 
-groupsDecoder : Decode.Decoder (List Group)
+groupsDecoder : Decoder (List Group)
 groupsDecoder =
     Decode.list groupDecoder
 
 
-groupDecoder : Decode.Decoder Group
+groupDecoder : Decoder Group
 groupDecoder =
     Decode.succeed Group
         -- require groups coming from JSON to have ids defined.
@@ -159,7 +157,8 @@ groupDecoder =
         |> optionalAt [ "attributes", "form_type" ] parseFormType Life
         |> optionalAt [ "attributes", "employee_contribution" ] Decode.string ""
         |> optionalAt [ "attributes", "payment_mode" ] Decode.int 12
-        |> optionalAt [ "attributes", "product_pricing", "products" ] Requests.Product.productsDecoder []
+        -- |> optionalAt [ "attributes", "product_pricing", "products" ] Requests.Product.productsDecoder []
+        |> hardcoded []
         |> optionalAt [ "attributes", "logo_url" ] logoUrlDecoder EmptyLogo
 
 
@@ -210,7 +209,7 @@ import Json.Decode exposing (..)
 -}
 parseInt : Decode.Decoder Int
 parseInt =
-    Decode.string |> Decode.andThen (String.toInt >> fromResult)
+    Decode.string |> Decode.andThen (String.toInt >> fromMaybe)
 
 
 flexibleInt : Decode.Decoder Int
@@ -226,6 +225,16 @@ fromResult result =
 
         Err errorMessage ->
             Decode.fail errorMessage
+
+
+fromMaybe : Maybe a -> Decode.Decoder a
+fromMaybe maybeValue =
+    case maybeValue of
+        Just value ->
+            Decode.succeed value
+
+        Nothing ->
+            Decode.fail "Got Nothing"
 
 
 parseFormType : Decode.Decoder FormType
